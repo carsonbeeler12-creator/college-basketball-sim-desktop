@@ -22,9 +22,19 @@ jobs:
       - name: Install dependencies
         run: npm ci
 
-      - name: Build Windows zip
+      - name: Build TypeScript and Vite
         shell: pwsh
-        run: .\build-and-zip.ps1 -Platform win
+        run: |
+          npm run build:quick
+
+      - name: Create Windows zip
+        shell: pwsh
+        run: |
+          $packageJson = Get-Content "package.json" | ConvertFrom-Json
+          $version = $packageJson.version
+          $sourcePath = "release\$version\win-unpacked\*"
+          $zipPath = "release\College-Basketball-Dynasty-$version-Windows.zip"
+          Compress-Archive -Path $sourcePath -DestinationPath $zipPath -Force
 
       - name: Upload Windows zip artifact
         uses: actions/upload-artifact@v4
