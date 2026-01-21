@@ -3,6 +3,8 @@
   "private": true,
   "version": "0.9.5-beta",
   "type": "module",
+  "description": "College Basketball Dynasty Simulator",
+  "author": "carsonbeeler12-creator",
   "scripts": {
     "dev": "vite",
     "dev:electron": "set NODE_ENV=development && electron .",
