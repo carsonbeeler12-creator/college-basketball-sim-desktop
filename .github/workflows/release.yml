@@ -83,10 +83,24 @@ jobs:
   publish-itch:
     needs: [build-windows, build-linux]
     runs-on: ubuntu-latest
+    if: github.event_name == 'workflow_dispatch' || startsWith(github.ref, 'refs/tags/')
     env:
       BUTLER_API_KEY: ${{ secrets.BUTLER_API_KEY }}
       ITCH_TARGET: ${{ secrets.ITCH_TARGET }}
     steps:
+      - name: Check secrets
+        run: |
+          if [ -z "$BUTLER_API_KEY" ]; then
+            echo "Error: BUTLER_API_KEY secret is not set"
+            exit 1
+          fi
+          if [ -z "$ITCH_TARGET" ]; then
+            echo "Error: ITCH_TARGET secret is not set"
+            exit 1
+          fi
+          echo "Secrets are configured"
+          echo "ITCH_TARGET: $ITCH_TARGET"
+
       - name: Download Windows zip
         uses: actions/download-artifact@v4
         with:
@@ -101,17 +115,26 @@ jobs:
 
       - name: Install Butler CLI
         run: |
-          curl -L -o butler.tar.gz https://broth.itch.zone/butler/linux-amd64/head/archive/default
-          mkdir -p $HOME/bin
-          tar -xzf butler.tar.gz -C $HOME/bin
-          echo "$HOME/bin" >> $GITHUB_PATH
+          curl -L -o butler.zip https://broth.itch.zone/butler/linux-amd64/LATEST/archive/default
+          unzip butler.zip
+          chmod +x butler
+          ./butler -V
+
+      - name: Authenticate Butler
+        run: |
+          ./butler login
+          ./butler status
 
       - name: Publish to itch (Windows)
         run: |
           ls -la dist-release/windows
-          butler push "$(ls dist-release/windows/*-Windows.zip | head -n 1)" "$ITCH_TARGET:windows"
+          WIN_FILE=$(ls dist-release/windows/*-Windows.zip | head -n 1)
+          echo "Uploading: $WIN_FILE to $ITCH_TARGET:windows"
+          ./butler push "$WIN_FILE" "$ITCH_TARGET:windows" --userversion-file dist-release/windows/version.txt || ./butler push "$WIN_FILE" "$ITCH_TARGET:windows"
 
       - name: Publish to itch (Linux)
         run: |
           ls -la dist-release/linux
-          butler push "$(ls dist-release/linux/*.tar.gz | head -n 1)" "$ITCH_TARGET:linux"
+          LINUX_FILE=$(ls dist-release/linux/*.tar.gz | head -n 1)
+          echo "Uploading: $LINUX_FILE to $ITCH_TARGET:linux"
+          ./butler push "$LINUX_FILE" "$ITCH_TARGET:linux" --userversion-file dist-release/linux/version.txt || ./butler push "$LINUX_FILE" "$ITCH_TARGET:linux"
