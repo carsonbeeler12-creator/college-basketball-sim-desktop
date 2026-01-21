@@ -1,0 +1,349 @@
+id,name,city,state,nickname,prestige,conferenceId
+durme,Durham Metropolitan,Durham,NC,Demons,92,acc
+carun,Carolina University,Chapel Hill,NC,Carolina Blue,94,acc
+chaco,Charlottesville College,Charlottesville,VA,Cavs,88,acc
+loume,Louisville Metropolitan,Louisville,KY,Redbirds,72,acc
+syrst,Syracuse State,Syracuse,NY,Citrus,70,acc
+ralin,Raleigh Institute,Raleigh,NC,Panthers,75,acc
+talin,Tallahassee Institute,Tallahassee,FL,Warriors,76,acc
+corga,Coral Gables State,Coral Gables,FL,Storm,78,acc
+soube,South Bend Tech,South Bend,IN,Shamrocks,71,acc
+cleme,Clemson Metropolitan,Clemson,SC,Panthers,74,acc
+winco,Winston-Salem College,Winston-Salem,NC,Deacons,65,acc
+blaco,Blacksburg College,Blacksburg,VA,Techies,68,acc
+pitun,Pittsburgh University,Pittsburgh,PA,Wildcats,66,acc
+atlun,Atlanta University,Atlanta,GA,Bees,62,acc
+chehi,Chestnut Hill Metropolitan,Chestnut Hill,MA,Falcons,58,acc
+ingst,Ingham State,East Lansing,MI,Warriors,87,big-ten
+wasun,Washtenaw University,Ann Arbor,MI,Wolves,82,big-ten
+monun,Monroe University,Bloomington,IN,Hoosiers,72,big-ten
+lafte,West Lafayette Tech,West Lafayette,IN,Engineers,88,big-ten
+colte,Columbus Tech,Columbus,OH,Bucks,79,big-ten
+madun,Madison University,Madison,WI,Badgers,77,big-ten
+prige,Prince George's University,College Park,MD,Bears,74,big-ten
+iowci,Iowa City College,Iowa City,IA,Eagles,73,big-ten
+chaco1,Champaign College,Champaign,IL,Panthers,75,big-ten
+minco,Minneapolis College,Minneapolis,MN,Tigers,64,big-ten
+evain,Evanston Institute,Evanston,IL,Cougars,66,big-ten
+cenun,Centre University,State College,PA,Wildcats,63,big-ten
+linin,Lincoln Institute,Lincoln,NE,Lions,60,big-ten
+pisun,Piscataway University,Piscataway,NJ,Lions,64,big-ten
+lexst,Lexington State,Lexington,KY,Cougars,90,sec
+gaico,Gainesville College,Gainesville,FL,Swampers,78,sec
+knoun,Knoxville University,Knoxville,TN,Vols,82,sec
+aubin,Auburn Institute,Auburn,AL,Panthers,81,sec
+tusco,Tuscaloosa College,Tuscaloosa,AL,Crimson,82,sec
+fayco,Fayetteville College,Fayetteville,AR,Hogs,79,sec
+batro,Baton Rouge Institute,Baton Rouge,LA,Panthers,74,sec
+brast,Brazos State,College Station,TX,Farmers,71,sec
+colte1,Columbia Tech,Columbia,MO,Panthers,68,sec
+athin,Athens Institute,Athens,GA,Dogs,63,sec
+state,Starkville Tech,Starkville,MS,Dogs,66,sec
+colte2,Columbia Tech,Columbia,SC,Roosters,75,sec
+naste,Nashville Tech,Nashville,TN,Admirals,62,sec
+oxfst,Oxford State,Oxford,MS,Raiders,61,sec
+lawun,Lawrence University,Lawrence,KS,Hawks,93,big-12
+wacst,Waco State,Waco,TX,Bruins,88,big-12
+lubin,Lubbock Institute,Lubbock,TX,Raiders,79,big-12
+norun,Norman University,Norman,OK,Boomers,75,big-12
+morte,Morgantown Tech,Morgantown,WV,Mountains,76,big-12
+amete,Ames Tech,Ames,IA,Tornadoes,77,big-12
+ausin,Austin Institute,Austin,TX,Horns,74,big-12
+stite,Stillwater Tech,Stillwater,OK,Riders,70,big-12
+forwo,Fort Worth Metropolitan,Fort Worth,TX,Frogs,71,big-12
+manme,Manhattan Metropolitan,Manhattan,KS,Cougars,73,big-12
+losan,Los Angeles Tech,Los Angeles,CA,Bears,86,pac-12
+tucun,Tucson University,Tucson,AZ,Cougars,88,pac-12
+eugte,Eugene Tech,Eugene,OR,Webfoots,80,pac-12
+losan1,Los Angeles Tech,Los Angeles,CA,Warriors,77,pac-12
+palal,Palo Alto Institute,Palo Alto,CA,Red,68,pac-12
+boust,Boulder State,Boulder,CO,Buffs,71,pac-12
+salla,Salt Lake City State,Salt Lake City,UT,Red,69,pac-12
+seaun,Seattle University,Seattle,WA,Dogs,65,pac-12
+temin,Tempe Institute,Tempe,AZ,Devils,68,pac-12
+corco,Corvallis College,Corvallis,OR,Dam Builders,67,pac-12
+berme,Berkeley Metropolitan,Berkeley,CA,Bears,58,pac-12
+pulte,Pullman Tech,Pullman,WA,Wildcats,64,pac-12
+vilin,Villanova Institute,Villanova,PA,Cougars,94,big-east
+stoin,Storrs Institute,Storrs,CT,Dogs,96,big-east
+milme,Milwaukee Metropolitan,Milwaukee,WI,Panthers,80,big-east
+omaun,Omaha University,Omaha,NE,Lions,78,big-east
+cinin,Cincinnati Institute,Cincinnati,OH,Wolves,76,big-east
+souor,South Orange Institute,South Orange,NJ,Raiders,72,big-east
+proun,Providence University,Providence,RI,Monks,73,big-east
+indst,Indianapolis State,Indianapolis,IN,Dogs,70,big-east
+quete,Queens Tech,Queens,NY,Storm,64,big-east
+wasst,Washington State,Washington,DC,Bears,62,big-east
+chime,Chicago Metropolitan,Chicago,IL,Demons,58,big-east
+houst,Houston State,Houston,TX,Wildcats,87,aac
+cinin1,Cincinnati Institute,Cincinnati,OH,Cats,73,aac
+memun,Memphis University,Memphis,TN,Panthers,72,aac
+wicco,Wichita College,Wichita,KS,Shakers,74,aac
+phime,Philadelphia Metropolitan,Philadelphia,PA,Hooters,68,aac
+dalme,Dallas Metropolitan,Dallas,TX,Stallions,64,aac
+orlme,Orlando Metropolitan,Orlando,FL,Swords,63,aac
+newor,New Orleans Institute,New Orleans,LA,Waves,58,aac
+grete,Greenville Tech,Greenville,NC,Raiders,56,aac
+tulin,Tulsa Institute,Tulsa,OK,Bears,62,aac
+tamin,Tampa Institute,Tampa,FL,Horns,59,aac
+sandi,San Diego Metropolitan,San Diego,CA,Warriors,82,mwc
+renme,Reno Metropolitan,Reno,NV,Wolves,71,mwc
+boiin,Boise Institute,Boise,ID,Stallions,68,mwc
+lasve,Las Vegas State,Las Vegas,NV,Runners,67,mwc
+logte,Logan Tech,Logan,UT,Farmers,66,mwc
+forco,Fort Collins College,Fort Collins,CO,Sheep,63,mwc
+albco,Albuquerque College,Albuquerque,NM,Wolves,62,mwc
+freco,Fresno College,Fresno,CA,Dogs,59,mwc
+larin,Laramie Institute,Laramie,WY,Riders,58,mwc
+sanjo,San Jose State,San Jose,CA,Warriors,52,mwc
+colsp,Colorado Springs Institute,Colorado Springs,CO,Panthers,51,mwc
+dayme,Dayton Metropolitan,Dayton,OH,Flyers,77,a10
+ricun,Richmond University,Richmond,VA,Sheep,72,a10
+davco,Davidson College,Davidson,NC,Cougars,69,a10
+stlo,St. Louis Metropolitan,St. Louis,MO,Bears,67,a10
+kinin,Kingston Institute,Kingston,RI,Sheep,65,a10
+ricun1,Richmond University,Richmond,VA,Webs,64,a10
+stbo,St. Bonaventure Metropolitan,St. Bonaventure,NY,Bonnies,63,a10
+faiin,Fairfax Institute,Fairfax,VA,Patriots,62,a10
+pitun1,Pittsburgh University,Pittsburgh,PA,Dukes,59,a10
+amhun,Amherst University,Amherst,MA,Minutemen,58,a10
+broin,Bronx Institute,Bronx,NY,Sheep,57,a10
+wasst1,Washington State,Washington,DC,Colonials,56,a10
+phime1,Philadelphia Metropolitan,Philadelphia,PA,Explorers,55,a10
+phime2,Philadelphia Metropolitan,Philadelphia,PA,Hawks,54,a10
+spoun,Spokane University,Spokane,WA,Dogs,95,wcc
+morin,Moraga Institute,Moraga,CA,Highlanders,75,wcc
+prost,Provo State,Provo,UT,Wildcats,73,wcc
+sanfr,San Francisco University,San Francisco,CA,Dons,66,wcc
+losan2,Los Angeles Tech,Los Angeles,CA,Lions,62,wcc
+malin,Malibu Institute,Malibu,CA,Waves,60,wcc
+sancl,Santa Clara College,Santa Clara,CA,Stallions,59,wcc
+porco,Portland College,Portland,OR,Aviators,55,wcc
+stost,Stockton State,Stockton,CA,Panthers,53,wcc
+sandi1,San Diego Metropolitan,San Diego,CA,Matadors,52,wcc
+bufst,Buffalo State,Buffalo,NY,Horns,65,mac
+akrco,Akron College,Akron,OH,Wolves,62,mac
+kenst,Kent State,Kent,OH,Eagles,61,mac
+athin1,Athens Institute,Athens,OH,Wildcats,60,mac
+tolun,Toledo University,Toledo,OH,Tigers,59,mac
+munin,Muncie Institute,Muncie,IN,Redbirds,57,mac
+bowgr,Bowling Green State,Bowling Green,OH,Eagles,56,mac
+ypsme,Ypsilanti Metropolitan,Ypsilanti,MI,Falcons,55,mac
+oxfst1,Oxford State,Oxford,OH,Lions,54,mac
+kalun,Kalamazoo University,Kalamazoo,MI,Stallions,53,mac
+dekme,DeKalb Metropolitan,DeKalb,IL,Dogs,52,mac
+moupl,Mount Pleasant State,Mount Pleasant,MI,Hawks,51,mac
+bowgr1,Bowling Green State,Bowling Green,KY,Wolves,67,cusa
+rusco,Ruston College,Ruston,LA,Dogs,63,cusa
+elpa,El Paso College,El Paso,TX,Tigers,61,cusa
+murin,Murfreesboro Institute,Murfreesboro,TN,Eagles,60,cusa
+norst,Norfolk State,Norfolk,VA,Hawks,59,cusa
+birco,Birmingham College,Birmingham,AL,Eagles,58,cusa
+sanan,San Antonio College,San Antonio,TX,Hawks,55,cusa
+denme,Denton Metropolitan,Denton,TX,Hawks,54,cusa
+bocra,Boca Raton College,Boca Raton,FL,Hooters,53,cusa
+houst1,Houston State,Houston,TX,Hooters,52,cusa
+chaco2,Charlotte College,Charlotte,NC,Wildcats,51,cusa
+miaco,Miami College,Miami,FL,Wildcats,50,cusa
+atlun1,Atlanta University,Atlanta,GA,Wildcats,61,sun-belt
+lafst,Lafayette State,Lafayette,LA,Eagles,60,sun-belt
+arlme,Arlington Metropolitan,Arlington,TX,Panthers,58,sun-belt
+sanma,San Marcos Tech,San Marcos,TX,Panthers,57,sun-belt
+mobin,Mobile Institute,Mobile,AL,Bears,56,sun-belt
+jonin,Jonesboro Institute,Jonesboro,AR,Bears,55,sun-belt
+booin,Boone Institute,Boone,NC,Mountains,54,sun-belt
+const,Conway State,Conway,SC,Lions,53,sun-belt
+state1,Statesboro Tech,Statesboro,GA,Falcons,52,sun-belt
+monin,Monroe Institute,Monroe,LA,Wolves,51,sun-belt
+troco,Troy College,Troy,AL,Warriors,50,sun-belt
+litro,Little Rock Tech,Little Rock,AR,Warriors,49,sun-belt
+camco,Cambridge College,Cambridge,MA,Panthers,71,ivy
+priin,Princeton Institute,Princeton,NJ,Panthers,70,ivy
+newha,New Haven Tech,New Haven,CT,Dogs,69,ivy
+phime3,Philadelphia Metropolitan,Philadelphia,PA,Lions,67,ivy
+ithst,Ithaca State,Ithaca,NY,Wildcats,65,ivy
+hanst,Hanover State,Hanover,NH,Eagles,63,ivy
+proun1,Providence University,Providence,RI,Bruins,62,ivy
+newyo,New York Metropolitan,New York,NY,Lions,61,ivy
+hamme,Hamilton Metropolitan,Hamilton,NY,Lions,66,patriot
+lewst,Lewisburg State,Lewisburg,PA,Eagles,64,patriot
+bette,Bethlehem Tech,Bethlehem,PA,Wildcats,63,patriot
+wespo,West Point State,West Point,NY,Bears,62,patriot
+annme,Annapolis Metropolitan,Annapolis,MD,Tigers,61,patriot
+easte,Easton Tech,Easton,PA,Wolves,60,patriot
+wasst2,Washington State,Washington,DC,Falcons,59,patriot
+bosun,Boston University,Boston,MA,Panthers,58,patriot
+balte,Baltimore Tech,Baltimore,MD,Bears,57,patriot
+worun,Worcester University,Worcester,MA,Wildcats,56,patriot
+dayme1,Dayton Metropolitan,Dayton,OH,Tigers,63,horizon
+highe,Highland Heights College,Highland Heights,KY,Wolves,62,horizon
+rocst,Rochester State,Rochester,MI,Panthers,61,horizon
+dette,Detroit Tech,Detroit,MI,Panthers,59,horizon
+greba,Green Bay Metropolitan,Green Bay,WI,Hawks,58,horizon
+milme1,Milwaukee Metropolitan,Milwaukee,WI,Wildcats,57,horizon
+cleco,Cleveland College,Cleveland,OH,Panthers,56,horizon
+youte,Youngstown Tech,Youngstown,OH,Eagles,55,horizon
+chime1,Chicago Metropolitan,Chicago,IL,Eagles,54,horizon
+indst1,Indianapolis State,Indianapolis,IN,Wildcats,53,horizon
+mooto,Moon Township University,Moon Township,PA,Colonials,52,horizon
+chime2,Chicago Metropolitan,Chicago,IL,Tigers,73,mvc
+desmo,Des Moines University,Des Moines,IA,Dogs,68,mvc
+peome,Peoria Metropolitan,Peoria,IL,Hawks,66,mvc
+terha,Terre Haute Institute,Terre Haute,IN,Wolves,64,mvc
+sprco,Springfield College,Springfield,MO,Bruins,63,mvc
+valun,Valparaiso University,Valparaiso,IN,Wolves,62,mvc
+cedfa,Cedar Falls University,Cedar Falls,IA,Wildcats,61,mvc
+norun1,Normal University,Normal,IL,Hawks,60,mvc
+carin,Carbondale Institute,Carbondale,IL,Panthers,59,mvc
+evast,Evansville State,Evansville,IN,Wildcats,58,mvc
+brote,Brookings Tech,Brookings,SD,Wolves,66,summit
+tulin1,Tulsa Institute,Tulsa,OK,Eagles,64,summit
+farte,Fargo Tech,Fargo,ND,Tigers,62,summit
+denme1,Denver Metropolitan,Denver,CO,Bears,60,summit
+omaun1,Omaha University,Omaha,NE,Wildcats,58,summit
+verun,Vermillion University,Vermillion,SD,Wolves,57,summit
+forwa,Fort Wayne Metropolitan,Fort Wayne,IN,Lions,56,summit
+macin,Macomb Institute,Macomb,IL,Eagles,55,summit
+grafo,Grand Forks College,Grand Forks,ND,Wolves,54,summit
+phote,Phoenix Tech,Phoenix,AZ,Eagles,65,wac
+lascr,Las Cruces Metropolitan,Las Cruces,NM,Farmers,63,wac
+orein,Orem Institute,Orem,UT,Wolves,61,wac
+seaun1,Seattle University,Seattle,WA,Tigers,59,wac
+rivst,Riverside State,Riverside,CA,Eagles,57,wac
+stein,Stephenville Institute,Stephenville,TX,Eagles,56,wac
+ediin,Edinburg Institute,Edinburg,TX,Wolves,55,wac
+stge,St. George Tech,St. George,UT,Lions,54,wac
+chime3,Chicago Metropolitan,Chicago,IL,Wildcats,48,wac
+cedci,Cedar City Institute,Cedar City,UT,Lions,53,wac
+abiun,Abilene University,Abilene,TX,Cougars,56,wac
+hunco,Huntsville College,Huntsville,TX,Wildcats,58,wac
+misst,Missoula State,Missoula,MT,Hawks,66,big-sky
+ogdun,Ogden University,Ogden,UT,Cougars,65,big-sky
+chest,Cheney State,Cheney,WA,Falcons,63,big-sky
+greun,Greeley University,Greeley,CO,Bruins,61,big-sky
+bozst,Bozeman State,Bozeman,MT,Eagles,60,big-sky
+porco1,Portland College,Portland,OR,Lions,58,big-sky
+pocin,Pocatello Institute,Pocatello,ID,Lions,57,big-sky
+sacte,Sacramento Tech,Sacramento,CA,Panthers,56,big-sky
+mosin,Moscow Institute,Moscow,ID,Bears,55,big-sky
+flast,Flagstaff State,Flagstaff,AZ,Eagles,54,big-sky
+mosin1,Moscow Institute,Moscow,ID,Bears,55,big-sky
+flast1,Flagstaff State,Flagstaff,AZ,Eagles,54,big-sky
+sanba,Santa Barbara University,Santa Barbara,CA,Panthers,67,big-west
+irvst,Irvine State,Irvine,CA,Panthers,65,big-west
+lonbe,Long Beach Metropolitan,Long Beach,CA,Eagles,63,big-west
+honme,Honolulu Metropolitan,Honolulu,HI,Wildcats,62,big-west
+fulst,Fullerton State,Fullerton,CA,Bears,60,big-west
+davst,Davis State,Davis,CA,Farmers,59,big-west
+sanlu,San Luis Obispo Metropolitan,San Luis Obispo,CA,Stallions,57,big-west
+rivst1,Riverside State,Riverside,CA,Wolves,56,big-west
+norco,Northridge College,Northridge,CA,Hawks,55,big-west
+lajo,La Jolla University,La Jolla,CA,Tigers,54,big-west
+murin1,Murray Institute,Murray,KY,Tigers,68,ovc
+naste1,Nashville Tech,Nashville,TN,Bears,67,ovc
+claun,Clarksville University,Clarksville,TN,Bears,62,ovc
+chain,Charleston Institute,Charleston,IL,Wildcats,58,ovc
+cooin,Cookeville Institute,Cookeville,TN,Wildcats,57,ovc
+morst,Morehead State,Morehead,KY,Falcons,56,ovc
+jacme,Jacksonville Metropolitan,Jacksonville,AL,Roosters,55,ovc
+naste2,Nashville Tech,Nashville,TN,Panthers,54,ovc
+capgi,Cape Girardeau Tech,Cape Girardeau,MO,Tigers,53,ovc
+ricun2,Richmond University,Richmond,KY,Panthers,52,ovc
+edwte,Edwardsville Tech,Edwardsville,IL,Wildcats,51,ovc
+marin,Martin Institute,Martin,TN,Wolves,50,ovc
+spaco,Spartanburg College,Spartanburg,SC,Tigers,66,socon
+grete1,Greensboro Tech,Greensboro,NC,Warriors,64,socon
+grete2,Greenville Tech,Greenville,SC,Lions,63,socon
+johci,Johnson City Metropolitan,Johnson City,TN,Bears,62,socon
+chaun,Chattanooga University,Chattanooga,TN,Lions,61,socon
+macco,Macon College,Macon,GA,Bruins,60,socon
+culco,Cullowhee College,Cullowhee,NC,Wolves,58,socon
+birco1,Birmingham College,Birmingham,AL,Dogs,57,socon
+chain1,Charleston Institute,Charleston,SC,Dogs,54,socon
+lexst1,Lexington State,Lexington,VA,Tigers,53,socon
+nacin,Nacogdoches Institute,Nacogdoches,TX,Eagles,66,southland
+thite,Thibodaux Tech,Thibodaux,LA,Bears,60,southland
+abiun1,Abilene University,Abilene,TX,Cougars,59,southland
+hamst,Hammond State,Hammond,LA,Lions,57,southland
+corch,Corpus Christi Tech,Corpus Christi,TX,Bears,56,southland
+lakch,Lake Charles College,Lake Charles,LA,Riders,55,southland
+newor1,New Orleans Institute,New Orleans,LA,Wildcats,54,southland
+beame,Beaumont Metropolitan,Beaumont,TX,Redbirds,53,southland
+natun,Natchitoches University,Natchitoches,LA,Bears,52,southland
+houst2,Houston State,Houston,TX,Dogs,51,southland
+const1,Conway State,Conway,AR,Bruins,50,southland
+sanan1,San Antonio College,San Antonio,TX,Redbirds,49,southland
+stais,Staten Island University,Staten Island,NY,Tigers,62,nec
+smite,Smithfield Tech,Smithfield,RI,Dogs,60,nec
+noran,North Andover State,North Andover,MA,Hawks,58,nec
+emmst,Emmitsburg State,Emmitsburg,MD,Mountains,57,nec
+brome,Brooklyn Metropolitan,Brooklyn,NY,Panthers,56,nec
+brome1,Brooklyn Metropolitan,Brooklyn,NY,Wildcats,55,nec
+faist,Fairfield State,Fairfield,CT,Hawks,54,nec
+newbr,New Britain Institute,New Britain,CT,Demons,53,nec
+teast,Teaneck State,Teaneck,NJ,Swords,52,nec
+lorin,Loretto Institute,Loretto,PA,Wolves,51,nec
+rochi,Rock Hill State,Rock Hill,SC,Falcons,64,big-south
+radin,Radford Institute,Radford,VA,Wolves,61,big-south
+buicr,Buies Creek Institute,Buies Creek,NC,Eagles,59,big-south
+boisp,Boiling Springs Tech,Boiling Springs,NC,Panthers,58,big-south
+ashme,Asheville Metropolitan,Asheville,NC,Dogs,57,big-south
+chain2,Charleston Institute,Charleston,SC,Wolves,56,big-south
+higpo,High Point College,High Point,NC,Wildcats,55,big-south
+clime,Clinton Metropolitan,Clinton,SC,Bears,54,big-south
+farst,Farmville State,Farmville,VA,Wolves,53,big-south
+spaco1,Spartanburg College,Spartanburg,SC,Warriors,52,big-south
+norst1,Norfolk State,Norfolk,VA,Warriors,62,meac
+durme1,Durham Metropolitan,Durham,NC,Falcons,60,meac
+balte1,Baltimore Tech,Baltimore,MD,Bruins,58,meac
+wasst3,Washington State,Washington,DC,Bears,57,meac
+daybe,Daytona Beach Tech,Daytona Beach,FL,Cougars,56,meac
+grete3,Greensboro Tech,Greensboro,NC,Farmers,55,meac
+dovst,Dover State,Dover,DE,Tigers,54,meac
+orain,Orangeburg Institute,Orangeburg,SC,Dogs,53,meac
+balte2,Baltimore Tech,Baltimore,MD,Falcons,52,meac
+prian,Princess Anne Tech,Princess Anne,MD,Hawks,51,meac
+talin1,Tallahassee Institute,Tallahassee,FL,Bears,50,meac
+houst3,Houston State,Houston,TX,Panthers,61,swac
+pravi,Prairie View Metropolitan,Prairie View,TX,Wildcats,59,swac
+grame,Grambling Metropolitan,Grambling,LA,Panthers,57,swac
+batro1,Baton Rouge Institute,Baton Rouge,LA,Eagles,56,swac
+monte,Montgomery Tech,Montgomery,AL,Bears,55,swac
+jacte,Jackson Tech,Jackson,MS,Panthers,54,swac
+lorco,Lorman College,Lorman,MS,Panthers,53,swac
+pinbl,Pine Bluff University,Pine Bluff,AR,Bears,52,swac
+ittbe,Itta Bena College,Itta Bena,MS,Wolves,51,swac
+norun2,Normal University,Normal,AL,Dogs,50,swac
+daybe1,Daytona Beach Tech,Daytona Beach,FL,Cougars,49,swac
+burco,Burlington College,Burlington,VT,Bears,68,america-east
+stobr,Stony Brook College,Stony Brook,NY,Bears,63,america-east
+balte3,Baltimore Tech,Baltimore,MD,Bears,61,america-east
+albin,Albany Institute,Albany,NY,Bears,59,america-east
+durme2,Durham Metropolitan,Durham,NH,Cougars,57,america-east
+wesha,West Hartford College,West Hartford,CT,Hawks,56,america-east
+vesme,Vestal Metropolitan,Vestal,NY,Cats,55,america-east
+oroun,Orono University,Orono,ME,Panthers,54,america-east
+lowco,Lowell College,Lowell,MA,Lions,53,america-east
+lynst,Lynchburg State,Lynchburg,VA,Panthers,67,asun
+naste3,Nashville Tech,Nashville,TN,Bears,63,asun
+formy,Fort Myers Metropolitan,Fort Myers,FL,Falcons,62,asun
+jacme1,Jacksonville Metropolitan,Jacksonville,FL,Eagles,59,asun
+jacme2,Jacksonville Metropolitan,Jacksonville,FL,Panthers,58,asun
+kenin,Kennesaw Institute,Kennesaw,GA,Hooters,57,asun
+delme,DeLand Metropolitan,DeLand,FL,Tigers,56,asun
+loume1,Louisville Metropolitan,Louisville,KY,Swords,55,asun
+const2,Conway State,Conway,AR,Bruins,54,asun
+ricun3,Richmond University,Richmond,KY,Panthers,53,asun
+floun,Florence University,Florence,AL,Lions,52,asun
+chaco3,Charlotte College,Charlotte,NC,Eagles,51,asun
+newro,New Rochelle University,New Rochelle,NY,Highlanders,68,maac
+lawin,Lawrenceville Institute,Lawrenceville,NJ,Panthers,63,maac
+weslo,West Long Branch State,West Long Branch,NJ,Hawks,62,maac
+bufst1,Buffalo State,Buffalo,NY,Eagles,60,maac
+loute,Loudonville Tech,Loudonville,NY,Panthers,59,maac
+rivst2,Riverdale State,Riverdale,NY,Eagles,58,maac
+hamun,Hamden University,Hamden,CT,Lions,57,maac
+poume,Poughkeepsie Metropolitan,Poughkeepsie,NY,Eagles,56,maac
+faist1,Fairfield State,Fairfield,CT,Tigers,55,maac
+lewun,Lewiston University,Lewiston,NY,Eagles,54,maac
+jerci,Jersey City State,Jersey City,NJ,Panthers,53,maac
