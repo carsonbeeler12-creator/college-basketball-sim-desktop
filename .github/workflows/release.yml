@@ -78,7 +78,7 @@ jobs:
         uses: actions/upload-artifact@v4
         with:
           name: linux-appimage
-          path: release/**/*.AppImage
+          path: release/**/*.tar.gz
 
   publish-itch:
     needs: [build-windows, build-linux]
@@ -114,4 +114,4 @@ jobs:
       - name: Publish to itch (Linux)
         run: |
           ls -la dist-release/linux
-          butler push "$(ls dist-release/linux/*.AppImage | head -n 1)" "$ITCH_TARGET:linux"
+          butler push "$(ls dist-release/linux/*.tar.gz | head -n 1)" "$ITCH_TARGET:linux"

@@ -10,7 +10,7 @@
     "dev:electron": "set NODE_ENV=development && electron .",
     "build": "tsc && vite build && electron-builder",
     "build:quick": "tsc && vite build && npx electron-builder --dir",
-    "build:linux": "tsc && vite build && npx electron-builder --linux AppImage",
+    "build:linux": "tsc && vite build && npx electron-builder --linux tar.gz",
     "itch:push": "powershell -ExecutionPolicy Bypass -File scripts/itch-push.ps1",
     "itch:push:win": "powershell -ExecutionPolicy Bypass -File scripts/itch-push.ps1 -Win",
     "itch:push:linux": "powershell -ExecutionPolicy Bypass -File scripts/itch-push.ps1 -Linux",

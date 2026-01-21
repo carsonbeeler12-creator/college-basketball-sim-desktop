@@ -40,16 +40,16 @@ if ($Win -or (-not $Linux -and -not $Win)) {
 }
 
 if ($Linux -or (-not $Linux -and -not $Win)) {
-  $linuxAppImage = "$PSScriptRoot\..\release\$Version\College Basketball Dynasty (BETA)-Linux-$Version.AppImage"
+  $linuxAppImage = "$PSScriptRoot\..\release\$Version\College Basketball Dynasty (BETA)-Linux-$Version.tar.gz"
   if (-not (Test-Path $linuxAppImage)) {
-    $candidate = Get-ChildItem -Path "$PSScriptRoot\..\release" -Recurse -Filter "*.AppImage" -ErrorAction SilentlyContinue | Select-Object -First 1
+    $candidate = Get-ChildItem -Path "$PSScriptRoot\..\release" -Recurse -Filter "*.tar.gz" -ErrorAction SilentlyContinue | Select-Object -First 1
     if ($candidate) { $linuxAppImage = $candidate.FullName }
   }
   if (Test-Path $linuxAppImage) {
-    Write-Host "Pushing Linux AppImage: $linuxAppImage" -ForegroundColor Yellow
+    Write-Host "Pushing Linux tar.gz: $linuxAppImage" -ForegroundColor Yellow
     butler push $linuxAppImage "$Target:linux" | Write-Host
   } else {
-    $errors += "Linux AppImage not found under release/"
+    $errors += "Linux tar.gz not found under release/"
   }
 }
 
