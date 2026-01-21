@@ -113,27 +113,19 @@ jobs:
           name: linux-appimage
           path: dist-release/linux
 
-      - name: Install Butler CLI
-        run: |
-          curl -L -o butler https://broth.itch.zone/butler/linux-amd64/LATEST/archive/default
-          chmod +x butler
-          ./butler -V
-
-      - name: Authenticate Butler
-        run: |
-          ./butler login
-          ./butler status
+      - name: Setup Butler
+        uses: jdx/setup-butler@v1
 
       - name: Publish to itch (Windows)
         run: |
           ls -la dist-release/windows
           WIN_FILE=$(ls dist-release/windows/*-Windows.zip | head -n 1)
           echo "Uploading: $WIN_FILE to $ITCH_TARGET:windows"
-          ./butler push "$WIN_FILE" "$ITCH_TARGET:windows" --userversion-file dist-release/windows/version.txt || ./butler push "$WIN_FILE" "$ITCH_TARGET:windows"
+          butler push "$WIN_FILE" "$ITCH_TARGET:windows"
 
       - name: Publish to itch (Linux)
         run: |
           ls -la dist-release/linux
           LINUX_FILE=$(ls dist-release/linux/*.tar.gz | head -n 1)
           echo "Uploading: $LINUX_FILE to $ITCH_TARGET:linux"
-          ./butler push "$LINUX_FILE" "$ITCH_TARGET:linux" --userversion-file dist-release/linux/version.txt || ./butler push "$LINUX_FILE" "$ITCH_TARGET:linux"
+          butler push "$LINUX_FILE" "$ITCH_TARGET:linux"
