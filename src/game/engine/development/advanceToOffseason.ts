@@ -12,7 +12,7 @@ import { generateSeasonHighlights } from '../stats/generateSeasonHighlights'
  * 2. Generating season highlights for recap
  * 3. Graduating SR players
  * 4. Progressing remaining players (FR->SO, SO->JR, JR->SR)
- * 5. Converting signed recruits to roster players
+ * 5. Converting committed recruits to roster players
  * 6. Clearing old season data
  */
 export function advanceToOffseason(dynasty: Dynasty): Dynasty {
@@ -105,12 +105,25 @@ export function advanceToOffseason(dynasty: Dynasty): Dynasty {
       newPlayerIds.push(playerId)
     }
     
-    // Add signed recruits to roster
-    const signedRecruits = getSignedRecruitsForTeam(dynasty.recruiting.recruitPool, teamId)
-    for (const recruit of signedRecruits) {
+    // Add committed recruits to roster (COMMITTED means they will join next season)
+    const committedRecruits = getCommittedRecruitsForTeam(dynasty.recruiting.recruitPool, teamId)
+    for (const recruit of committedRecruits) {
       const newPlayer = convertRecruitToPlayer(recruit, teamId, dynasty.world.seasonYear + 1)
       newDynasty.playersById[newPlayer.playerId] = newPlayer
       newPlayerIds.push(newPlayer.playerId)
+    }
+    
+    // Add walk-on players to fill roster to 13 spots if needed
+    const MAX_ROSTER_SIZE = 13
+    if (newPlayerIds.length < MAX_ROSTER_SIZE) {
+      const walkOnsNeeded = MAX_ROSTER_SIZE - newPlayerIds.length
+      // Get the current roster players for position analysis
+      const rosterPlayers = newPlayerIds.map(id => newDynasty.playersById[id]).filter(p => p !== undefined)
+      const walkOns = generateWalkOns(teamId, walkOnsNeeded, rng, dynasty.world.seasonYear + 1, rosterPlayers)
+      for (const walkOn of walkOns) {
+        newDynasty.playersById[walkOn.playerId] = walkOn
+        newPlayerIds.push(walkOn.playerId)
+      }
     }
     
     // Update team roster
@@ -135,11 +148,11 @@ export function advanceToOffseason(dynasty: Dynasty): Dynasty {
   newDynasty.league.schedule = undefined
   newDynasty.league.seasonStats = undefined
   
-  // Remove signed recruits from recruit pool
+  // Remove committed recruits from recruit pool (they've become players)
   const remainingRecruits: Record<ID, Recruit> = {}
   for (const recruitId of Object.keys(newDynasty.recruiting.recruitPool)) {
     const recruit = newDynasty.recruiting.recruitPool[recruitId]
-    if (recruit.status !== 'SIGNED') {
+    if (recruit.status !== 'COMMITTED') {
       remainingRecruits[recruitId] = recruit
     }
   }
@@ -152,23 +165,23 @@ export function advanceToOffseason(dynasty: Dynasty): Dynasty {
 }
 
 /**
- * Get all recruits that have signed with a specific team
+ * Get all recruits that have committed to a specific team
  */
-function getSignedRecruitsForTeam(recruitPool: Record<ID, Recruit>, teamId: ID): Recruit[] {
-  const signedRecruits: Recruit[] = []
+function getCommittedRecruitsForTeam(recruitPool: Record<ID, Recruit>, teamId: ID): Recruit[] {
+  const committedRecruits: Recruit[] = []
   
   for (const recruitId of Object.keys(recruitPool)) {
     const recruit = recruitPool[recruitId]
-    if (recruit.status === 'SIGNED' && recruit.committedToTeamId === teamId) {
-      signedRecruits.push(recruit)
+    if (recruit.status === 'COMMITTED' && recruit.committedToTeamId === teamId) {
+      committedRecruits.push(recruit)
     }
   }
   
-  return signedRecruits
+  return committedRecruits
 }
 
 /**
- * Convert a signed recruit to a player state
+ * Convert a committed recruit to a player state
  */
 function convertRecruitToPlayer(recruit: Recruit, teamId: ID, newSeasonYear: number): PlayerState {
   return {
@@ -255,4 +268,169 @@ function determineArchetypeFromRatings(ratings: PlayerState['ratings'], position
   
   // Fallback
   return 'PRIMARY_SCORER'
+}
+
+/**
+ * Rng helper for generating random numbers
+ */
+function randInt(rng: { state: number }, min: number, max: number): number {
+  rng.state = (rng.state * 1664525 + 1013904223) >>> 0
+  return min + (rng.state % (max - min + 1))
+}
+
+/**
+ * Generate walk-on players to fill remaining roster spots by position of need
+ * Analyzes current roster to determine which positions are understaffed
+ */
+function generateWalkOns(teamId: ID, count: number, rng: { state: number }, seasonYear: number, existingRoster?: PlayerState[]): PlayerState[] {
+  const POSITIONS: Array<'PG' | 'SG' | 'SF' | 'PF' | 'C'> = ['PG', 'SG', 'SF', 'PF', 'C']
+  
+  // Count current players by position
+  const playersByPosition: Record<string, number> = {
+    PG: 0,
+    SG: 0,
+    SF: 0,
+    PF: 0,
+    C: 0,
+  }
+  
+  if (existingRoster) {
+    for (const player of existingRoster) {
+      const pos = player.identity.position
+      playersByPosition[pos] = (playersByPosition[pos] || 0) + 1
+    }
+  }
+  
+  // Define minimum requirements per position for a balanced roster
+  const minByPosition: Record<string, number> = {
+    PG: 2,
+    SG: 2,
+    SF: 2,
+    PF: 2,
+    C: 2,
+  }
+  
+  // Identify positions that need filling (below minimum)
+  const positionsNeeded: Array<'PG' | 'SG' | 'SF' | 'PF' | 'C'> = []
+  
+  for (const pos of POSITIONS) {
+    const current = playersByPosition[pos] || 0
+    const needed = Math.max(0, minByPosition[pos] - current)
+    for (let i = 0; i < needed && positionsNeeded.length < count; i++) {
+      positionsNeeded.push(pos as 'PG' | 'SG' | 'SF' | 'PF' | 'C')
+    }
+  }
+  
+  // If we still need more players (roster > 10), add guards/wings with bias
+  if (positionsNeeded.length < count) {
+    const addPool: Array<'PG' | 'SG' | 'SF' | 'PF' | 'C'> = ['PG', 'SG', 'SG', 'SF', 'SF', 'PF']
+    while (positionsNeeded.length < count) {
+      positionsNeeded.push(addPool[randInt(rng, 0, addPool.length - 1)])
+    }
+  }
+  
+  // Generate walk-on player for each position
+  const walkOns: PlayerState[] = []
+  for (let i = 0; i < count; i++) {
+    const position = positionsNeeded[i]
+    const walkOn = createWalkOnPlayer(teamId, position, seasonYear, i)
+    walkOns.push(walkOn)
+  }
+  
+  return walkOns
+}
+
+/**
+ * Create a single walk-on player
+ */
+function createWalkOnPlayer(teamId: ID, position: 'PG' | 'SG' | 'SF' | 'PF' | 'C', seasonYear: number, index: number): PlayerState {
+  // Generate basic walk-on ratings (typically 40-55 overall)
+  const baseRating = 40 + Math.floor(Math.random() * 15)
+  
+  // Position-specific height/weight
+  let heightIn = 72
+  let weightLb = 200
+  if (position === 'C') {
+    heightIn = 80 + Math.floor(Math.random() * 4)
+    weightLb = 240 + Math.floor(Math.random() * 40)
+  } else if (position === 'PF') {
+    heightIn = 78 + Math.floor(Math.random() * 3)
+    weightLb = 220 + Math.floor(Math.random() * 30)
+  } else if (position === 'SF') {
+    heightIn = 76 + Math.floor(Math.random() * 3)
+    weightLb = 200 + Math.floor(Math.random() * 20)
+  } else if (position === 'SG') {
+    heightIn = 74 + Math.floor(Math.random() * 3)
+    weightLb = 185 + Math.floor(Math.random() * 15)
+  } else {
+    // PG
+    heightIn = 72 + Math.floor(Math.random() * 2)
+    weightLb = 175 + Math.floor(Math.random() * 15)
+  }
+  
+  return {
+    playerId: `p_walkOn_${teamId}_${seasonYear}_${index}_${Date.now()}`,
+    identity: {
+      firstName: `Walk`,
+      lastName: `On${index + 1}`,
+      age: 18,
+      classYear: 'FR',
+      position,
+      archetype: determineArchetypeFromRatings(
+        {
+          overall: baseRating,
+          passing: baseRating - 5,
+          shooting2: baseRating - 3,
+          shooting3: baseRating - 8,
+          perimeterDefense: baseRating - 3,
+          interiorDefense: baseRating - 2,
+          rebounding: baseRating - 2,
+          finishing: baseRating - 3,
+          block: baseRating - 4,
+        } as any,
+        position
+      ),
+      heightIn,
+      weightLb,
+      hometown: 'Walk-on, USA',
+    },
+    ratings: {
+      overall: baseRating,
+      passing: baseRating - 5,
+      shooting2: baseRating - 3,
+      shooting3: baseRating - 8,
+      perimeterDefense: baseRating - 3,
+      interiorDefense: baseRating - 2,
+      rebounding: baseRating - 2,
+      finishing: baseRating - 3,
+      block: baseRating - 4,
+    },
+    development: {
+      potential: baseRating + 10,
+      workEthic: 50,
+      durability: 70,
+    },
+    team: {
+      teamId,
+      isRedshirt: false,
+    },
+    stats: {
+      seasonYear,
+      gamesPlayed: 0,
+      minutes: 0,
+      points: 0,
+      rebounds: 0,
+      assists: 0,
+      steals: 0,
+      blocks: 0,
+      fgm: 0,
+      fga: 0,
+      tpm: 0,
+      tpa: 0,
+      ftm: 0,
+      fta: 0,
+      turnovers: 0,
+      fouls: 0,
+    },
+  }
 }

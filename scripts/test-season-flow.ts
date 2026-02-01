@@ -82,7 +82,7 @@ async function main() {
     }
   }
 
-  // 4) Add two signed recruits to verify conversion
+  // 4) Add two committed recruits to verify conversion
   const samplePlayer: PlayerState = dynasty.playersById[team.roster.playerIds[0]]
   const baseRatings = samplePlayer.ratings
 
@@ -100,7 +100,7 @@ async function main() {
     starRating: 3,
     isGenerational: undefined,
     interestByTeamId: { [userTeamId]: 30 },
-    status: 'SIGNED',
+    status: 'COMMITTED',
     scoutedByTeamId: {},
     committedToTeamId: userTeamId,
     rank: undefined,

@@ -80,7 +80,7 @@ function mkRecruit(teamId: ID, idx: number, ratings: PlayerRatings): Recruit {
   return {
     recruitId: `r_${teamId}_${idx}`,
     firstName: `R${idx}`,
-    lastName: 'Signed',
+    lastName: 'Committed',
     position: 'SG',
     heightIn: 75,
     weightLb: 195,
@@ -91,7 +91,7 @@ function mkRecruit(teamId: ID, idx: number, ratings: PlayerRatings): Recruit {
     starRating: 3,
     isGenerational: undefined,
     interestByTeamId: { [teamId]: 30 },
-    status: 'SIGNED',
+    status: 'COMMITTED',
     committedToTeamId: teamId,
     scoutedByTeamId: {},
   }
@@ -161,7 +161,7 @@ async function main() {
     playersById: Object.fromEntries([...playersT1, ...playersT2].map(p => [p.playerId, p])),
   }
 
-  // Add two signed recruits for T1
+  // Add two committed recruits for T1
   const r1 = mkRecruit(userTeamId, 1, playersT1[0].ratings)
   const r2 = mkRecruit(userTeamId, 2, playersT1[1].ratings)
   dynasty.recruiting.recruitPool[r1.recruitId] = r1
@@ -178,7 +178,7 @@ async function main() {
     league: { ...dynasty.league, teamsById: { ...dynasty.league.teamsById } },
   }
 
-  // Per team processing: graduate SR, advance class year, reset stats, add signed recruits
+  // Per team processing: graduate SR, advance class year, reset stats, add committed recruits
   for (const tid of Object.keys(offseason.league.teamsById)) {
     const team = offseason.league.teamsById[tid]
     const nextPlayerIds: ID[] = []
@@ -216,9 +216,9 @@ async function main() {
       nextPlayerIds.push(pid)
     }
 
-    // Convert signed recruits
-    const signed = Object.values(offseason.recruiting.recruitPool).filter(r => r.status === 'SIGNED' && r.committedToTeamId === tid)
-    for (const r of signed) {
+    // Convert committed recruits
+    const committed = Object.values(offseason.recruiting.recruitPool).filter(r => r.status === 'COMMITTED' && r.committedToTeamId === tid)
+    for (const r of committed) {
       const newPid = `${tid}_new_${r.recruitId}`
       offseason.playersById[newPid] = {
         playerId: newPid,
@@ -266,13 +266,13 @@ async function main() {
     }
   }
 
-  // Clear tournament/schedule/seasonStats and remove signed recruits from pool
+  // Clear tournament/schedule/seasonStats and remove committed recruits from pool
   offseason.league.tournament = undefined
   offseason.league.schedule = undefined
   offseason.league.seasonStats = undefined
   const remainingPool: Record<ID, Recruit> = {}
   for (const [rid, r] of Object.entries(offseason.recruiting.recruitPool)) {
-    if (r.status !== 'SIGNED') remainingPool[rid] = r
+    if (r.status !== 'COMMITTED') remainingPool[rid] = r
   }
   offseason.recruiting.recruitPool = remainingPool
   const offTeam = offseason.league.teamsById[userTeamId]
@@ -317,7 +317,7 @@ async function main() {
   console.log(`Pre-offseason roster: ${preOffRosterCount}`)
   console.log(`Post-offseason roster: ${postOffRosterCount}`)
   console.log(`Seniors removed: ${seniorsRemoved ? 'OK' : 'FAIL'}`)
-  console.log(`Signed recruits converted: ${recruitsAdded ? 'OK' : 'FAIL'}`)
+  console.log(`Committed recruits converted: ${recruitsAdded ? 'OK' : 'FAIL'}`)
   console.log(`Returning player stats reset: ${statsReset ? 'OK' : 'FAIL'}`)
   console.log(`Season incremented: ${seasonIncremented ? 'OK' : 'FAIL'}`)
   console.log(`Phase PRESEASON: ${phaseIsPreseason ? 'OK' : 'FAIL'}`)

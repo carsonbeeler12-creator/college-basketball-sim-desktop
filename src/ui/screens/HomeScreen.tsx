@@ -13,7 +13,7 @@ export function HomeScreen(props: {
   return (
     <div className="grid2">
       <div style={{ gridColumn: '1 / -1', background: '#ff6b35', padding: '12px', borderRadius: '4px', textAlign: 'center', marginBottom: '16px' }}>
-        <strong>🚧 BETA VERSION 0.9.5</strong> - Help us improve! Report bugs and suggestions.
+        <strong>🚧 BETA VERSION 0.9.6</strong> - Help us improve! Report bugs and suggestions.
       </div>
       
       <section className="card">
