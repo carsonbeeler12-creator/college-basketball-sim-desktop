@@ -3,7 +3,6 @@
 import type { Dynasty, ID, RecruitingBoard } from '../../types/dynasty'
 import { generateRecruitPool } from '../recruiting/generateRecruitPool'
 import { generateSchedule } from '../schedule/generateSchedule'
-import { applyPrestigeAdjustments } from './applyPrestigeAdjustments'
 
 /**
  * Advances the dynasty from OFFSEASON to PRESEASON.
@@ -16,15 +15,12 @@ import { applyPrestigeAdjustments } from './applyPrestigeAdjustments'
  * 6. Resetting team records and stats
  */
 export function startNewSeason(dynasty: Dynasty): Dynasty {
-  // Apply prestige adjustments from last season's achievements
-  let updatedDynasty = applyPrestigeAdjustments(dynasty)
-
-  const rng = { state: updatedDynasty.rng.state }
-  const newSeasonYear = updatedDynasty.world.seasonYear + 1
+  const rng = { state: dynasty.rng.state }
+  const newSeasonYear = dynasty.world.seasonYear + 1
   
   // Create new dynasty state
   const newDynasty: Dynasty = {
-    ...updatedDynasty,
+    ...dynasty,
     world: {
       ...updatedDynasty.world,
       seasonYear: newSeasonYear,
@@ -32,8 +28,8 @@ export function startNewSeason(dynasty: Dynasty): Dynasty {
       day: 0, // Reset day counter for new season
     },
     league: {
-      ...updatedDynasty.league,
-      teamsById: { ...updatedDynasty.league.teamsById },
+      ...dynasty.league,
+      teamsById: { ...dynasty.league.teamsById },
     },
     recruiting: {
       seasonYear: newSeasonYear,

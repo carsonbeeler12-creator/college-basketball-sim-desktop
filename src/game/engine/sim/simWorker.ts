@@ -1,6 +1,7 @@
 // High-performance worker for batch game simulation
 import type { SimDayRequest, SimDayProgress, SimDayResult } from './simWorker.types'
 import type { ID, PlayerBoxScoreLine, TeamBoxScoreLine, PlayerState, TeamState, GameState } from '../../types/dynasty'
+import { emptySeasonTotals, emptyTeamSeasonTotals, type SeasonTotals, type TeamSeasonTotals } from '../stats/seasonStats'
 
 // Lightweight RNG (same as existing)
 type Rng = { state: number }
@@ -24,6 +25,19 @@ function hashSeed(base: number, key: string): number {
   let h = base >>> 0
   for (let i = 0; i < key.length; i++) h = (h * 31 + key.charCodeAt(i)) >>> 0
   return h >>> 0
+}
+
+function ensureSeasonStats(snapshot: any) {
+  snapshot.seasonStats ??= { teamsById: {}, playersById: {} }
+  snapshot.seasonStats.teamsById ??= {}
+  snapshot.seasonStats.playersById ??= {}
+}
+
+function addInto<T extends Record<string, number>>(target: T, add: Partial<T>) {
+  for (const [k, v] of Object.entries(add)) {
+    if (typeof v !== 'number') continue
+    ;(target as any)[k] = ((target as any)[k] ?? 0) + v
+  }
 }
 
 // Precomputed team data for fast simulation
@@ -438,6 +452,12 @@ self.onmessage = (e: MessageEvent<SimDayRequest>) => {
 
   const { dynastySnapshot, games } = req
 
+  ensureSeasonStats(dynastySnapshot)
+  const seasonStats = dynastySnapshot.seasonStats as {
+    teamsById: Record<ID, TeamSeasonTotals>
+    playersById: Record<ID, SeasonTotals>
+  }
+
   // Mutable local state - we'll commit immutable copies at the end
   const teamsById = { ...dynastySnapshot.teamsById }
   const playersById = { ...dynastySnapshot.playersById }
@@ -505,6 +525,30 @@ self.onmessage = (e: MessageEvent<SimDayRequest>) => {
 
     gamesById[game.gameId] = gameState
 
+    // Update season totals for teams
+    const homeId = game.homeTeamId
+    const awayId = game.awayTeamId
+
+    const homeTeamTotals: TeamSeasonTotals = seasonStats.teamsById[homeId] ?? emptyTeamSeasonTotals()
+    const awayTeamTotals: TeamSeasonTotals = seasonStats.teamsById[awayId] ?? emptyTeamSeasonTotals()
+
+    addInto(homeTeamTotals, { ...homeTeamLine, games: 1 })
+    addInto(awayTeamTotals, { ...awayTeamLine, games: 1 })
+
+    homeTeamTotals.pointsAllowed += awayScore
+    awayTeamTotals.pointsAllowed += homeScore
+
+    if (homeScore > awayScore) {
+      homeTeamTotals.wins += 1
+      awayTeamTotals.losses += 1
+    } else {
+      awayTeamTotals.wins += 1
+      homeTeamTotals.losses += 1
+    }
+
+    seasonStats.teamsById[homeId] = homeTeamTotals
+    seasonStats.teamsById[awayId] = awayTeamTotals
+
     // Update team records (mutate local copies)
     const homeWon = homeScore > awayScore
     const homeTeam = teamsById[game.homeTeamId]
@@ -540,6 +584,10 @@ self.onmessage = (e: MessageEvent<SimDayRequest>) => {
     for (const line of [...homeLines, ...awayLines]) {
       const player = playersById[line.playerId]
       if (!player || player.stats.seasonYear !== dynastySnapshot.seasonYear) continue
+
+      const cur: SeasonTotals = seasonStats.playersById[line.playerId] ?? emptySeasonTotals()
+      addInto(cur, { ...line, games: 1 })
+      seasonStats.playersById[line.playerId] = cur
 
       playersById[line.playerId] = {
         ...player,
@@ -581,7 +629,7 @@ self.onmessage = (e: MessageEvent<SimDayRequest>) => {
     updatedTeamsById: teamsById,
     updatedPlayersById: playersById,
     newGamesById: gamesById,
-    updatedSeasonStats: dynastySnapshot.seasonStats,
+    updatedSeasonStats: seasonStats,
   }
 
   self.postMessage(result)

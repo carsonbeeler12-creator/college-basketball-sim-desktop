@@ -3,6 +3,7 @@
 import type { Dynasty, ID, PlayerState, Recruit } from '../../types/dynasty'
 import { progressPlayer } from './playerProgression'
 import { calculateAwards } from '../stats/calculateAwards'
+import { applyPrestigeAdjustments } from './applyPrestigeAdjustments'
 import { generateSeasonHighlights } from '../stats/generateSeasonHighlights'
 
 /**
@@ -18,6 +19,9 @@ import { generateSeasonHighlights } from '../stats/generateSeasonHighlights'
 export function advanceToOffseason(dynasty: Dynasty): Dynasty {
   // First, calculate and award season honors
   let updatedDynasty = calculateAwards(dynasty)
+
+  // Apply prestige adjustments before tournament data is cleared
+  updatedDynasty = applyPrestigeAdjustments(updatedDynasty)
   
   // Generate season highlights for end-of-season recap
   const seasonHighlights = generateSeasonHighlights(updatedDynasty)
@@ -278,6 +282,15 @@ function randInt(rng: { state: number }, min: number, max: number): number {
   return min + (rng.state % (max - min + 1))
 }
 
+const WALKON_FIRST = ['Alex', 'Jordan', 'Chris', 'Taylor', 'Morgan', 'Casey', 'Riley', 'Cameron', 'Parker', 'Hayden']
+const WALKON_LAST = ['Smith', 'Johnson', 'Brown', 'Davis', 'Miller', 'Wilson', 'Moore', 'Taylor', 'Anderson', 'Thomas']
+
+function pickWalkOnName(rng: { state: number }): { firstName: string; lastName: string } {
+  const firstName = WALKON_FIRST[randInt(rng, 0, WALKON_FIRST.length - 1)]
+  const lastName = WALKON_LAST[randInt(rng, 0, WALKON_LAST.length - 1)]
+  return { firstName, lastName }
+}
+
 /**
  * Generate walk-on players to fill remaining roster spots by position of need
  * Analyzes current roster to determine which positions are understaffed
@@ -333,7 +346,7 @@ function generateWalkOns(teamId: ID, count: number, rng: { state: number }, seas
   const walkOns: PlayerState[] = []
   for (let i = 0; i < count; i++) {
     const position = positionsNeeded[i]
-    const walkOn = createWalkOnPlayer(teamId, position, seasonYear, i)
+    const walkOn = createWalkOnPlayer(teamId, position, seasonYear, i, rng)
     walkOns.push(walkOn)
   }
   
@@ -343,36 +356,38 @@ function generateWalkOns(teamId: ID, count: number, rng: { state: number }, seas
 /**
  * Create a single walk-on player
  */
-function createWalkOnPlayer(teamId: ID, position: 'PG' | 'SG' | 'SF' | 'PF' | 'C', seasonYear: number, index: number): PlayerState {
-  // Generate basic walk-on ratings (typically 40-55 overall)
-  const baseRating = 40 + Math.floor(Math.random() * 15)
+function createWalkOnPlayer(teamId: ID, position: 'PG' | 'SG' | 'SF' | 'PF' | 'C', seasonYear: number, index: number, rng: { state: number }): PlayerState {
+  // Generate basic walk-on ratings (very low overall)
+  const baseRating = randInt(rng, 25, 40)
   
   // Position-specific height/weight
   let heightIn = 72
   let weightLb = 200
   if (position === 'C') {
-    heightIn = 80 + Math.floor(Math.random() * 4)
-    weightLb = 240 + Math.floor(Math.random() * 40)
+    heightIn = randInt(rng, 80, 83)
+    weightLb = randInt(rng, 240, 279)
   } else if (position === 'PF') {
-    heightIn = 78 + Math.floor(Math.random() * 3)
-    weightLb = 220 + Math.floor(Math.random() * 30)
+    heightIn = randInt(rng, 78, 80)
+    weightLb = randInt(rng, 220, 249)
   } else if (position === 'SF') {
-    heightIn = 76 + Math.floor(Math.random() * 3)
-    weightLb = 200 + Math.floor(Math.random() * 20)
+    heightIn = randInt(rng, 76, 78)
+    weightLb = randInt(rng, 200, 219)
   } else if (position === 'SG') {
-    heightIn = 74 + Math.floor(Math.random() * 3)
-    weightLb = 185 + Math.floor(Math.random() * 15)
+    heightIn = randInt(rng, 74, 76)
+    weightLb = randInt(rng, 185, 199)
   } else {
     // PG
-    heightIn = 72 + Math.floor(Math.random() * 2)
-    weightLb = 175 + Math.floor(Math.random() * 15)
+    heightIn = randInt(rng, 72, 73)
+    weightLb = randInt(rng, 175, 189)
   }
+
+  const { firstName, lastName } = pickWalkOnName(rng)
   
   return {
     playerId: `p_walkOn_${teamId}_${seasonYear}_${index}_${Date.now()}`,
     identity: {
-      firstName: `Walk`,
-      lastName: `On${index + 1}`,
+      firstName,
+      lastName,
       age: 18,
       classYear: 'FR',
       position,
@@ -416,7 +431,7 @@ function createWalkOnPlayer(teamId: ID, position: 'PG' | 'SG' | 'SF' | 'PF' | 'C
        stamina: baseRating - 1,
     },
     development: {
-      potential: baseRating + 10,
+      potential: Math.min(60, baseRating + 5),
       workEthic: 50,
       durability: 70,
     },

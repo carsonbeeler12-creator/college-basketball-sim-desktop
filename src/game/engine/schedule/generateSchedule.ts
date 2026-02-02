@@ -57,6 +57,17 @@ export function generateSchedule(dynasty: Dynasty): Schedule {
     1, // Start day
     45 // End day
   )
+
+  // Fill any missing non-conference games to hit target
+  ensureNonConferenceTargets(
+    rng,
+    teams.map(t => t.teamId),
+    gamesByDay,
+    getNextGameId,
+    1,
+    45,
+    11
+  )
   
   // Conference games (Days 46-120): ~18-20 games per team
   for (const [, teamIds] of conferences.entries()) {
@@ -75,6 +86,74 @@ export function generateSchedule(dynasty: Dynasty): Schedule {
   return {
     seasonYear: dynasty.world.seasonYear,
     gamesByDay,
+  }
+}
+
+function ensureNonConferenceTargets(
+  rng: Rng,
+  allTeamIds: ID[],
+  gamesByDay: Record<number, ScheduledGame[]>,
+  getNextGameId: () => ID,
+  startDay: number,
+  endDay: number,
+  targetGamesPerTeam: number
+): void {
+  const gamesByTeam = new Map<ID, number>()
+  for (const tid of allTeamIds) gamesByTeam.set(tid, 0)
+
+  for (const day of Object.keys(gamesByDay).map(Number)) {
+    if (day < startDay || day > endDay) continue
+    for (const g of gamesByDay[day] ?? []) {
+      gamesByTeam.set(g.homeTeamId, (gamesByTeam.get(g.homeTeamId) ?? 0) + 1)
+      gamesByTeam.set(g.awayTeamId, (gamesByTeam.get(g.awayTeamId) ?? 0) + 1)
+    }
+  }
+
+  const days = Array.from({ length: endDay - startDay + 1 }, (_, i) => startDay + i)
+
+  let safety = 0
+  while (safety < 10000) {
+    safety++
+    const needs = allTeamIds
+      .map(tid => ({ tid, games: gamesByTeam.get(tid) ?? 0 }))
+      .filter(x => x.games < targetGamesPerTeam)
+      .sort((a, b) => a.games - b.games)
+
+    if (needs.length < 2) break
+
+    const teamA = needs[0].tid
+    const teamB = needs.find(n => n.tid !== teamA)?.tid
+    if (!teamB) break
+
+    let scheduled = false
+    for (const day of days) {
+      const existing = gamesByDay[day] ?? []
+      const conflict = existing.some(g =>
+        g.homeTeamId === teamA || g.awayTeamId === teamA ||
+        g.homeTeamId === teamB || g.awayTeamId === teamB
+      )
+      if (conflict) continue
+
+      const isHome = (gamesByTeam.get(teamA) ?? 0) % 2 === 0
+      const homeTeamId = isHome ? teamA : teamB
+      const awayTeamId = isHome ? teamB : teamA
+
+      if (!gamesByDay[day]) gamesByDay[day] = []
+      gamesByDay[day].push({
+        gameId: getNextGameId(),
+        homeTeamId,
+        awayTeamId,
+        isConferenceGame: false,
+        day,
+      })
+
+      gamesByTeam.set(teamA, (gamesByTeam.get(teamA) ?? 0) + 1)
+      gamesByTeam.set(teamB, (gamesByTeam.get(teamB) ?? 0) + 1)
+      scheduled = true
+      break
+    }
+
+    if (!scheduled) break
   }
 }
 

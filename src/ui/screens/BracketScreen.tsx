@@ -191,7 +191,7 @@ export function BracketScreen(props: {
 
 
   return (
-    <section className="card wide">
+    <section className="card wide bracket-card">
       <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: 20 }}>
         <h2 className="cardTitle" style={{ margin: 0 }}>
           National Tournament {tournament.seasonYear ?? activeSave.world.seasonYear}

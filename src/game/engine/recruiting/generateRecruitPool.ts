@@ -75,6 +75,7 @@ const POSITIONS: Position[] = ['PG', 'SG', 'SF', 'PF', 'C']
  */
 export function generateRecruitPool(dynasty: Dynasty, seasonYear: number): Record<ID, Recruit> {
   const rng: Rng = { state: hashSeed(dynasty.rng.seed, `recruit_pool_${seasonYear}`) >>> 0 }
+  let generationalCount = 0
   
   const pool: Record<ID, Recruit> = {}
   
@@ -90,7 +91,9 @@ export function generateRecruitPool(dynasty: Dynasty, seasonYear: number): Recor
   
   for (const { stars, count } of distribution) {
     for (let i = 0; i < count; i++) {
-      const recruit = generateRecruit(rng, dynasty, stars)
+      const allowGenerational = generationalCount < 1
+      const recruit = generateRecruit(rng, dynasty, stars, allowGenerational)
+      if (recruit.isGenerational) generationalCount += 1
       pool[recruit.recruitId] = recruit
     }
   }
@@ -119,6 +122,7 @@ function generateRecruit(
   rng: Rng,
   dynasty: Dynasty,
   starRating: 1 | 2 | 3 | 4 | 5,
+  allowGenerational: boolean,
   // seasonYear: number
 ): Recruit {
   const recruitId = makeId('recruit', rng)
@@ -128,9 +132,9 @@ function generateRecruit(
   // Determine gem/bust status based on star rating
   const gemBustStatus = determineGemBustStatus(rng, starRating)
   
-  // Check for generational talent (extremely rare - only for 5-stars, ~0.5% chance)
-  // These are true unicorns that come around once every few years
-  const isGenerational = starRating === 5 && rand01(rng) < 0.005 // 0.5% chance
+  // Check for generational talent (extremely rare - only for 5-stars)
+  // Limit to at most one per season
+  const isGenerational = allowGenerational && starRating === 5 && rand01(rng) < 0.002 // 0.2% chance
   
   // Overall rating based on star rating (freshman-level, since they're recruits)
   // Generational talents get a special boost
