@@ -22,7 +22,7 @@ export function startNewSeason(dynasty: Dynasty): Dynasty {
   const newDynasty: Dynasty = {
     ...dynasty,
     world: {
-      ...updatedDynasty.world,
+      ...dynasty.world,
       seasonYear: newSeasonYear,
       phase: 'PRESEASON',
       day: 0, // Reset day counter for new season

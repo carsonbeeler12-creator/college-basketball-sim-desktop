@@ -60,7 +60,6 @@ export function generateSchedule(dynasty: Dynasty): Schedule {
 
   // Fill any missing non-conference games to hit target
   ensureNonConferenceTargets(
-    rng,
     teams.map(t => t.teamId),
     gamesByDay,
     getNextGameId,
@@ -90,7 +89,6 @@ export function generateSchedule(dynasty: Dynasty): Schedule {
 }
 
 function ensureNonConferenceTargets(
-  rng: Rng,
   allTeamIds: ID[],
   gamesByDay: Record<number, ScheduledGame[]>,
   getNextGameId: () => ID,
