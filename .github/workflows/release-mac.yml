@@ -30,8 +30,10 @@ jobs:
 
       - name: Install butler
         run: |
-          brew tap itchio/broth
-          brew install butler
+          curl -L -o butler.zip https://broth.itch.zone/butler/darwin-amd64/LATEST/archive/default
+          unzip butler.zip
+          chmod +x butler
+          sudo mv butler /usr/local/bin/
 
       - name: Push macOS build to itch
         shell: bash
