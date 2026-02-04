@@ -1,0 +1,165 @@
+name: Release All Platforms
+
+on:
+  workflow_dispatch:
+
+jobs:
+  build-windows:
+    runs-on: windows-latest
+    env:
+      GH_TOKEN: ${{ secrets.GH_TOKEN }}
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: '20'
+          cache: 'npm'
+
+      - name: Install dependencies
+        run: npm ci
+
+      - name: Build Windows
+        run: npm run build
+
+      - name: Upload Windows artifacts
+        uses: actions/upload-artifact@v4
+        with:
+          name: windows-builds
+          path: |
+            release/**/*.zip
+            release/**/*.exe
+            release/**/*.exe.blockmap
+
+  build-linux:
+    runs-on: ubuntu-latest
+    env:
+      GH_TOKEN: ${{ secrets.GH_TOKEN }}
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: '20'
+          cache: 'npm'
+
+      - name: Install dependencies
+        run: npm ci
+
+      - name: Build Linux
+        run: npm run build:linux
+
+      - name: Upload Linux artifacts
+        uses: actions/upload-artifact@v4
+        with:
+          name: linux-builds
+          path: release/**/*.tar.gz
+
+  build-mac:
+    runs-on: macos-latest
+    env:
+      GH_TOKEN: ${{ secrets.GH_TOKEN }}
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: '20'
+          cache: 'npm'
+
+      - name: Install dependencies
+        run: npm ci
+
+      - name: Build macOS
+        run: |
+          npm run build
+          npx electron-builder --mac dmg
+
+      - name: Upload macOS artifacts
+        uses: actions/upload-artifact@v4
+        with:
+          name: mac-builds
+          path: release/**/*.dmg
+
+  create-release:
+    needs: [build-windows, build-linux, build-mac]
+    runs-on: ubuntu-latest
+    permissions:
+      contents: write
+    env:
+      ITCH_TARGET: ${{ vars.ITCH_TARGET }}
+      BUTLER_API_KEY: ${{ secrets.BUTLER_API_KEY }}
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+      
+      - name: Download all artifacts
+        uses: actions/download-artifact@v4
+        with:
+          path: ./artifacts
+      
+      - name: Get version
+        id: version
+        run: echo "VERSION=$(node -p "require('./package.json').version")" >> $GITHUB_OUTPUT
+      
+      - name: Create GitHub Release
+        uses: softprops/action-gh-release@v1
+        with:
+          tag_name: v${{ steps.version.outputs.VERSION }}
+          name: College Basketball Dynasty v${{ steps.version.outputs.VERSION }}
+          body: |
+            ## College Basketball Dynasty v${{ steps.version.outputs.VERSION }}
+            
+            ### Downloads
+            - **Windows**: Portable `.zip` or `.exe` installer
+            - **Linux**: `.tar.gz`
+            - **macOS**: `.dmg`
+            
+            ### Auto-Updates
+            Apps on v0.9.7-beta+ automatically detect this update!
+            
+            ---
+            
+            [Full changelog](https://github.com/carsonbeeler12-creator/college-basketball-sim-desktop/commits/v${{ steps.version.outputs.VERSION }})
+          draft: false
+          prerelease: true
+          files: |
+            ./artifacts/**/*
+          generate_release_notes: true
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+      
+      - name: Install butler
+        run: |
+          curl -L -o butler.zip https://broth.itch.zone/butler/linux-amd64/LATEST/archive/default
+          unzip butler.zip
+          chmod +x butler
+          sudo mv butler /usr/local/bin/
+      
+      - name: Push to itch.io
+        run: |
+          VERSION="${{ steps.version.outputs.VERSION }}"
+          
+          # Push Windows
+          WIN_ZIP=$(find ./artifacts/windows-builds -name "*Windows-Portable*.zip" | head -n 1)
+          if [ -n "$WIN_ZIP" ]; then
+            butler push "$WIN_ZIP" "$ITCH_TARGET:windows" --userversion="$VERSION"
+          fi
+          
+          # Push Linux
+          LINUX_TAR=$(find ./artifacts/linux-builds -name "*.tar.gz" | head -n 1)
+          if [ -n "$LINUX_TAR" ]; then
+            butler push "$LINUX_TAR" "$ITCH_TARGET:linux" --userversion="$VERSION"
+          fi
+          
+          # Push macOS
+          MAC_DMG=$(find ./artifacts/mac-builds -name "*.dmg" | head -n 1)
+          if [ -n "$MAC_DMG" ]; then
+            butler push "$MAC_DMG" "$ITCH_TARGET:mac" --userversion="$VERSION"
+          fi
