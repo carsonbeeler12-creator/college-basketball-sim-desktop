@@ -1,0 +1,39 @@
+name: Create GitHub Release
+
+on:
+  workflow_dispatch:
+    inputs:
+      version:
+        description: 'Version to release (e.g., 0.9.8-beta)'
+        required: true
+        type: string
+
+jobs:
+  release:
+    runs-on: ubuntu-latest
+    permissions:
+      contents: write
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Create Release
+        uses: softprops/action-gh-release@v1
+        with:
+          tag_name: v${{ inputs.version }}
+          name: College Basketball Dynasty v${{ inputs.version }}
+          body: |
+            ## What's New in v${{ inputs.version }}
+            
+            See the [full changelog](https://github.com/carsonbeeler12-creator/college-basketball-sim-desktop/commits/v${{ inputs.version }})
+            
+            ### Downloads
+            - **Windows**: Download the `.zip` or `.exe` installer
+            - **Linux**: Download the `.tar.gz` 
+            - **macOS**: Download the `.dmg`
+            
+            ### Auto-Updates
+            If you're running v0.9.7-beta or later, the app will automatically notify you of this update!
+          draft: false
+          prerelease: true
+          generate_release_notes: true

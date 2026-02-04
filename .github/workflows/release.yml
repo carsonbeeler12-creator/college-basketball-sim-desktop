@@ -1,4 +1,4 @@
-name: Release (Windows + Linux to itch)
+name: Release (Windows + Linux + GitHub)
 
 on:
   workflow_dispatch:
@@ -22,26 +22,19 @@ jobs:
       - name: Install dependencies
         run: npm ci
 
-      - name: Build TypeScript and Vite
+      - name: Build Windows
         shell: pwsh
         run: |
-          npm run build:quick
+          npm run build
 
-      - name: Create Windows zip
-        shell: pwsh
-        run: |
-          $packageJson = Get-Content "package.json" | ConvertFrom-Json
-          $version = $packageJson.version
-          $sourcePath = "release\$version\win-unpacked\*"
-          $zipPath = "release\College-Basketball-Dynasty-$version-Windows.zip"
-          Compress-Archive -Path $sourcePath -DestinationPath $zipPath -Force
-
-      - name: Upload Windows zip artifact
+      - name: Upload Windows artifacts
         uses: actions/upload-artifact@v4
         with:
-          name: windows-zip
+          name: windows-builds
           path: |
-            release/*-Windows.zip
+            release/**/*.zip
+            release/**/*.exe
+            release/**/*.exe.blockmap
 
   build-linux:
     runs-on: ubuntu-latest
@@ -64,5 +57,57 @@ jobs:
       - name: Upload Linux tar.gz artifact
         uses: actions/upload-artifact@v4
         with:
-          name: linux-appimage
+          name: linux-builds
           path: release/**/*.tar.gz
+  
+  create-release:
+    needs: [build-windows, build-linux]
+    runs-on: ubuntu-latest
+    permissions:
+      contents: write
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+      
+      - name: Download Windows artifacts
+        uses: actions/download-artifact@v4
+        with:
+          name: windows-builds
+          path: ./artifacts
+      
+      - name: Download Linux artifacts
+        uses: actions/download-artifact@v4
+        with:
+          name: linux-builds
+          path: ./artifacts
+      
+      - name: Get version
+        id: version
+        run: echo "VERSION=$(node -p "require('./package.json').version")" >> $GITHUB_OUTPUT
+      
+      - name: Create GitHub Release
+        uses: softprops/action-gh-release@v1
+        with:
+          tag_name: v${{ steps.version.outputs.VERSION }}
+          name: College Basketball Dynasty v${{ steps.version.outputs.VERSION }}
+          body: |
+            ## College Basketball Dynasty v${{ steps.version.outputs.VERSION }}
+            
+            ### Downloads
+            - **Windows**: Download the portable `.zip` or `.exe` installer
+            - **Linux**: Download the `.tar.gz`
+            - **macOS**: Use the macOS workflow or download from itch.io
+            
+            ### Auto-Updates
+            Apps running v0.9.7-beta or later will automatically detect and install this update!
+            
+            ---
+            
+            See the [full changelog](https://github.com/carsonbeeler12-creator/college-basketball-sim-desktop/commits/v${{ steps.version.outputs.VERSION }})
+          draft: false
+          prerelease: true
+          files: |
+            ./artifacts/**/*
+          generate_release_notes: true
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
