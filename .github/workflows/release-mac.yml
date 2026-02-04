@@ -30,9 +30,8 @@ jobs:
 
       - name: Install butler
         run: |
-          curl -L -o butler.zip https://broth.itch.ovh/butler/darwin-amd64/LATEST/archive/default
-          unzip -o butler.zip
-          chmod +x butler
+          brew tap itchio/broth
+          brew install butler
 
       - name: Push macOS build to itch
         shell: bash
@@ -54,4 +53,4 @@ jobs:
             echo "No macOS .dmg or .zip found in release/${VERSION}"
             exit 1
           fi
-          ./butler push "$DMG_PATH" "$ITCH_TARGET:mac" --userversion="$VERSION"
+          butler push "$DMG_PATH" "$ITCH_TARGET:mac" --userversion="$VERSION"
