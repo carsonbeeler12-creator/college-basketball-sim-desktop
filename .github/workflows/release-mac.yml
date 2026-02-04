@@ -1,0 +1,54 @@
+name: Release (macOS to itch)
+
+on:
+  workflow_dispatch:
+
+jobs:
+  build-mac:
+    runs-on: macos-latest
+    env:
+      ITCH_TARGET: ${{ vars.ITCH_TARGET }}
+      BUTLER_API_KEY: ${{ secrets.BUTLER_API_KEY }}
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: '20'
+          cache: 'npm'
+
+      - name: Install dependencies
+        run: npm ci
+
+      - name: Build macOS DMG
+        run: npm run build:mac
+
+      - name: Install butler
+        run: |
+          curl -L -o butler.zip https://broth.itch.ovh/butler/darwin-amd64/LATEST/archive/default
+          unzip -o butler.zip
+          chmod +x butler
+
+      - name: Push macOS build to itch
+        shell: bash
+        run: |
+          if [ -z "$ITCH_TARGET" ]; then
+            echo "ITCH_TARGET is not set. Create a GitHub repo variable named ITCH_TARGET (e.g., iseacrayfish/college-basketball-dynasty)."
+            exit 1
+          fi
+          if [ -z "$BUTLER_API_KEY" ]; then
+            echo "BUTLER_API_KEY is not set. Create a GitHub secret named BUTLER_API_KEY."
+            exit 1
+          fi
+          VERSION=$(node -p "require('./package.json').version")
+          DMG_PATH=$(ls -1 release/${VERSION}/*.dmg 2>/dev/null | head -n 1)
+          if [ -z "$DMG_PATH" ]; then
+            DMG_PATH=$(ls -1 release/${VERSION}/*.zip 2>/dev/null | head -n 1)
+          fi
+          if [ -z "$DMG_PATH" ]; then
+            echo "No macOS .dmg or .zip found in release/${VERSION}"
+            exit 1
+          fi
+          ./butler push "$DMG_PATH" "$ITCH_TARGET:mac" --userversion="$VERSION"
