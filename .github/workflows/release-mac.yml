@@ -23,7 +23,9 @@ jobs:
         run: npm ci
 
       - name: Build macOS DMG
-        run: npm run build:mac
+        run: |
+          npm run build
+          npx electron-builder --mac dmg
 
       - name: Install butler
         run: |
