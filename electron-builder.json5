@@ -11,6 +11,11 @@
     "dist",
     "dist-electron"
   ],
+  "publish": {
+    "provider": "github",
+    "owner": "carsonbeeler12-creator",
+    "repo": "college-basketball-sim-desktop"
+  },
   "mac": {
     "target": [
       "dmg"

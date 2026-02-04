@@ -2,6 +2,7 @@ import { app, BrowserWindow, ipcMain } from "electron"
 import { fileURLToPath } from "node:url"
 import path from "node:path"
 import fs from "node:fs"
+import { autoUpdater } from "electron-updater"
 
 const __dirname = path.dirname(fileURLToPath(import.meta.url))
 
@@ -14,6 +15,9 @@ export const RENDERER_DIST = path.join(process.env.APP_ROOT, "dist")
 process.env.VITE_PUBLIC = VITE_DEV_SERVER_URL ? path.join(process.env.APP_ROOT, "public") : RENDERER_DIST
 
 let win: BrowserWindow | null = null
+
+// Configure auto-updater
+autoUpdater.checkForUpdatesAndNotify()
 
 function ensureDir(dir: string) {
   if (!fs.existsSync(dir)) fs.mkdirSync(dir, { recursive: true })

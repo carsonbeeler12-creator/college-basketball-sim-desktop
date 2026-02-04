@@ -23,6 +23,7 @@
     "test:season-flow": "vite-node scripts/test-season-flow.ts"
   },
   "dependencies": {
+    "electron-updater": "^6.7.3",
     "react": "^18.2.0",
     "react-dom": "^18.2.0"
   },
