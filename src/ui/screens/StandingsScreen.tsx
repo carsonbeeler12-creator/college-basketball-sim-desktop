@@ -167,9 +167,13 @@ export function StandingsScreen(props: {
     return { grouped, independent }
   }, [teamsWithStats])
 
-  // Overall standings (sorted by win %)
+  // Overall standings (sorted by team rating, then win %)
   const overallStandings = useMemo(() => {
     return [...teamsWithStats].sort((a, b) => {
+      const aRating = a.teamState?.season?.teamRating ?? 50
+      const bRating = b.teamState?.season?.teamRating ?? 50
+      if (bRating !== aRating) return bRating - aRating
+      
       const aWinPct = a.stats.games > 0 ? a.stats.wins / a.stats.games : 0
       const bWinPct = b.stats.games > 0 ? b.stats.wins / b.stats.games : 0
       if (bWinPct !== aWinPct) return bWinPct - aWinPct
@@ -318,7 +322,12 @@ export function StandingsScreen(props: {
                           <div 
                             key={teamData.teamId} 
                             className="listRow" 
-                            style={{ cursor: onTeamClick ? 'pointer' : 'default' }}
+                            style={{ 
+                              cursor: onTeamClick ? 'pointer' : 'default',
+                              backgroundColor: teamData.teamId === activeSave.league.userTeamId ? 'rgba(74, 157, 111, 0.15)' : 'transparent',
+                              borderTop: teamData.teamId === activeSave.league.userTeamId ? '2px solid #4a9d6f' : 'none',
+                              borderBottom: teamData.teamId === activeSave.league.userTeamId ? '2px solid #4a9d6f' : 'none',
+                            }}
                             onClick={() => onTeamClick?.(teamData.teamId)}
                           >
                             <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', width: '100%' }}>
@@ -387,12 +396,18 @@ export function StandingsScreen(props: {
               const papg = teamData.stats.games > 0 ? teamData.stats.pointsAllowed / teamData.stats.games : 0
               const rpg = teamData.stats.games > 0 ? teamData.stats.rebounds / teamData.stats.games : 0
               const apg = teamData.stats.games > 0 ? teamData.stats.assists / teamData.stats.games : 0
+              const teamRating = teamData.teamState?.season?.teamRating ?? 50
 
               return (
                 <div 
                   key={teamData.teamId} 
                   className="listRow" 
-                  style={{ cursor: onTeamClick ? 'pointer' : 'default' }}
+                  style={{ 
+                    cursor: onTeamClick ? 'pointer' : 'default',
+                    backgroundColor: teamData.teamId === activeSave.league.userTeamId ? 'rgba(74, 157, 111, 0.15)' : 'transparent',
+                    borderTop: teamData.teamId === activeSave.league.userTeamId ? '2px solid #4a9d6f' : 'none',
+                    borderBottom: teamData.teamId === activeSave.league.userTeamId ? '2px solid #4a9d6f' : 'none',
+                  }}
                   onClick={() => onTeamClick?.(teamData.teamId)}
                 >
                   <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', width: '100%' }}>
@@ -413,6 +428,12 @@ export function StandingsScreen(props: {
                           {' '}{formatStat(rpg)} RPG • {formatStat(apg)} APG
                         </div>
                       </div>
+                    </div>
+                    <div style={{ textAlign: 'right' }}>
+                      <div style={{ fontSize: '16px', fontWeight: 600, color: 'var(--primary)' }}>
+                        {teamRating}
+                      </div>
+                      <div style={{ fontSize: '12px', color: 'var(--muted)' }}>Rating</div>
                     </div>
                   </div>
                 </div>
@@ -438,7 +459,12 @@ export function StandingsScreen(props: {
                     <div 
                       key={playerData.playerId} 
                       className="listRow" 
-                      style={{ cursor: onTeamClick && playerData.teamId ? 'pointer' : 'default' }}
+                      style={{ 
+                        cursor: onTeamClick && playerData.teamId ? 'pointer' : 'default',
+                        backgroundColor: playerData.teamId === activeSave.league.userTeamId ? 'rgba(74, 157, 111, 0.15)' : 'transparent',
+                        borderTop: playerData.teamId === activeSave.league.userTeamId ? '2px solid #4a9d6f' : 'none',
+                        borderBottom: playerData.teamId === activeSave.league.userTeamId ? '2px solid #4a9d6f' : 'none',
+                      }}
                       onClick={() => playerData.teamId && onTeamClick?.(playerData.teamId)}
                     >
                       <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', width: '100%' }}>
@@ -481,7 +507,12 @@ export function StandingsScreen(props: {
                     <div 
                       key={playerData.playerId} 
                       className="listRow" 
-                      style={{ cursor: onTeamClick && playerData.teamId ? 'pointer' : 'default' }}
+                      style={{ 
+                        cursor: onTeamClick && playerData.teamId ? 'pointer' : 'default',
+                        backgroundColor: playerData.teamId === activeSave.league.userTeamId ? 'rgba(74, 157, 111, 0.15)' : 'transparent',
+                        borderTop: playerData.teamId === activeSave.league.userTeamId ? '2px solid #4a9d6f' : 'none',
+                        borderBottom: playerData.teamId === activeSave.league.userTeamId ? '2px solid #4a9d6f' : 'none',
+                      }}
                       onClick={() => playerData.teamId && onTeamClick?.(playerData.teamId)}
                     >
                       <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', width: '100%' }}>
@@ -525,7 +556,12 @@ export function StandingsScreen(props: {
                   <div 
                     key={playerData.playerId} 
                     className="listRow" 
-                    style={{ cursor: onTeamClick && playerData.teamId ? 'pointer' : 'default' }}
+                    style={{ 
+                      cursor: onTeamClick && playerData.teamId ? 'pointer' : 'default',
+                      backgroundColor: playerData.teamId === activeSave.league.userTeamId ? 'rgba(74, 157, 111, 0.15)' : 'transparent',
+                      borderTop: playerData.teamId === activeSave.league.userTeamId ? '2px solid #4a9d6f' : 'none',
+                      borderBottom: playerData.teamId === activeSave.league.userTeamId ? '2px solid #4a9d6f' : 'none',
+                    }}
                     onClick={() => playerData.teamId && onTeamClick?.(playerData.teamId)}
                   >
                     <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', width: '100%' }}>

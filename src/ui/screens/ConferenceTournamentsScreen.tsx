@@ -44,10 +44,11 @@ function minDay(games: ConferenceTournamentBracket['games'], round: string): num
   return days.length > 0 ? Math.min(...days) : 0
 }
 
-function ConferenceBracketDisplay({ bracket, accentColor, teamsById }: { 
+function ConferenceBracketDisplay({ bracket, accentColor, teamsById, userTeamId }: { 
   bracket: ConferenceTournamentBracket, 
   accentColor: string,
-  teamsById: Dynasty['league']['teamsById']
+  teamsById: Dynasty['league']['teamsById'],
+  userTeamId: string
 }) {
   const rounds = orderRounds(bracket.games)
   
@@ -106,9 +107,11 @@ function ConferenceBracketDisplay({ bracket, accentColor, teamsById }: {
                           alignItems: 'center',
                           marginBottom: team2 ? '0.5rem' : '0',
                           padding: '0.25rem 0.5rem',
-                          backgroundColor: winner === 'team1' ? `${accentColor}20` : 'transparent',
+                          backgroundColor: winner === 'team1' ? `${accentColor}20` : (game.team1Id === userTeamId ? 'rgba(74, 157, 111, 0.1)' : 'transparent'),
                           borderRadius: '4px',
-                          fontWeight: winner === 'team1' ? 'bold' : 'normal'
+                          fontWeight: winner === 'team1' ? 'bold' : (game.team1Id === userTeamId ? 'bold' : 'normal'),
+                          borderLeft: game.team1Id === userTeamId ? '3px solid #4a9d6f' : 'none',
+                          paddingLeft: game.team1Id === userTeamId ? '0.25rem' : '0.5rem'
                         }}>
                           <span>
                             {team1Info ? `(${team1Info.seed}) ${team1.name}` : team1.name}
@@ -129,9 +132,11 @@ function ConferenceBracketDisplay({ bracket, accentColor, teamsById }: {
                           justifyContent: 'space-between',
                           alignItems: 'center',
                           padding: '0.25rem 0.5rem',
-                          backgroundColor: winner === 'team2' ? `${accentColor}20` : 'transparent',
+                          backgroundColor: winner === 'team2' ? `${accentColor}20` : (game.team2Id === userTeamId ? 'rgba(74, 157, 111, 0.1)' : 'transparent'),
                           borderRadius: '4px',
-                          fontWeight: winner === 'team2' ? 'bold' : 'normal'
+                          fontWeight: winner === 'team2' ? 'bold' : (game.team2Id === userTeamId ? 'bold' : 'normal'),
+                          borderLeft: game.team2Id === userTeamId ? '3px solid #4a9d6f' : 'none',
+                          paddingLeft: game.team2Id === userTeamId ? '0.25rem' : '0.5rem'
                         }}>
                           <span>
                             {team2Info ? `(${team2Info.seed}) ${team2.name}` : team2.name}
@@ -462,6 +467,7 @@ export function ConferenceTournamentsScreen({
                     bracket={conf.bracket} 
                     accentColor={accentColor} 
                     teamsById={dynasty.league.teamsById}
+                    userTeamId={dynasty.league.userTeamId}
                   />
                 </div>
               )

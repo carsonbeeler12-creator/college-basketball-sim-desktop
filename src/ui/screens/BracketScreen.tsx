@@ -574,14 +574,18 @@ function TournamentSummary(props: { tournament: any, teamsById: Record<ID, { nam
           <div style={{ display: 'flex', flexDirection: 'column', gap: 6 }}>
             {topSeedsRemaining.map((team: any) => {
               const teamName = getTeamName(team.teamId)
+              const isUserTeam = team.teamId === activeSave.league.userTeamId
               return (
                 <div key={team.teamId} style={{ 
                   padding: '6px 10px', 
-                  background: 'var(--panel)', 
+                  background: isUserTeam ? 'rgba(74, 157, 111, 0.2)' : 'var(--panel)',
                   borderRadius: 4,
                   display: 'flex',
                   justifyContent: 'space-between',
-                  fontSize: '13px'
+                  fontSize: '13px',
+                  borderLeft: isUserTeam ? '3px solid #4a9d6f' : 'none',
+                  paddingLeft: isUserTeam ? '7px' : '10px',
+                  fontWeight: isUserTeam ? 'bold' : 'normal'
                 }}>
                   <span>#{team.seed} {teamName}</span>
                   <span style={{ color: 'var(--muted)' }}>{team.region}</span>
@@ -634,9 +638,14 @@ function TournamentSummary(props: { tournament: any, teamsById: Record<ID, { nam
         <div style={{ gridColumn: '1 / -1', marginTop: 24, textAlign: 'center' }}>
           <button 
             className="btn primary" 
-            onClick={() => {
+            onClick={async () => {
               const newDynasty = advanceToOffseason(activeSave)
-              setActiveSave(newDynasty)
+              const stamped: Dynasty = {
+                ...newDynasty,
+                lastSavedAtISO: new Date().toISOString(),
+              }
+              await window.api.saveDynasty(stamped)
+              setActiveSave(stamped)
               setScreen('dynastyHub')
             }}
           >

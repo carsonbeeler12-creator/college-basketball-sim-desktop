@@ -8,6 +8,7 @@ import type {
   Archetype,
 } from "../../types/dynasty";
 import { allocateTeamMinutes } from "../minutes/allocateTeamMinutes";
+import { getTeamSchemeModifiers, applyPaceModifier } from "../schemes/applySchemeModifiers";
 
 type Rng = { state: number };
 
@@ -443,24 +444,31 @@ function calculateUpsetModifiers(
 
 function computePossessions(rng: Rng, homePace: number, awayPace: number): number {
   const base = (homePace + awayPace) / 2;
-  return clamp(Math.round(base + randInt(rng, -4, 4)), 60, 82);
+  const chaosRoll = rand01(rng);
+  const chaosMult = chaosRoll < 0.08
+    ? 1.12 + rand01(rng) * 0.08
+    : chaosRoll > 0.92
+      ? 0.86 + rand01(rng) * 0.06
+      : 1.0;
+  const raw = base + randInt(rng, -6, 6);
+  return clamp(Math.round(raw * chaosMult), 58, 90);
 }
 
 function computeTeamFGA(rng: Rng, poss: number): number {
-  // Typical: poss ~70 => FGA ~56-63
+  // Typical: poss ~70 => FGA ~58-66
   // Allow occasional higher volume games (still within reason)
-  return clamp(Math.round(poss * 0.86 + randInt(rng, -2, 4)), 52, 72);
+  return clamp(Math.round(poss * 0.90 + randInt(rng, -3, 5)), 52, 76);
 }
 
 function computeTeamThreeRate(rng: Rng): number {
-  // Modern target: ~38–45% of FGA
-  return 0.38 + rand01(rng) * 0.07;
+  // Modern target: ~36–44% of FGA
+  return 0.36 + rand01(rng) * 0.08;
 }
 
 function computeTeamFTA(rng: Rng, poss: number, rimPressureIndex: number): number {
-  const base = poss * 0.24 + 2; // 70 => ~19
+  const base = poss * 0.26 + 2; // 70 => ~20
   const bump = (rimPressureIndex - 50) / 10;
-  return clamp(Math.round(base + bump + randInt(rng, -3, 5)), 12, 32);
+  return clamp(Math.round(base + bump + randInt(rng, -4, 6)), 12, 34);
 }
 
 /**
@@ -478,17 +486,17 @@ function offensiveGravity(p: any, min: number): number {
 
   const archUsage =
     arch === "PRIMARY_SCORER" || arch === "WING_SCORER" || arch === "POST_SCORER"
-      ? 1.12
+      ? 1.18
       : arch === "SHOOTER"
-      ? 1.06
+      ? 1.08
       : arch === "FACILITATOR"
-      ? 0.88
+      ? 0.86
       : 1.0;
 
   const score = 0.44 * ovr + 0.24 * fin + 0.16 * s3 + 0.10 * ball + 0.06 * mid;
 
   // Higher exponent concentrates attempts (important for star tails)
-  const pow = 1.55;
+  const pow = 1.75;
   return Math.max(0.0001, min * Math.pow(score / 100, pow) * archUsage);
 }
 
@@ -521,6 +529,10 @@ function buildTeamLinesRegulation(args: {
 }): PlayerBoxScoreLine[] {
   const { dynasty, teamId, minutes, oppDef, teamFGA, teamTPA, teamFTA, rng } = args;
 
+  // Get scheme modifiers for shooting accuracy
+  const schemeModifiers = getTeamSchemeModifiers(dynasty, teamId);
+  const shootingModifier = schemeModifiers.offensiveAccuracy;
+
   const team = dynasty.league.teamsById[teamId];
   const ids = team?.roster?.playerIds ?? [];
 
@@ -545,9 +557,11 @@ function buildTeamLinesRegulation(args: {
     top && isEliteScorerProfile(top.p, top.min) && rand01(rng) < 0.14; // rare
   const hot =
     top && isEliteScorerProfile(top.p, top.min) && rand01(rng) < 0.04; // very rare
+  const historicNight =
+    top && isEliteScorerProfile(top.p, top.min) && rand01(rng) < 0.0008; // almost never
 
   // Takeover boosts usage share
-  const takeoverMult = takeover ? 1.75 : 1.0;
+  const takeoverMult = historicNight ? 2.6 : takeover ? 1.75 : 1.0;
 
   // Allocate FGA by gravity (with takeover concentration)
   const gsum =
@@ -663,7 +677,8 @@ function buildTeamLinesRegulation(args: {
           : 1.0;
 
       const per40 = base * arch * insideBias * ballGate;
-      const w = Math.max(0.001, per40 * (x.min / 40));
+      const historicRimBoost = historicNight && x.pid === top?.pid ? 1.6 : 1.0;
+      const w = Math.max(0.001, per40 * (x.min / 40)) * historicRimBoost;
       return a + w;
     }, 0) || 1;
 
@@ -700,9 +715,10 @@ function buildTeamLinesRegulation(args: {
 
       // During takeover, slightly bias FTA to the alpha (helps 45+ tails)
       const takeoverFtaMult = takeover && x.pid === top?.pid ? 1.22 : 1.0;
+      const historicRimBoost = historicNight && x.pid === top?.pid ? 1.6 : 1.0;
 
       const per40 = base * arch * insideBias * ballGate;
-      const w = Math.max(0.001, per40 * (x.min / 40)) * takeoverFtaMult;
+      const w = Math.max(0.001, per40 * (x.min / 40)) * takeoverFtaMult * historicRimBoost;
       return { pid: x.pid, raw: (w / rimSum) * teamFTA };
     }),
     teamFTA
@@ -735,12 +751,16 @@ function buildTeamLinesRegulation(args: {
     const arch = p.identity.archetype as Archetype;
     const shooterVar = arch === "SHOOTER" || arch === "STRETCH_BIG" ? 1.2 : 1.0;
     const varianceMult = args.varianceMultiplier ?? 1.0;
-    const form = randN01(rng) * 0.012 * shooterVar * varianceMult; // Reduced from 0.015
+    const form = randN01(rng) * 0.016 * shooterVar * varianceMult;
 
     // Hot night (rare tail): boosts alpha efficiency
     const hotBoost =
       hot && pid === top?.pid
         ? 0.06 + rand01(rng) * 0.04 // +6% to +10% (bounded later)
+        : 0;
+    const historicBoost =
+      historicNight && pid === top?.pid
+        ? 0.10 + rand01(rng) * 0.06 // +10% to +16% (extremely rare)
         : 0;
 
     // Defense suppression
@@ -761,10 +781,11 @@ function buildTeamLinesRegulation(args: {
     // Fatigue penalty: 0.5% per extra minute beyond 25 (max -5% at 35+ minutes)
     const fatiguePenalty = Math.min(0.05, Math.max(0, (min - 25) * 0.005));
 
-    const tpPct = clamp(tpBase + perimSupp(oppDef.perimD) + form + hotBoost - fatiguePenalty, 0.18, 0.58);
-    const rimPct = clamp(rimBase + rimSupp(oppDef.rimD) + form * 0.7 + hotBoost * 0.65 - fatiguePenalty * 0.8, 0.34, 0.78);
-    const midPct = clamp(midBase + perimSupp(oppDef.perimD) * 0.35 + form * 0.6 + hotBoost * 0.45 - fatiguePenalty * 0.9, 0.25, 0.64);
-    const ftPct = clamp(ftBase + form * 0.3 + (hot && pid === top?.pid ? 0.02 : 0) - fatiguePenalty * 0.5, 0.45, 0.95);
+    // Apply scheme modifiers to shooting percentages
+    const tpPct = clamp(tpBase + perimSupp(oppDef.perimD) + form + hotBoost + historicBoost - fatiguePenalty + (shootingModifier / 100), 0.18, 0.62);
+    const rimPct = clamp(rimBase + rimSupp(oppDef.rimD) + form * 0.7 + hotBoost * 0.65 + historicBoost * 0.6 - fatiguePenalty * 0.8 + (shootingModifier / 100), 0.34, 0.82);
+    const midPct = clamp(midBase + perimSupp(oppDef.perimD) * 0.35 + form * 0.6 + hotBoost * 0.45 + historicBoost * 0.4 - fatiguePenalty * 0.9 + (shootingModifier / 100), 0.25, 0.66);
+    const ftPct = clamp(ftBase + form * 0.3 + (hot && pid === top?.pid ? 0.02 : 0) - fatiguePenalty * 0.5 + (shootingModifier / 100), 0.45, 0.95);
 
     const tpm = binomial(rng, tpa, tpPct);
     const rimPM = binomial(rng, rimPA, rimPct);
@@ -795,7 +816,8 @@ function buildTeamLinesRegulation(args: {
 
   // --- Event stats budgets ---
   // Rebounds: typical team totals mid-30s to low-40s (increased for better center numbers)
-  const baseReb = 38 + randInt(rng, -3, 5);
+  const rareRebSpike = rand01(rng) < 0.004 ? randInt(rng, 8, 18) : 0;
+  const baseReb = clamp(38 + randInt(rng, -3, 5) + rareRebSpike, 28, 58);
 
   // Team steals/blocks based on lineup defensive ratings (but capped to reality)
   const teamStlRating =
@@ -806,8 +828,12 @@ function buildTeamLinesRegulation(args: {
     Math.max(1e-6, active.reduce((a, x) => a + x.min / 40, 0));
 
   // Typical college ranges (anchor): steals ~5–10; blocks ~2–6; elite can push higher rarely.
-  const teamSteals = clamp(Math.round(7 + randInt(rng, -2, 4) + (teamStlRating - 50) / 18), 4, 14);
-  const teamBlocks = clamp(Math.round(4 + randInt(rng, -2, 3) + (teamBlkRating - 50) / 22), 1, 10);
+  const rareStlSpike = rand01(rng) < 0.003 ? randInt(rng, 3, 7) : 0;
+  const rareBlkSpike = rand01(rng) < 0.003 ? randInt(rng, 3, 8) : 0;
+  const stlCap = rareStlSpike > 0 ? 18 : 14;
+  const blkCap = rareBlkSpike > 0 ? 16 : 10;
+  const teamSteals = clamp(Math.round(7 + randInt(rng, -2, 4) + (teamStlRating - 50) / 18 + rareStlSpike), 4, stlCap);
+  const teamBlocks = clamp(Math.round(4 + randInt(rng, -2, 3) + (teamBlkRating - 50) / 22 + rareBlkSpike), 1, blkCap);
 
   const baseFouls = 16 + randInt(rng, -3, 5);
 
@@ -822,8 +848,11 @@ function buildTeamLinesRegulation(args: {
   const assistRate = clamp(0.52 + (teamPass - 50) / 200, 0.40, 0.72);
   const targetAst = clamp(Math.round(lines.reduce((a, b) => a + b.fgm, 0) * assistRate), 10, 25);
 
-  // Rebounds allocation - improved for better center numbers
-  const posRebMult: Record<string, number> = { PG: 0.70, SG: 0.75, SF: 1.0, PF: 1.4, C: 1.8 };
+  // Rebounds allocation - tuned by position for NCAA ranges
+  const posRebMult: Record<string, number> = { PG: 0.60, SG: 0.70, SF: 0.95, PF: 1.35, C: 1.70 };
+  const posAstMult: Record<string, number> = { PG: 1.35, SG: 0.90, SF: 0.85, PF: 0.70, C: 0.60 };
+  const posStlMult: Record<string, number> = { PG: 1.25, SG: 1.20, SF: 1.05, PF: 0.90, C: 0.75 };
+  const posBlkMult: Record<string, number> = { PG: 0.40, SG: 0.50, SF: 0.80, PF: 1.20, C: 1.60 };
   const rebWsum =
     active.reduce((a, x) => {
       const p = x.p;
@@ -857,7 +886,10 @@ function buildTeamLinesRegulation(args: {
   const astWsum =
     active.reduce((a, x) => {
       const p = x.p;
-      const w = (R(p.ratings.passing) * 1.2 + R(p.ratings.ballHandling) * 0.4) * (x.min / 40);
+      const pos = p.identity.position as Position;
+      const w = (R(p.ratings.passing) * 1.2 + R(p.ratings.ballHandling) * 0.4) *
+        (posAstMult[pos] ?? 1) *
+        (x.min / 40);
       return a + Math.max(0.001, w);
     }, 0) || 1;
 
@@ -865,7 +897,10 @@ function buildTeamLinesRegulation(args: {
     rng,
     active.map((x) => {
       const p = x.p;
-      const w = (R(p.ratings.passing) * 1.2 + R(p.ratings.ballHandling) * 0.4) * (x.min / 40);
+      const pos = p.identity.position as Position;
+      const w = (R(p.ratings.passing) * 1.2 + R(p.ratings.ballHandling) * 0.4) *
+        (posAstMult[pos] ?? 1) *
+        (x.min / 40);
       return { pid: x.pid, raw: (Math.max(0.001, w) / astWsum) * targetAst };
     }),
     targetAst
@@ -877,6 +912,7 @@ function buildTeamLinesRegulation(args: {
     const pos = p.identity.position as Position;
     const wRaw =
       (R(p.ratings.steal) * 1.0 + R(p.ratings.perimeterDefense) * 0.55 + R(p.ratings.athleticism) * 0.25) *
+      (posStlMult[pos] ?? 1) *
       (x.min / 40);
 
     // Concentrate to top defenders a bit
@@ -891,7 +927,7 @@ function buildTeamLinesRegulation(args: {
     total: teamSteals,
     weights: stlWeights,
     capsByPos: { PG: 5, SG: 5, SF: 4, PF: 3, C: 3 },
-    spikeChance: 0.06, // rare
+    spikeChance: 0.03,
     spikeMaxExtra: 2,
   });
 
@@ -901,6 +937,7 @@ function buildTeamLinesRegulation(args: {
     const pos = p.identity.position as Position;
     const wRaw =
       (R(p.ratings.block) * 1.0 + R(p.ratings.rimDefense) * 0.7 + R(p.identity.heightIn) * 0.45) *
+      (posBlkMult[pos] ?? 1) *
       (x.min / 40);
 
     // Stronger concentration for blocks (rim protectors dominate)
@@ -920,7 +957,7 @@ function buildTeamLinesRegulation(args: {
     total: teamBlocks,
     weights: blkWeights,
     capsByPos: { PG: 2, SG: 2, SF: 3, PF: 5, C: 7 },
-    spikeChance: 0.05, // rare
+    spikeChance: 0.025,
     spikeMaxExtra: 3,
   });
 
@@ -1091,7 +1128,15 @@ export function simulateGame(args: {
 
   const homePace = dynasty.league.teamsById[homeTeamId]?.meta?.pace ?? 70;
   const awayPace = dynasty.league.teamsById[awayTeamId]?.meta?.pace ?? 70;
-  const poss = computePossessions(rng, homePace, awayPace);
+  
+  // Apply coaching scheme modifiers to pace
+  const homeScheme = getTeamSchemeModifiers(dynasty, homeTeamId);
+  const awayScheme = getTeamSchemeModifiers(dynasty, awayTeamId);
+  
+  const adjustedHomePace = applyPaceModifier(homePace, homeScheme.pace);
+  const adjustedAwayPace = applyPaceModifier(awayPace, awayScheme.pace);
+  
+  const poss = computePossessions(rng, adjustedHomePace, adjustedAwayPace);
 
   const homeFGA = computeTeamFGA(rng, poss);
   const awayFGA = computeTeamFGA(rng, poss);

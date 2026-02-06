@@ -17,6 +17,10 @@ function randN01(rng: Rng): number {
   return s - 6
 }
 
+function randInt(rng: Rng, lo: number, hi: number): number {
+  return Math.floor(rand01(rng) * (hi - lo + 1)) + lo
+}
+
 function clamp(n: number, lo: number, hi: number): number {
   return Math.max(lo, Math.min(hi, n))
 }
@@ -149,8 +153,8 @@ function precomputeTeamData(
     pace: team.meta?.pace ?? 70,
     offensiveRating: avgOverall,
     defensiveRating: avgOverall,
-    threeRate: 0.35 + randN01(rng) * 0.05,
-    ftRate: 0.25,
+    threeRate: 0.37 + randN01(rng) * 0.05,
+    ftRate: 0.27,
     reboundRate: 0.50,
     assistRate: 0.55,
     stealRate: 0.08,
@@ -173,9 +177,15 @@ function simulateGameMacro(
   homeTeamLine: TeamBoxScoreLine
   awayTeamLine: TeamBoxScoreLine
 } {
-  // 1. Compute possessions
+  // 1. Compute possessions (with occasional "crazy" pace swings)
   const avgPace = (homeData.pace + awayData.pace) / 2
-  const possessions = Math.round(65 + avgPace * 0.15 + randN01(rng) * 5)
+  const chaosRoll = rand01(rng)
+  const chaosMult = chaosRoll < 0.08
+    ? 1.12 + rand01(rng) * 0.08 // fast, high-pace game
+    : chaosRoll > 0.92
+      ? 0.86 + rand01(rng) * 0.06 // slow, grindy game
+      : 1.0
+  const possessions = Math.round((66 + avgPace * 0.16 + randN01(rng) * 6) * chaosMult)
 
   // 2. Compute points per possession based on offensive/defensive ratings
   const homeOffStrength = homeData.offensiveRating
@@ -183,15 +193,16 @@ function simulateGameMacro(
   const awayOffStrength = awayData.offensiveRating
   const awayDefStrength = awayData.defensiveRating
 
-  const homePPP = 0.95 + (homeOffStrength - awayDefStrength) * 0.006 + randN01(rng) * 0.08
-  const awayPPP = 0.95 + (awayOffStrength - homeDefStrength) * 0.006 + randN01(rng) * 0.08
+  const pppNoise = randN01(rng) * (chaosMult > 1 ? 0.12 : 0.09)
+  const homePPP = clamp(0.98 + (homeOffStrength - awayDefStrength) * 0.006 + pppNoise, 0.75, 1.25)
+  const awayPPP = clamp(0.98 + (awayOffStrength - homeDefStrength) * 0.006 + pppNoise, 0.75, 1.25)
 
   const homePointsRaw = possessions * homePPP
   const awayPointsRaw = possessions * awayPPP
 
   // 3. Compute team shooting attempts
-  const homeFGA = Math.round(possessions * 0.95 + randN01(rng) * 3)
-  const awayFGA = Math.round(possessions * 0.95 + randN01(rng) * 3)
+  const homeFGA = Math.round(possessions * 0.92 + randN01(rng) * 4)
+  const awayFGA = Math.round(possessions * 0.92 + randN01(rng) * 4)
 
   const homeTPA = Math.round(homeFGA * homeData.threeRate)
   const awayTPA = Math.round(awayFGA * awayData.threeRate)
@@ -203,8 +214,8 @@ function simulateGameMacro(
   const homeTPM = clamp(Math.round(homeTPA * (0.33 + (homeOffStrength - 50) * 0.002)), 0, homeTPA)
   const awayTPM = clamp(Math.round(awayTPA * (0.33 + (awayOffStrength - 50) * 0.002)), 0, awayTPA)
 
-  const homeFTA = Math.round(possessions * homeData.ftRate + randN01(rng) * 2)
-  const awayFTA = Math.round(possessions * awayData.ftRate + randN01(rng) * 2)
+  const homeFTA = Math.round(possessions * homeData.ftRate + randN01(rng) * 3)
+  const awayFTA = Math.round(possessions * awayData.ftRate + randN01(rng) * 3)
 
   const homeFTM = Math.round(homeFTA * 0.70)
   const awayFTM = Math.round(awayFTA * 0.70)
@@ -227,17 +238,23 @@ function simulateGameMacro(
   const awayScore = awayTPM * 3 + away2PM * 2 + awayFTM
 
   // 5. Compute other team totals
-  const homeReb = Math.round(40 + randN01(rng) * 5)
-  const awayReb = Math.round(40 + randN01(rng) * 5)
+  const homeRebSpike = rand01(rng) < 0.004 ? randInt(rng, 8, 18) : 0
+  const awayRebSpike = rand01(rng) < 0.004 ? randInt(rng, 8, 18) : 0
+  const homeReb = clamp(Math.round(40 + randN01(rng) * 5 + homeRebSpike), 28, 58)
+  const awayReb = clamp(Math.round(40 + randN01(rng) * 5 + awayRebSpike), 28, 58)
 
   const homeAst = Math.round(homeFGM * homeData.assistRate)
   const awayAst = Math.round(awayFGM * awayData.assistRate)
 
-  const homeStl = Math.round(possessions * homeData.stealRate)
-  const awayStl = Math.round(possessions * awayData.stealRate)
+  const homeStlSpike = rand01(rng) < 0.003 ? randInt(rng, 3, 7) : 0
+  const awayStlSpike = rand01(rng) < 0.003 ? randInt(rng, 3, 7) : 0
+  const homeStl = clamp(Math.round(possessions * homeData.stealRate + homeStlSpike), 4, homeStlSpike > 0 ? 18 : 14)
+  const awayStl = clamp(Math.round(possessions * awayData.stealRate + awayStlSpike), 4, awayStlSpike > 0 ? 18 : 14)
 
-  const homeBlk = Math.round(possessions * homeData.blockRate)
-  const awayBlk = Math.round(possessions * awayData.blockRate)
+  const homeBlkSpike = rand01(rng) < 0.003 ? randInt(rng, 3, 8) : 0
+  const awayBlkSpike = rand01(rng) < 0.003 ? randInt(rng, 3, 8) : 0
+  const homeBlk = clamp(Math.round(possessions * homeData.blockRate + homeBlkSpike), 1, homeBlkSpike > 0 ? 16 : 10)
+  const awayBlk = clamp(Math.round(possessions * awayData.blockRate + awayBlkSpike), 1, awayBlkSpike > 0 ? 16 : 10)
 
   const homeTov = Math.round(possessions * homeData.turnoverRate)
   const awayTov = Math.round(possessions * awayData.turnoverRate)
@@ -309,12 +326,17 @@ function distributeTeamStats(
 ): PlayerBoxScoreLine[] {
   const lines: PlayerBoxScoreLine[] = []
 
-  // Distribute proportionally by minutes and usage
-  const totalUsageWeight = teamData.players.reduce((sum, p) => sum + p.usage * p.minutesPct, 0)
+  // Distribute proportionally by minutes and usage (slightly more concentrated for stars)
+  const totalUsageWeight = teamData.players.reduce((sum, p) => sum + Math.pow(p.usage, 1.75) * p.minutesPct, 0)
   const safeUsageWeight = totalUsageWeight > 0 ? totalUsageWeight : 1
 
+  const posRebMult: Record<string, number> = { PG: 0.60, SG: 0.70, SF: 0.95, PF: 1.35, C: 1.70, G: 0.65, F: 1.15 }
+  const posAstMult: Record<string, number> = { PG: 1.35, SG: 0.90, SF: 0.85, PF: 0.70, C: 0.60, G: 1.15, F: 0.75 }
+  const posStlMult: Record<string, number> = { PG: 1.25, SG: 1.20, SF: 1.05, PF: 0.90, C: 0.75, G: 1.20, F: 0.95 }
+  const posBlkMult: Record<string, number> = { PG: 0.40, SG: 0.50, SF: 0.80, PF: 1.20, C: 1.60, G: 0.45, F: 1.00 }
+
   for (const player of teamData.players) {
-    const share = (player.usage * player.minutesPct) / safeUsageWeight
+    const share = (Math.pow(player.usage, 1.75) * player.minutesPct) / safeUsageWeight
 
     // Distribute shooting
     const fga = Math.round(totals.fga * share)
@@ -327,11 +349,12 @@ function distributeTeamStats(
 
     const points = tpm * 3 + (fgm - tpm) * 2 + ftm
 
-    // Other stats
-    const rebounds = Math.round(totals.rebounds * player.minutesPct * (player.rebounding / 50))
-    const assists = Math.round(totals.assists * player.minutesPct * (player.passing / 50))
-    const steals = Math.round(totals.steals * player.minutesPct * (player.stealing / 50))
-    const blocks = Math.round(totals.blocks * player.minutesPct * (player.blocking / 50))
+    // Other stats (position-weighted)
+    const pos = player.position || 'G'
+    const rebounds = Math.round(totals.rebounds * player.minutesPct * (player.rebounding / 50) * (posRebMult[pos] ?? 1))
+    const assists = Math.round(totals.assists * player.minutesPct * (player.passing / 50) * (posAstMult[pos] ?? 1))
+    const steals = Math.round(totals.steals * player.minutesPct * (player.stealing / 50) * (posStlMult[pos] ?? 1))
+    const blocks = Math.round(totals.blocks * player.minutesPct * (player.blocking / 50) * (posBlkMult[pos] ?? 1))
     const turnovers = Math.round(totals.turnovers * share)
     const fouls = Math.round(totals.fouls * player.minutesPct)
 
@@ -620,6 +643,90 @@ self.onmessage = (e: MessageEvent<SimDayRequest>) => {
         total: games.length,
       }
       self.postMessage(progress)
+    }
+  }
+
+  // Calculate team ratings based on games and season stats
+  // This mirrors the calculateTeamRating logic from the main thread
+  for (const [teamId, teamState] of Object.entries(teamsById)) {
+    if (!teamState || !teamState.season) continue
+
+    const wins = teamState.season.wins ?? 0
+    const losses = teamState.season.losses ?? 0
+    const totalGames = wins + losses
+
+    if (totalGames === 0) {
+      // No games played, default rating
+      teamsById[teamId] = {
+        ...teamState,
+        season: {
+          ...teamState.season,
+          teamRating: 55,
+        },
+      }
+      continue
+    }
+
+    // Win percentage (40% weight)
+    const winPct = wins / totalGames
+
+    // For the worker, we'll use a simplified rating calculation
+    // since we don't have full access to all opponent data
+    // The main thread will recalculate these properly later if needed
+    
+    // Basic rating: weighted by wins and games played
+    const baseRating = 50 + (winPct - 0.5) * 20
+    const gamesPlayedBoost = Math.min(10, totalGames * 0.5)
+    const rating = Math.max(0, Math.min(100, Math.round(baseRating + gamesPlayedBoost)))
+
+    teamsById[teamId] = {
+      ...teamState,
+      season: {
+        ...teamState.season,
+        teamRating: rating,
+      },
+    }
+  }
+
+  // Calculate team ratings based on games and season stats
+  // This mirrors the calculateTeamRating logic from the main thread
+  for (const [teamId, teamState] of Object.entries(teamsById)) {
+    if (!teamState || !teamState.season) continue
+
+    const wins = teamState.season.wins ?? 0
+    const losses = teamState.season.losses ?? 0
+    const totalGames = wins + losses
+
+    if (totalGames === 0) {
+      // No games played, default rating
+      teamsById[teamId] = {
+        ...teamState,
+        season: {
+          ...teamState.season,
+          teamRating: 55,
+        },
+      }
+      continue
+    }
+
+    // Win percentage (40% weight)
+    const winPct = wins / totalGames
+
+    // For the worker, we'll use a simplified rating calculation
+    // since we don't have full access to all opponent data
+    // The main thread will recalculate these properly later if needed
+    
+    // Basic rating: weighted by wins and games played
+    const baseRating = 50 + (winPct - 0.5) * 20
+    const gamesPlayedBoost = Math.min(10, totalGames * 0.5)
+    const rating = Math.max(0, Math.min(100, Math.round(baseRating + gamesPlayedBoost)))
+
+    teamsById[teamId] = {
+      ...teamState,
+      season: {
+        ...teamState.season,
+        teamRating: rating,
+      },
     }
   }
 
