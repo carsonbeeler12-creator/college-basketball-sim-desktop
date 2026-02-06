@@ -85,6 +85,7 @@ function mkRecruit(teamId: ID, idx: number, ratings: PlayerRatings): Recruit {
     heightIn: 75,
     weightLb: 195,
     hometown: 'Town, ST',
+    archetype: 'BALANCED_SCORER' as any,
     ratings,
     potential: ratings.overall + 5,
     gemBustStatus: 'NORMAL',

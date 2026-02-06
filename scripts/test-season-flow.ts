@@ -94,6 +94,7 @@ async function main() {
     heightIn: samplePlayer.identity.heightIn,
     weightLb: samplePlayer.identity.weightLb,
     hometown: 'Test City, TS',
+    archetype: samplePlayer.identity.archetype,
     ratings: { ...baseRatings },
     potential: Math.min(99, baseRatings.overall + 5),
     gemBustStatus: 'NORMAL',

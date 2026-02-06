@@ -10,6 +10,7 @@ export type Screen =
   | 'recruiting'
   | 'draftDepartures'
   | 'standings'
+  | 'rankings'
   | 'teamDetail'
   | 'bracket'
   | 'conferenceTournaments'

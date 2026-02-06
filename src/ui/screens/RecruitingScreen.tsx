@@ -6,6 +6,7 @@ import { getRemainingHours, getTotalAllocatedHours, allocateHoursToRecruit, getT
 import { addRecruitToBoard, removeRecruitFromBoard, offerScholarship, scoutRecruit } from '../../game/engine/recruiting/boardManagement'
 import { projectMinutesForNextSeason, getOpportunityColor, getOpportunityRating } from '../../game/engine/minutes/projectMinutes'
 import { getAvailableScholarships, getOfferedScholarshipsCount } from '../../game/engine/recruiting/scholarshipLimits'
+import { evaluateArchetypeFit } from '../../game/engine/schemes/schemeDefinitions'
 import { POSITIONS } from '../hooks/useRotationController'
 import { teamName, getRatingDisplayName } from '../utils/format'
 import type { RatingKey } from '../../game/types/dynasty'
@@ -19,6 +20,7 @@ export function RecruitingScreen(props: {
   const [selectedRecruitId, setSelectedRecruitId] = useState<ID | null>(null)
   const [positionFilter, setPositionFilter] = useState<string>('ALL')
   const [starFilter, setStarFilter] = useState<string>('ALL')
+  const [fitFilter, setFitFilter] = useState<string>('ALL')
   const [searchTerm, setSearchTerm] = useState<string>('')
 
   if (!activeSave) {
@@ -102,8 +104,17 @@ export function RecruitingScreen(props: {
         return name.includes(term) || hometown.includes(term)
       })
     }
+    if (fitFilter !== 'ALL' && activeSave?.coach.scheme) {
+      filtered = filtered.filter(r => {
+        const fitScore = evaluateArchetypeFit(r.archetype, activeSave.coach.scheme!)
+        if (fitFilter === 'GOOD') return fitScore >= 3
+        if (fitFilter === 'OKAY') return fitScore >= 0 && fitScore < 3
+        if (fitFilter === 'BAD') return fitScore < 0
+        return true
+      })
+    }
     return filtered
-  }, [boardRecruits, positionFilter, starFilter, searchTerm])
+  }, [boardRecruits, positionFilter, starFilter, searchTerm, fitFilter, activeSave?.coach.scheme])
 
   const filteredNonBoardRecruits = useMemo(() => {
     let filtered = nonBoardRecruits
@@ -121,8 +132,17 @@ export function RecruitingScreen(props: {
         return name.includes(term) || hometown.includes(term)
       })
     }
+    if (fitFilter !== 'ALL' && activeSave?.coach.scheme) {
+      filtered = filtered.filter(r => {
+        const fitScore = evaluateArchetypeFit(r.archetype, activeSave.coach.scheme!)
+        if (fitFilter === 'GOOD') return fitScore >= 3
+        if (fitFilter === 'OKAY') return fitScore >= 0 && fitScore < 3
+        if (fitFilter === 'BAD') return fitScore < 0
+        return true
+      })
+    }
     return filtered
-  }, [nonBoardRecruits, positionFilter, starFilter, searchTerm])
+  }, [nonBoardRecruits, positionFilter, starFilter, searchTerm, fitFilter, activeSave?.coach.scheme])
 
   // Get selected recruit
   const selectedRecruit = selectedRecruitId 
@@ -207,6 +227,21 @@ export function RecruitingScreen(props: {
       return { text: '⚠️ BUST', color: '#ff5252' }
     }
     return null
+  }
+
+  // Get scheme fit badge for recruit
+  const getSchemeFitBadge = (recruit: typeof allRecruits[0]) => {
+    if (!recruit || !activeSave || !activeSave.coach.scheme) return null
+    
+    const fitScore = evaluateArchetypeFit(recruit.archetype, activeSave.coach.scheme)
+    
+    if (fitScore >= 3) {
+      return { text: '✓ Fits', color: '#4caf50', bg: 'rgba(76, 175, 80, 0.2)' }
+    } else if (fitScore >= 0) {
+      return { text: '~ Okay', color: '#ffc107', bg: 'rgba(255, 193, 7, 0.2)' }
+    } else {
+      return { text: '✗ Mismatch', color: '#ff5252', bg: 'rgba(255, 82, 82, 0.2)' }
+    }
   }
 
   // Get rating display based on scout level
@@ -335,12 +370,23 @@ export function RecruitingScreen(props: {
               className="input" 
               value={starFilter}
               onChange={e => setStarFilter(e.target.value)}
-              style={{ width: '100%' }}
+              style={{ width: '100%', marginBottom: 12 }}
             >
               <option value="ALL">All Stars</option>
               {[5, 4, 3, 2, 1].map(stars => (
                 <option key={stars} value={String(stars)}>{stars}★</option>
               ))}
+            </select>
+            <select 
+              className="input" 
+              value={fitFilter}
+              onChange={e => setFitFilter(e.target.value)}
+              style={{ width: '100%' }}
+            >
+              <option value="ALL">All Scheme Fits</option>
+              <option value="GOOD">✓ Good Fit</option>
+              <option value="OKAY">~ Okay Fit</option>
+              <option value="BAD">✗ Poor Fit</option>
             </select>
           </div>
 
@@ -409,6 +455,23 @@ export function RecruitingScreen(props: {
                             </span>
                           )}
                           <span>✓ {recruit.firstName} {recruit.lastName}</span>
+                          {getGemBustDisplay(recruit) && (() => {
+                            const badge = getGemBustDisplay(recruit)!
+                            const isGem = badge.text.includes('GEM')
+                            return (
+                              <span style={{
+                                fontSize: '10px',
+                                fontWeight: 700,
+                                padding: '2px 5px',
+                                borderRadius: '3px',
+                                backgroundColor: isGem ? 'rgba(76, 175, 80, 0.3)' : 'rgba(255, 82, 82, 0.3)',
+                                color: badge.color,
+                                marginLeft: 6
+                              }}>
+                                {isGem ? '💎' : '⚠️'}
+                              </span>
+                            )
+                          })()}
                         </div>
                         <div style={{ fontSize: '12px', color: 'var(--muted)' }}>
                           {getStarDisplay(recruit.starRating)}
@@ -453,6 +516,8 @@ export function RecruitingScreen(props: {
                   const progress = displayBoard?.progressByRecruitId?.[recruit.recruitId] ?? board?.progressByRecruitId?.[recruit.recruitId] ?? 0
                   // Check if committed to another team - show red left border
                   const isCommittedElsewhere = recruit.status === 'COMMITTED' && recruit.committedToTeamId && recruit.committedToTeamId !== userTeamId
+                  // Get scheme fit
+                  const fitBadge = getSchemeFitBadge(recruit)
                 
                 return (
                   <button
@@ -510,6 +575,41 @@ export function RecruitingScreen(props: {
                         {isCommittedElsewhere && (
                           <span style={{ fontSize: '10px', color: '#ff5252', fontWeight: 700, marginLeft: 4 }}>
                             ✗
+                          </span>
+                        )}
+                        {getGemBustDisplay(recruit) && (() => {
+                          const badge = getGemBustDisplay(recruit)!
+                          const isGem = badge.text.includes('GEM')
+                          return (
+                            <span style={{
+                              fontSize: '10px',
+                              fontWeight: 700,
+                              padding: '2px 5px',
+                              borderRadius: '3px',
+                              backgroundColor: isGem ? 'rgba(76, 175, 80, 0.3)' : 'rgba(255, 82, 82, 0.3)',
+                              color: badge.color,
+                              marginLeft: 6
+                            }}
+                            title={badge.text}
+                            >
+                              {isGem ? '💎' : '⚠️'}
+                            </span>
+                          )
+                        })()}
+                        {fitBadge && (
+                          <span 
+                            style={{ 
+                              fontSize: '10px', 
+                              fontWeight: 700, 
+                              color: fitBadge.color,
+                              backgroundColor: fitBadge.bg,
+                              padding: '2px 6px',
+                              borderRadius: '3px',
+                              marginLeft: 6
+                            }}
+                            title={`Scheme Fit: ${fitBadge.text}`}
+                          >
+                            {fitBadge.text}
                           </span>
                         )}
                       </div>
@@ -758,11 +858,27 @@ export function RecruitingScreen(props: {
                   )}
                   
                   {/* Gem/Bust Badge - Prominent */}
-                  {getGemBustDisplay(selectedRecruit) && (
-                    <div style={{ marginBottom: 12 }} className={getGemBustDisplay(selectedRecruit)?.text.includes('GEM') ? 'gemBadge' : 'bustBadge'}>
-                      {getGemBustDisplay(selectedRecruit)?.text}
-                    </div>
-                  )}
+                  {getGemBustDisplay(selectedRecruit) && (() => {
+                    const badge = getGemBustDisplay(selectedRecruit)!
+                    const isGem = badge.text.includes('GEM')
+                    return (
+                      <div style={{ 
+                        marginBottom: 12,
+                        padding: '10px 16px',
+                        backgroundColor: isGem ? 'rgba(76, 175, 80, 0.2)' : 'rgba(255, 82, 82, 0.2)',
+                        border: `2px solid ${isGem ? '#4caf50' : '#ff5252'}`,
+                        borderRadius: '8px',
+                        fontSize: '15px',
+                        fontWeight: 700,
+                        color: badge.color,
+                        textAlign: 'center',
+                        textTransform: 'uppercase',
+                        letterSpacing: '0.5px'
+                      }}>
+                        {badge.text}
+                      </div>
+                    )
+                  })()}
                   {positionOpp && (
                     <div style={{ fontSize: '13px', marginTop: 12 }}>
                       Opportunity: <span style={{ color: getOpportunityColor(positionOpp.opportunityScore), fontWeight: 600 }}>

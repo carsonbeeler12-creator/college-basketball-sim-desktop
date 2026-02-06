@@ -1,4 +1,5 @@
 import { emptySeasonTotals, emptyTeamSeasonTotals, type SeasonTotals, type TeamSeasonTotals } from './seasonStats'
+import { updateAllTeamRatings } from '../ratings/calculateTeamRating'
 
 type AnyDynasty = any
 
@@ -62,5 +63,6 @@ export function applyFinalGameToSeasonStats(dynasty: AnyDynasty, game: any) {
     dynasty.league.seasonStats.playersById[pid] = cur
   }
 
-  return dynasty
+  // Update team ratings based on new results
+  return updateAllTeamRatings(dynasty)
 }

@@ -1,6 +1,7 @@
 // Worker wrapper for calling from main app
 import type { Dynasty, ID } from '../../types/dynasty'
 import type { SimDayRequest, SimDayResult, SimDayProgress } from './simWorker.types'
+import { updateAllTeamRatings } from '../ratings/calculateTeamRating'
 
 export type SimProgress = {
   completed: number
@@ -37,7 +38,7 @@ export async function simulateDayWithWorker(
         const result = msg as SimDayResult
 
         // Merge results back into dynasty (single immutable update)
-        const updated: Dynasty = {
+        let updated: Dynasty = {
           ...dynasty,
           lastSavedAtISO: new Date().toISOString(),
           league: {
@@ -51,6 +52,9 @@ export async function simulateDayWithWorker(
           },
           playersById: result.updatedPlayersById,
         }
+
+        // Apply proper rating calculations now that we have all the game data
+        updated = updateAllTeamRatings(updated)
 
         worker.terminate()
         resolve(updated)

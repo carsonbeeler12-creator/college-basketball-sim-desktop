@@ -1,0 +1,6 @@
+Position,Avg Points,Avg Rebounds,Avg Assists,Avg Steals,Avg Blocks,All-Time High Points,All-Time High Rebounds,All-Time High Assists,All-Time High Steals,All-Time High Blocks
+Point Guard,10-15,2-4,6-8,1.8-2.5,0.3-0.8,27.8+,12+,9.8,5.5,~5
+Shooting Guard,14-22,3-6,1.5-3,1.8-2.8,0.3-1.0,27.8+,12+,9.8,5.5,~5
+Small Forward,12-20,4-7,1.5-3.5,1.2-2.2,0.5-1.5,28+,13+,9.8,5.5,~5
+Power Forward,14-20,7-10,1-2.5,0.8-1.8,1.0-2.2,28+,13+,9.8,5.5,564+
+Center,10-15,8-12,1-2,0.5-1.5,2.0-3.5+,28+,13+,9.8,5.5,564+

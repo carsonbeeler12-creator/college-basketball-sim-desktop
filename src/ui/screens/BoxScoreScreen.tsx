@@ -1,5 +1,6 @@
 import { TEAMS } from '../../game/defaultData'
 import { formatGameDay } from '../utils/format'
+import { getSchemeName } from '../../game/engine/schemes/schemeDefinitions'
 import type { Dynasty, GameState, ID } from '../../game/types/dynasty'
 import type { Screen } from '../../game/types'
 
@@ -81,6 +82,11 @@ export function BoxScoreScreen(props: {
               const tpPct = teamLine.tpa > 0 ? ((teamLine.tpm / teamLine.tpa) * 100).toFixed(1) : '0'
               const ftPct = teamLine.fta > 0 ? ((teamLine.ftm / teamLine.fta) * 100).toFixed(1) : '0'
 
+              const userTeamId = activeSave?.league.userTeamId
+              const isUserTeam = teamId === userTeamId
+              const coachScheme = isUserTeam ? activeSave?.coach.scheme : null
+              const schemeLabel = coachScheme ? getSchemeName(coachScheme) : null
+
               return (
                 <section key={side} className="boxScoreTeamCard" style={{ borderLeftWidth: 4, borderLeftColor: teamColor }}>
                   <div className="boxScoreTeamHeader">
@@ -88,6 +94,11 @@ export function BoxScoreScreen(props: {
                       <div className="boxScoreTeamName" style={{ color: teamColor }}>
                         {teamName(teamId)}
                       </div>
+                      {schemeLabel && (
+                        <div style={{ fontSize: '12px', color: 'var(--text-muted)', marginTop: '2px' }}>
+                          {schemeLabel} System
+                        </div>
+                      )}
                     </div>
                     <div className="boxScoreTeamScore" style={{ backgroundImage: `linear-gradient(135deg, ${teamColor} 0%, ${teamColor}80 100%)`, WebkitBackgroundClip: 'text', WebkitTextFillColor: 'transparent', backgroundClip: 'text' }}>
                       {teamLine.points}

@@ -5,16 +5,19 @@ import { progressPlayer } from './playerProgression'
 import { calculateAwards } from '../stats/calculateAwards'
 import { applyPrestigeAdjustments } from './applyPrestigeAdjustments'
 import { generateSeasonHighlights } from '../stats/generateSeasonHighlights'
+import { getEffectivePrestige } from './applyPrestigeAdjustments'
+import { TEAMS } from '../../defaultData'
 
 /**
  * Advances the dynasty from POSTSEASON to OFFSEASON.
  * This handles:
  * 1. Calculating and awarding end-of-season honors
  * 2. Generating season highlights for recap
- * 3. Graduating SR players
- * 4. Progressing remaining players (FR->SO, SO->JR, JR->SR)
- * 5. Converting committed recruits to roster players
- * 6. Clearing old season data
+ * 3. Updating coach career statistics
+ * 4. Graduating SR players
+ * 5. Progressing remaining players (FR->SO, SO->JR, JR->SR)
+ * 6. Converting committed recruits to roster players
+ * 7. Clearing old season data
  */
 export function advanceToOffseason(dynasty: Dynasty): Dynasty {
   // First, calculate and award season honors
@@ -28,9 +31,50 @@ export function advanceToOffseason(dynasty: Dynasty): Dynasty {
   
   const rng = { state: updatedDynasty.rng.state }
   
+  // Update coach career statistics
+  let updatedCoach = { ...updatedDynasty.coach }
+  const userTeam = updatedDynasty.league.teamsById[updatedDynasty.league.userTeamId]
+  if (userTeam && updatedCoach.careerStats) {
+    // Create new careerStats object to ensure immutability
+    const newCareerStats = { ...updatedCoach.careerStats }
+    
+    // Calculate wins/losses for this season
+    const seasonWins = userTeam.season.wins
+    const seasonLosses = userTeam.season.losses
+    
+    newCareerStats.totalWins += seasonWins
+    newCareerStats.totalLosses += seasonLosses
+    newCareerStats.seasonsCoached += 1
+    newCareerStats.yearsAtCurrentSchool = (newCareerStats.yearsAtCurrentSchool ?? 0) + 1
+    
+    // Update average prestige
+    const teamData = TEAMS.find(t => t.id === updatedDynasty.league.userTeamId)
+    const currentPrestige = userTeam && teamData ? getEffectivePrestige(teamData, userTeam) : 0
+    newCareerStats.averagePrestige = 
+      (newCareerStats.averagePrestige * (newCareerStats.seasonsCoached - 1) + currentPrestige) / 
+      newCareerStats.seasonsCoached
+    
+    // Update prestige tier based on current prestige
+    if (currentPrestige >= 85) {
+      newCareerStats.currentPrestigeTier = 'BLUE_BLOOD'
+    } else if (currentPrestige >= 75) {
+      newCareerStats.currentPrestigeTier = 'POWER'
+    } else if (currentPrestige >= 60) {
+      newCareerStats.currentPrestigeTier = 'MID_MAJOR'
+    } else if (currentPrestige >= 45) {
+      newCareerStats.currentPrestigeTier = 'MID_TIER'
+    } else {
+      newCareerStats.currentPrestigeTier = 'SMALL_SCHOOL'
+    }
+    
+    updatedCoach.careerStats = newCareerStats
+    // TODO: Set tournament finish based on tournament result when ready
+  }
+  
   // Create new dynasty state
   const newDynasty: Dynasty = {
     ...updatedDynasty,
+    coach: updatedCoach,
     world: {
       ...updatedDynasty.world,
       phase: 'OFFSEASON',

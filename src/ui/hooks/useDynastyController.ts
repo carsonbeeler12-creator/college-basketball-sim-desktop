@@ -87,6 +87,23 @@ export function useDynastyController() {
       mark('dynasty:load:start')
       const loaded = (await window.api.loadDynasty(dynastyId)) as Dynasty
       if (loaded) {
+        // Migration: Add missing scheme and careerStats to old saves
+        if (!loaded.coach.scheme) {
+          loaded.coach.scheme = 'BALANCED' // Default scheme for old saves
+        }
+        if (!loaded.coach.careerStats) {
+          const teamState = loaded.league.teamsById?.[loaded.league.userTeamId]
+          const currentSeasonWins = teamState?.season?.wins ?? 0
+          const currentSeasonLosses = teamState?.season?.losses ?? 0
+          loaded.coach.careerStats = {
+            seasonsCoached: 1,
+            totalWins: currentSeasonWins,
+            totalLosses: currentSeasonLosses,
+            averagePrestige: 0,
+            currentPrestigeTier: 'MID_TIER',
+            yearsAtCurrentSchool: 1
+          }
+        }
         setActiveSaveState(loaded)
       }
       measure('dynasty:load:complete', 'dynasty:load:start', 'dynasty:load:end')
@@ -113,7 +130,7 @@ export function useDynastyController() {
     }
   }
 
-  async function startNewDynasty(args: { coachName: string; userTeamId: ID; seasonYear: number }) {
+  async function startNewDynasty(args: { coachName: string; userTeamId: ID; coachScheme: any; seasonYear: number }) {
     const dynasty = createDynasty(args)
     await persistActiveSave(dynasty)
     setActiveSaveState(dynasty)
@@ -214,6 +231,29 @@ export function useDynastyController() {
     return updated
   }
 
+  async function editPlayerName(playerId: ID, firstName: string, lastName: string): Promise<void> {
+    if (!activeSave) return
+    
+    const updated = { ...activeSave }
+    const player = updated.playersById[playerId]
+    if (player) {
+      player.identity.firstName = firstName
+      player.identity.lastName = lastName
+      await persistActiveSave(updated)
+    }
+  }
+
+  async function editTeamName(teamId: ID, teamName: string): Promise<void> {
+    if (!activeSave) return
+    
+    const updated = { ...activeSave }
+    const teamState = updated.league.teamsById[teamId]
+    if (teamState) {
+      teamState.name = teamName
+      await persistActiveSave(updated)
+    }
+  }
+
   return {
     saves,
     activeSave,
@@ -225,6 +265,8 @@ export function useDynastyController() {
     simulateTournamentGame,
     handleGenerateConferenceTournaments,
     simulateConferenceTournamentGames,
+    editPlayerName,
+    editTeamName,
     simProgress,
     isSimulating,
     recentSimGames,

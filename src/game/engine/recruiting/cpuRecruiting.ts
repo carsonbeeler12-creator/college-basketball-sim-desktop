@@ -8,6 +8,7 @@ import { allocateHoursToRecruit } from './allocateHours'
 import { updateProgressForBoard } from './calculateProgress'
 import { TEAMS } from '../../defaultData'
 import { getEffectivePrestige } from '../development/applyPrestigeAdjustments'
+import { evaluateArchetypeFit } from '../schemes/schemeDefinitions'
 
 type Rng = { state: number }
 
@@ -223,6 +224,7 @@ function addRecruitsToCPUBoard(
 
   // Score recruits: prefer higher quality bands, higher interest, higher overall
   // Within same quality band, prefer those with national ranks (more specific differentiation)
+  // ALSO: prefer recruits that fit the team's coaching scheme
   availableRecruits.sort((a, b) => {
     const bandA = getRecruitQualityBand(a)
     const bandB = getRecruitQualityBand(b)
@@ -231,23 +233,31 @@ function addRecruitsToCPUBoard(
     const overallA = a.ratings.overall ?? 0
     const overallB = b.ratings.overall ?? 0
     
+    // Get team's coaching scheme to evaluate fit
+    const coachScheme = dynasty.coach?.scheme ?? 'BALANCED'
+    const fitA = evaluateArchetypeFit(a.archetype, coachScheme)
+    const fitB = evaluateArchetypeFit(b.archetype, coachScheme)
+    
     // Primary sort: quality band weight (ELITE > HIGH > MID > LOW > GARBAGE)
     const bandWeightDiff = getQualityBandWeight(bandB) - getQualityBandWeight(bandA)
     if (bandWeightDiff !== 0) return bandWeightDiff * 10 // Weight band differences heavily
     
-    // Secondary sort: within same band, prefer those with national ranks (1-100)
+    // Secondary sort: scheme fit (if different)
+    if (fitB !== fitA) return fitB - fitA
+    
+    // Tertiary sort: within same band, prefer those with national ranks (1-100)
     // Ranked recruits are more carefully vetted, so prefer them
     const hasRankA = a.rank !== undefined && a.rank <= 100
     const hasRankB = b.rank !== undefined && b.rank <= 100
     if (hasRankA && !hasRankB) return -1
     if (!hasRankA && hasRankB) return 1
     
-    // Tertiary sort: if both ranked, prefer better rank
+    // Quaternary sort: if both ranked, prefer better rank
     if (hasRankA && hasRankB && a.rank !== undefined && b.rank !== undefined) {
       return a.rank - b.rank
     }
     
-    // Quaternary sort: score = interest + overall bonus
+    // Quinary sort: score = interest + overall bonus
     const scoreA = interestA + overallA * 0.1
     const scoreB = interestB + overallB * 0.1
     

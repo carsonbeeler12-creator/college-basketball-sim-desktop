@@ -3,6 +3,7 @@
 
 import type { Dynasty, ID } from '../../types/dynasty'
 import { TEAMS } from '../../defaultData'
+import { updateAllTeamRatings } from '../ratings/calculateTeamRating'
 
 type Rng = { state: number }
 
@@ -300,10 +301,13 @@ function seedAndPlaceTeams(
  * Main selection function
  */
 export function selectTournament(dynasty: Dynasty): TournamentSelection {
+  // Ensure all team ratings are up-to-date before selection
+  const updatedDynasty = updateAllTeamRatings(dynasty)
+
   const rng: Rng = { state: hashSeed(dynasty.rng.seed, `tournament_${dynasty.world.seasonYear}`) >>> 0 }
 
   // Step 1: Autobids
-  const autobids = getConferenceChampions(dynasty, rng)
+  const autobids = getConferenceChampions(updatedDynasty, rng)
   const autobidTeamIds = new Set(autobids.map(a => a.teamId))
 
   // Step 2: At-Large
@@ -311,23 +315,23 @@ export function selectTournament(dynasty: Dynasty): TournamentSelection {
   const totalSlots = 64
   const atLargeCount = Math.max(0, totalSlots - autobids.length)
   
-  const atLarge = selectAtLargeTeams(dynasty, autobidTeamIds, atLargeCount)
+  const atLarge = selectAtLargeTeams(updatedDynasty, autobidTeamIds, atLargeCount)
 
   // Combine
   const allSelected = [
     ...autobids.map(a => {
-      const teamState = dynasty.league.teamsById[a.teamId]
-      const score = calculateResumeScore(a.teamId, teamState, dynasty)
+      const teamState = updatedDynasty.league.teamsById[a.teamId]
+      const score = calculateResumeScore(a.teamId, teamState, updatedDynasty)
       return { teamId: a.teamId, isAutobid: true, resumeScore: score }
     }),
     ...atLarge.map(a => ({ teamId: a.teamId, isAutobid: false, resumeScore: a.score }))
   ]
 
   // Step 3: Seed and Place
-  const seededTeams = seedAndPlaceTeams(dynasty, allSelected)
+  const seededTeams = seedAndPlaceTeams(updatedDynasty, allSelected)
 
   return {
-    seasonYear: dynasty.world.seasonYear,
+    seasonYear: updatedDynasty.world.seasonYear,
     autobids,
     atLarge: atLarge.map(t => t.teamId),
     allTeams: seededTeams,

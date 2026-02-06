@@ -1,17 +1,20 @@
 import { useState } from 'react'
-import type { Dynasty, PlayerState } from '../../game/types/dynasty'
+import type { Dynasty, PlayerState, ID } from '../../game/types/dynasty'
 import type { Screen } from '../../game/types'
 import { TEAMS } from '../../game/defaultData'
 import { fmtHeight, getRatingDisplayName } from '../utils/format'
 import { getAwardName } from '../../game/engine/stats/calculateAwards'
+import { EditPlayerModal } from '../components/EditPlayerModal'
 
 export function RosterScreen(props: {
   activeSave: Dynasty | null
   activeRosterPlayers: PlayerState[]
   setScreen: (s: Screen) => void
+  onEditPlayer?: (playerId: ID, firstName: string, lastName: string) => Promise<void>
 }) {
-  const { activeSave, activeRosterPlayers, setScreen } = props
+  const { activeSave, activeRosterPlayers, setScreen, onEditPlayer } = props
   const [expandedPlayerId, setExpandedPlayerId] = useState<string | null>(null)
+  const [editingPlayerId, setEditingPlayerId] = useState<ID | null>(null)
   const activeTeam = TEAMS.find(t => t.id === activeSave?.league.userTeamId) ?? null
 
   return (
@@ -81,6 +84,27 @@ export function RosterScreen(props: {
                         </span>
                       )}
                     </div>
+                  </div>
+                  <div style={{ display: 'flex', gap: 8, alignItems: 'center' }}>
+                    <button
+                      className="btn secondary"
+                      onClick={(e) => {
+                        e.stopPropagation()
+                        setEditingPlayerId(p.playerId)
+                      }}
+                      style={{ 
+                        padding: '6px 12px', 
+                        fontSize: '12px',
+                        backgroundColor: 'rgba(76, 175, 80, 0.2)',
+                        border: '1px solid rgba(76, 175, 80, 0.5)',
+                        color: '#4caf50',
+                        fontWeight: 600,
+                        borderRadius: '4px',
+                        cursor: 'pointer'
+                      }}
+                    >
+                      Edit
+                    </button>
                   </div>
                 </div>
                 {expandedPlayerId === p.playerId && (
@@ -157,6 +181,19 @@ export function RosterScreen(props: {
             ))}
           </div>
         </>
+      )}
+      
+      {editingPlayerId && activeSave && (
+        <EditPlayerModal
+          dynasty={activeSave}
+          playerId={editingPlayerId}
+          onClose={() => setEditingPlayerId(null)}
+          onSave={async (playerId, firstName, lastName) => {
+            if (onEditPlayer) {
+              await onEditPlayer(playerId, firstName, lastName)
+            }
+          }}
+        />
       )}
     </section>
   )

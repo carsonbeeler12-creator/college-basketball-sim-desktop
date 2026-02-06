@@ -149,6 +149,7 @@ export function simWeek(dynasty: Dynasty): { dynasty: Dynasty; newGameId: ID; ev
   let updated = applyFinalGameToSeasonStats(withGame, game)
 
   // Update team win/loss records in TeamState (including conference records)
+  // Use the updated versions from applyFinalGameToSeasonStats to preserve ratings
   const homeTeam = updated.league.teamsById[homeTeamId]
   const awayTeam = updated.league.teamsById[awayTeamId]
 
@@ -308,10 +309,11 @@ export function simWeek(dynasty: Dynasty): { dynasty: Dynasty; newGameId: ID; ev
         continue
       }
       
-      // Apply season stats
+      // Apply season stats (includes rating updates)
       let cpuUpdated = applyFinalGameToSeasonStats(cpuGameResult, cpuGame)
       
       // Manually update team records (like we do for user team games)
+      // Use the updated versions from applyFinalGameToSeasonStats to preserve ratings
       const homeTeamRec = cpuUpdated.league.teamsById[homeTeamId]
       const awayTeamRec = cpuUpdated.league.teamsById[awayTeamId]
       

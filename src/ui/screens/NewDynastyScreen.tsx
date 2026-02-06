@@ -1,8 +1,11 @@
 import { useState, useMemo } from 'react'
 import { TEAMS } from '../../game/defaultData'
 import { CONFERENCES } from '../../game/data/conferences'
-import type { ID } from '../../game/types/dynasty'
+import type { ID, CoachScheme } from '../../game/types/dynasty'
 import type { Screen } from '../../game/types'
+import { SCHEME_PROFILES } from '../../game/engine/schemes/schemeDefinitions'
+
+const SCHEMES: CoachScheme[] = ['TEMPO', 'DEFENSIVE', 'POST_HEAVY', 'THREE_POINT', 'BALANCED']
 
 export function NewDynastyScreen(props: {
   coachName: string
@@ -10,10 +13,11 @@ export function NewDynastyScreen(props: {
   selectedTeamId: string
   setSelectedTeamId: (s: string) => void
   setScreen: (s: Screen) => void
-  startNewDynasty: (args: { coachName: string; userTeamId: ID; seasonYear: number }) => Promise<void>
+  startNewDynasty: (args: { coachName: string; userTeamId: ID; coachScheme: CoachScheme; seasonYear: number }) => Promise<void>
 }) {
   const { coachName, setCoachName, selectedTeamId, setSelectedTeamId, setScreen, startNewDynasty } = props
   const [searchQuery, setSearchQuery] = useState('')
+  const [selectedScheme, setSelectedScheme] = useState<CoachScheme>('BALANCED')
 
   // Group teams by conference
   const teamsByConference = useMemo(() => {
@@ -104,6 +108,7 @@ export function NewDynastyScreen(props: {
       await startNewDynasty({
         coachName: coachName.trim(),
         userTeamId: selectedTeamId as ID,
+        coachScheme: selectedScheme,
         seasonYear: 2026,
       })
       setScreen('dynastyHub')
@@ -131,6 +136,33 @@ export function NewDynastyScreen(props: {
           />
         </label>
 
+        <label className="field">
+          <div className="fieldLabel">Coaching scheme</div>
+          <select
+            className="input"
+            value={selectedScheme}
+            onChange={e => setSelectedScheme(e.target.value as CoachScheme)}
+          >
+            {SCHEMES.map(scheme => (
+              <option key={scheme} value={scheme}>
+                {scheme.charAt(0) + scheme.slice(1).toLowerCase().replace(/_/g, ' ')}
+              </option>
+            ))}
+          </select>
+        </label>
+      </div>
+
+      {/* Scheme Description */}
+      <div style={{ marginBottom: 16, padding: 12, backgroundColor: 'rgba(100, 150, 255, 0.1)', borderRadius: 4, borderLeft: '3px solid var(--primary)' }}>
+        <div style={{ fontSize: '14px', fontWeight: 600, marginBottom: 4 }}>
+          {SCHEME_PROFILES[selectedScheme].name} System
+        </div>
+        <div style={{ fontSize: '13px', lineHeight: '1.5', color: 'var(--text-muted)' }}>
+          {SCHEME_PROFILES[selectedScheme].description}
+        </div>
+      </div>
+
+      <div className="grid2" style={{ marginBottom: 16 }}>
         <label className="field">
           <div className="fieldLabel">Search teams</div>
           <input

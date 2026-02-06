@@ -20,6 +20,7 @@ import { BoxScoreScreen } from './ui/screens/BoxScoreScreen'
 import { RecruitingScreen } from './ui/screens/RecruitingScreen'
 import { DraftDeparturesScreen } from './ui/screens/DraftDeparturesScreen'
 import { StandingsScreen } from './ui/screens/StandingsScreen'
+import { RankingsScreen } from './ui/screens/RankingsScreen'
 import { TeamDetailScreen } from './ui/screens/TeamDetailScreen'
 import { BracketScreen } from './ui/screens/BracketScreen'
 import { ConferenceTournamentsScreen } from './ui/screens/ConferenceTournamentsScreen'
@@ -187,11 +188,22 @@ function App() {
         )}
 
         {screen === 'dynastyHub' && (
-          <DynastyHubScreen activeSave={activeSave} setActiveSave={setActiveSave} setScreen={setScreen} upcomingGame={upcomingGame} />
+          <DynastyHubScreen
+            activeSave={activeSave}
+            setActiveSave={setActiveSave}
+            setScreen={setScreen}
+            upcomingGame={upcomingGame}
+            onEditTeam={dynastyCtl.editTeamName}
+          />
         )}
 
         {screen === 'roster' && (
-          <RosterScreen activeSave={activeSave} activeRosterPlayers={activeRoster} setScreen={setScreen} />
+          <RosterScreen
+            activeSave={activeSave}
+            activeRosterPlayers={activeRoster}
+            setScreen={setScreen}
+            onEditPlayer={dynastyCtl.editPlayerName}
+          />
         )}
 
         {screen === 'rotation' && (
@@ -253,6 +265,23 @@ function App() {
 
         {screen === 'standings' && (
           <StandingsScreen 
+            activeSave={activeSave} 
+            setScreen={(s) => {
+              if (s === 'teamDetail' && viewingTeamId) {
+                setScreen('teamDetail')
+              } else {
+                setScreen(s)
+              }
+            }}
+            onTeamClick={(teamId) => {
+              setViewingTeamId(teamId)
+              setScreen('teamDetail')
+            }}
+          />
+        )}
+
+        {screen === 'rankings' && (
+          <RankingsScreen 
             activeSave={activeSave} 
             setScreen={(s) => {
               if (s === 'teamDetail' && viewingTeamId) {
