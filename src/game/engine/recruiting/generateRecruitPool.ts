@@ -142,11 +142,11 @@ function generateRecruit(
   
   // Apply gem/bust modifiers to overall rating (busts are overrated, gems are underrated)
   if (gemBustStatus === 'BUST') {
-    // Bust: lower overall (they're not as good as their star rating suggests)
-    overallTarget = Math.max(overallTarget - randInt(rng, 3, 7), 1)
+    // Bust: significantly lower overall (they're not as good as their star rating suggests)
+    overallTarget = Math.max(overallTarget - randInt(rng, 5, 10), 1)
   } else if (gemBustStatus === 'GEM') {
     // Gem: higher overall (they're better than their star rating suggests)
-    overallTarget = Math.min(overallTarget + randInt(rng, 2, 5), 99)
+    overallTarget = Math.min(overallTarget + randInt(rng, 3, 7), 99)
   }
   
   // Generational talents are truly special - boost their overall significantly
@@ -189,6 +189,7 @@ function generateRecruit(
     heightIn,
     weightLb,
     hometown,
+    archetype,
     ratings,
     potential,
     gemBustStatus,
@@ -208,19 +209,19 @@ function determineGemBustStatus(rng: Rng, starRating: 1 | 2 | 3 | 4 | 5): GemBus
   
   // Gems are rarer than busts, especially for high stars
   const gemChances: Record<number, number> = {
-    5: 0.04, // 4% for 5★
-    4: 0.06, // 6% for 4★
-    3: 0.08, // 8% for 3★
-    2: 0.05, // 5% for 2★
+    5: 0.05, // 5% for 5★
+    4: 0.08, // 8% for 4★
+    3: 0.10, // 10% for 3★
+    2: 0.06, // 6% for 2★
     1: 0.03, // 3% for 1★
   }
   
   const bustChances: Record<number, number> = {
-    5: 0.08, // 8% for 5★
-    4: 0.12, // 12% for 4★
-    3: 0.15, // 15% for 3★
-    2: 0.10, // 10% for 2★
-    1: 0.05, // 5% for 1★
+    5: 0.12, // 12% for 5★ (busts hurt more at high ratings)
+    4: 0.15, // 15% for 4★
+    3: 0.18, // 18% for 3★
+    2: 0.12, // 12% for 2★
+    1: 0.08, // 8% for 1★
   }
   
   if (roll < gemChances[starRating]) return 'GEM'

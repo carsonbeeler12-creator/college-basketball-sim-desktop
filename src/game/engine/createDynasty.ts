@@ -3,11 +3,12 @@ import { generateLeagueAndRosters } from "./generateLeague"
 import { generateSchedule } from "./schedule/generateSchedule"
 import { generateRecruitPool } from "./recruiting/generateRecruitPool"
 import { processCPURecruiting } from "./recruiting/cpuRecruiting"
-import { DYNASTY_SAVE_VERSION, type Dynasty, type ID } from "../types/dynasty"
+import { DYNASTY_SAVE_VERSION, type Dynasty, type ID, type CoachScheme } from "../types/dynasty"
 
 type CreateDynastyArgs = {
   coachName: string
   userTeamId: ID
+  coachScheme: CoachScheme
   seasonYear: number
   seed?: number
 }
@@ -55,6 +56,15 @@ export function createDynasty(args: CreateDynastyArgs): Dynasty {
     coach: {
       coachId: makeId("coach"),
       name: coachName,
+      scheme: args.coachScheme,
+      careerStats: {
+        seasonsCoached: 1,
+        totalWins: 0,
+        totalLosses: 0,
+        averagePrestige: 0,
+        currentPrestigeTier: 'MID_TIER',
+        yearsAtCurrentSchool: 1,
+      },
       meta: {},
     },
 

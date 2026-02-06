@@ -11,6 +11,7 @@ const mockDynasty: Dynasty = {
   coach: {
     coachId: 'coach-1',
     name: 'Test Coach',
+    scheme: 'BALANCED',
   },
   world: {
     seasonYear: 2024,
