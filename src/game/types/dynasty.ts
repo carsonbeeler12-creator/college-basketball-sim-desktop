@@ -76,9 +76,32 @@ export type WorldPhase =
   | "POSTSEASON"
   | "OFFSEASON";
 
+/**
+ * Coaching scheme determines team identity and affects recruiting, game sim, and prestige progression.
+ */
+export type CoachScheme = 
+  | "TEMPO"           // Fast pace, 3-point heavy, high-scoring
+  | "DEFENSIVE"       // Defense-first, lower pace, grind-it-out
+  | "POST_HEAVY"      // Traditional big man emphasis, paint scoring
+  | "THREE_POINT"     // 3-and-D players, perimeter-focused offense
+  | "BALANCED";       // No particular emphasis, flexible
+
 export type CoachProfile = {
   coachId: ID;
   name: string;
+  scheme: CoachScheme;
+  
+  // Career tracking
+  careerStats?: {
+    seasonsCoached: number;
+    totalWins: number;
+    totalLosses: number;
+    bestTournamentFinish?: "CHAMPIONSHIP" | "CHAMPIONSHIP_GAME" | "SEMIFINAL" | "ELITE_EIGHT" | "SWEET_SIXTEEN" | "FIRST_ROUND" | "NCAA_TOURNEY"; // e.g. "SEMIFINAL"
+    averagePrestige: number;
+    currentPrestigeTier?: "BLUE_BLOOD" | "POWER" | "MID_MAJOR" | "MID_TIER" | "SMALL_SCHOOL"; // Determines job offers
+    yearsAtCurrentSchool?: number;
+  };
+  
   meta?: Record<string, unknown>;
 };
 
@@ -336,6 +359,7 @@ export type Recruit = {
   heightIn: number;
   weightLb: number;
   hometown: string; // "City, State"
+  archetype: Archetype; // For scheme fit evaluation
   
   // Ratings (current ability)
   ratings: PlayerRatings;
