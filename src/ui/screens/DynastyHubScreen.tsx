@@ -23,329 +23,174 @@ export function DynastyHubScreen(props: {
   const activeTeam = TEAMS.find(t => t.id === activeSave?.league.userTeamId) ?? null
 
   return (
-    <section className="card wide">
-      <h2 className="cardTitle">Dynasty Hub</h2>
+    <section className="card wide hubCard">
+      <h2 className="hubPageTitle">Dynasty Hub</h2>
 
       {!activeSave || !activeTeam ? (
         <p className="cardText muted">No dynasty loaded.</p>
       ) : (
         <>
-          <div className="hubHeader">
-            <div>
-              <div style={{ display: 'flex', alignItems: 'center', gap: 8 }}>
-                <div className="hubTeam">{activeTeam.name}</div>
-                <button
-                  className="btn secondary"
-                  onClick={() => setEditingTeamId(activeTeam.id)}
-                  style={{ 
-                    padding: '6px 12px', 
-                    fontSize: '12px',
-                    backgroundColor: 'rgba(76, 175, 80, 0.2)',
-                    border: '1px solid rgba(76, 175, 80, 0.5)',
-                    color: '#4caf50',
-                    fontWeight: 600,
-                    borderRadius: '4px',
-                    cursor: 'pointer'
-                  }}
-                >
-                  Edit Name
-                </button>
-              </div>
-              <div className="hubMeta">
-                {activeTeam.city}, {activeTeam.state} • {activeTeam.nickname}
-              </div>
-              {(() => {
-                const teamState = activeSave.league.teamsById?.[activeTeam.id]
-                const wins = teamState?.season?.wins ?? 0
-                const losses = teamState?.season?.losses ?? 0
-                const totalGames = wins + losses
-                if (totalGames > 0) {
-                  return (
-                    <div className="hubMeta" style={{ marginTop: 4, fontWeight: 600 }}>
-                      Record: {wins}-{losses}
-                    </div>
-                  )
-                }
-                return null
-              })()}
+        <div className="hubLayout">
+          {/* Left column: context (header, next game, phase CTA) */}
+          <div className="hubLayoutLeft">
+          {/* Compact header: team, record, season, prestige, coach in one strip */}
+          <div className="hubCompactHeader">
+            <div className="hubCompactTeam">
+              <h1 className="hubCompactTeamName">{activeTeam.name}</h1>
+              <button
+                className="hubEditTeamBtn hubEditTeamBtnSmall"
+                onClick={() => setEditingTeamId(activeTeam.id)}
+                title="Edit team name"
+              >
+                ✏️
+              </button>
+              <span className="hubCompactLocation">{activeTeam.city}, {activeTeam.state}</span>
             </div>
-            <div className="hubMeta right">
-              Coach {activeSave.coach.name}
-              {activeSave.coach.scheme && (
-                <>
-                  <br />
-                  <span style={{ fontSize: '0.9em', color: 'var(--text-muted)' }}>
-                    {getSchemeName(activeSave.coach.scheme)} System
+            {activeSave.league.teamsById[activeSave.league.userTeamId] && (() => {
+              const userTeam = activeSave.league.teamsById[activeSave.league.userTeamId]
+              const seasonWins = userTeam.season.wins ?? 0
+              const seasonLosses = userTeam.season.losses ?? 0
+              const teamState = activeSave.league.teamsById?.[activeTeam.id]
+              const effectivePrestige = getEffectivePrestige(activeTeam, teamState)
+              const getPrestigeTier = (p: number): string => {
+                if (p >= 90) return 'Blue Blood'
+                if (p >= 80) return 'Power'
+                if (p >= 70) return 'Major'
+                if (p >= 60) return 'Mid-Tier'
+                return 'Rising'
+              }
+              return (
+                <div className="hubCompactStats">
+                  <span className="hubCompactStat">
+                    <span className="hubCompactStatLabel">Record</span>
+                    <span className="hubCompactStatValue">{seasonWins}-{seasonLosses}</span>
                   </span>
-                </>
-              )}
-              <br />
-              Season {activeSave.world.seasonYear} • {formatGameDayShort(activeSave.world.day, activeSave.world.seasonYear)}
-              <br />
-              {(() => {
-                const teamState = activeSave.league.teamsById?.[activeTeam.id]
-                const effectivePrestige = getEffectivePrestige(activeTeam, teamState)
-                const dynamicModifier = teamState?.prestige?.dynamicModifier ?? 0
-                const prestigeChange = dynamicModifier !== 0 
-                  ? ` (${dynamicModifier > 0 ? '+' : ''}${dynamicModifier.toFixed(1)})`
-                  : ''
-                return (
-                  <span>
-                    Prestige: {effectivePrestige.toFixed(0)}
-                    {prestigeChange && (
-                      <span style={{ color: dynamicModifier > 0 ? '#4caf50' : '#f44336', fontSize: '0.9em' }}>
-                        {prestigeChange}
-                      </span>
-                    )}
+                  <span className="hubCompactStat">
+                    <span className="hubCompactStatLabel">Season</span>
+                    <span className="hubCompactStatValue">{formatGameDayShort(activeSave.world.day, activeSave.world.seasonYear)}</span>
                   </span>
-                )
-              })()}
-            </div>
+                  <span className="hubCompactStat">
+                    <span className="hubCompactStatLabel">Prestige</span>
+                    <span className="hubCompactStatValue">{effectivePrestige.toFixed(0)} <span className="hubCompactStatSub">{getPrestigeTier(effectivePrestige)}</span></span>
+                  </span>
+                  <span className="hubCompactStat">
+                    <span className="hubCompactStatLabel">Coach</span>
+                    <span className="hubCompactStatValue">{activeSave.coach.name}{activeSave.coach.scheme ? ` · ${getSchemeName(activeSave.coach.scheme)}` : ''}</span>
+                  </span>
+                </div>
+              )
+            })()}
           </div>
 
-          {activeSave && activeSave.league.teamsById[activeSave.league.userTeamId] && (() => {
-            const userTeam = activeSave.league.teamsById[activeSave.league.userTeamId]
-            const seasonWins = userTeam.season.wins ?? 0
-            const seasonLosses = userTeam.season.losses ?? 0
-            const record = `${seasonWins}-${seasonLosses}`
-            return (
-              <div style={{ 
-                padding: '12px', 
-                background: 'rgba(76, 175, 80, 0.1)', 
-                border: '1px solid rgba(76, 175, 80, 0.3)',
-                borderRadius: '4px',
-                marginTop: '12px',
-                marginBottom: '8px'
-              }}>
-                <div style={{ fontSize: '0.85em', color: '#4caf50', marginBottom: '8px', fontWeight: 600 }}>
-                  Season Record
-                </div>
-                <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '12px', fontSize: '0.9em' }}>
-                  <div>
-                    <div style={{ color: 'var(--text-muted)' }}>W-L</div>
-                    <div style={{ fontSize: '1.1em', fontWeight: 600, color: '#fff' }}>{record}</div>
-                  </div>
-                  <div>
-                    <div style={{ color: 'var(--text-muted)' }}>Conference</div>
-                    <div style={{ fontSize: '1.1em', fontWeight: 600, color: '#fff' }}>{userTeam.season.confWins ?? 0}-{userTeam.season.confLosses ?? 0}</div>
-                  </div>
-                </div>
-              </div>
-            )
-          })()}
-
-          {activeSave && activeSave.coach.careerStats && (() => {
-            const stats = activeSave.coach.careerStats
-            const record = `${stats.totalWins}-${stats.totalLosses}`
-            const tierLabel = stats.currentPrestigeTier
-              ?.split('_')
-              .map(w => w.charAt(0) + w.slice(1).toLowerCase())
-              .join(' ') || 'Unranked'
-            return (
-              <button
-                onClick={() => {}}
-                style={{
-                  width: '100%',
-                  padding: '10px 12px',
-                  marginBottom: '12px',
-                  backgroundColor: 'rgba(100, 200, 255, 0.1)',
-                  border: '1px solid rgba(100, 200, 255, 0.4)',
-                  borderRadius: '6px',
-                  color: '#64c8ff',
-                  fontWeight: 600,
-                  fontSize: '13px',
-                  cursor: 'pointer',
-                  transition: 'all 0.15s ease',
-                  textAlign: 'left'
-                }}
-                onMouseEnter={e => {
-                  e.currentTarget.style.backgroundColor = 'rgba(100, 200, 255, 0.2)'
-                  e.currentTarget.style.borderColor = 'rgba(100, 200, 255, 0.6)'
-                }}
-                onMouseLeave={e => {
-                  e.currentTarget.style.backgroundColor = 'rgba(100, 200, 255, 0.1)'
-                  e.currentTarget.style.borderColor = 'rgba(100, 200, 255, 0.4)'
-                }}
-              >
-                📊 Career Statistics: {record} • {stats.seasonsCoached}yr{stats.seasonsCoached !== 1 ? 's' : ''} • {tierLabel}
-              </button>
-            )
-          })()}
-
-          {activeSave?.world.phase === 'OFFSEASON' && (
-            <button
-              onClick={() => setShowSchemeChangeModal(true)}
-              style={{
-                width: '100%',
-                padding: '10px 12px',
-                marginBottom: '12px',
-                backgroundColor: 'rgba(255, 152, 0, 0.1)',
-                border: '1px solid rgba(255, 152, 0, 0.4)',
-                borderRadius: '6px',
-                color: '#ff9800',
-                fontWeight: 600,
-                fontSize: '13px',
-                cursor: 'pointer',
-                transition: 'all 0.15s ease'
-              }}
-              onMouseEnter={e => {
-                e.currentTarget.style.backgroundColor = 'rgba(255, 152, 0, 0.2)'
-                e.currentTarget.style.borderColor = 'rgba(255, 152, 0, 0.6)'
-              }}
-              onMouseLeave={e => {
-                e.currentTarget.style.backgroundColor = 'rgba(255, 152, 0, 0.1)'
-                e.currentTarget.style.borderColor = 'rgba(255, 152, 0, 0.4)'
-              }}
-            >
-              ⚙️ Change Coaching Scheme
-            </button>
-          )}
-
+          {/* Next game - slim bar */}
           {upcomingGame && (() => {
             const opponentTeam = TEAMS.find(t => t.id === upcomingGame.opponent)
             const opponentName = opponentTeam?.name ?? 'Unknown'
             const location = upcomingGame.isHome ? 'vs' : '@'
-            const gameType = upcomingGame.isConferenceGame ? 'Conference' : 'Non-Conference'
             return (
-              <div style={{ 
-                padding: '12px', 
-                background: 'rgba(255, 152, 0, 0.1)', 
-                border: '1px solid rgba(255, 152, 0, 0.3)',
-                borderRadius: '4px',
-                marginTop: '12px',
-                marginBottom: '8px'
-              }}>
-                <div style={{ fontSize: '0.85em', color: '#ff9800', marginBottom: '4px' }}>
-                  Next Game (Day {upcomingGame.day})
-                </div>
-                <div style={{ fontSize: '1.1em', fontWeight: 600 }}>
-                  {location} {opponentName}
-                </div>
-                <div style={{ fontSize: '0.85em', color: '#aaa', marginTop: '2px' }}>
-                  {gameType}
-                </div>
+              <div className="hubNextGameBar">
+                <span className="hubNextGameLabel">Next</span>
+                <span className="hubNextGameMatchup">{location} {opponentName}</span>
+                <span className="hubNextGameDay">Day {upcomingGame.day}</span>
+                <button className="btn hubNextGameSimBtn" onClick={() => setScreen('sim')}>Sim week</button>
               </div>
             )
           })()}
 
-          <div className="grid3">
-            <button className="tile" onClick={() => setScreen('sim')}>
-              <div className="tileTitle">Sim</div>
-              <div className="tileText">Sim the week, run games, review box scores.</div>
-            </button>
-
-            <button className="tile" onClick={() => setScreen('roster')}>
-              <div className="tileTitle">Roster</div>
-              <div className="tileText">View players, ratings, development.</div>
-            </button>
-
-            <button className="tile" onClick={() => setScreen('rotation')}>
-              <div className="tileTitle">Rotation</div>
-              <div className="tileText">Depth chart + style + optional manual targets.</div>
-            </button>
-
-            <button className="tile" onClick={() => setScreen('recruiting')}>
-              <div className="tileTitle">Recruiting</div>
-              <div className="tileText">View prospects, manage board, allocate hours.</div>
-            </button>
-
-            <button className="tile" onClick={() => setScreen('draftDepartures')}>
-              <div className="tileTitle">Draft Departures</div>
-              <div className="tileText">View and persuade players considering draft declaration (Transfer portal coming soon).</div>
-            </button>
-
-            <button className="tile" onClick={() => setScreen('standings')}>
-              <div className="tileTitle">Standings</div>
-              <div className="tileText">Conference standings, overall records, player leaders.</div>
-            </button>
-
-            <button className="tile" onClick={() => setScreen('rankings')}>
-              <div className="tileTitle">National Rankings</div>
-              <div className="tileText">Top 25 teams by rating. See where you rank nationally.</div>
-            </button>
-
-            {activeSave?.world.phase === 'OFFSEASON' ? (
-              <button 
-                className="tile" 
-                style={{ borderColor: 'var(--primary)', borderWidth: 2 }}
-                onClick={() => setShowSeasonSummary(true)}
-              >
-                <div className="tileTitle" style={{ color: 'var(--primary)' }}>Start New Season</div>
-                <div className="tileText">
-                  Begin the {activeSave.world.seasonYear + 1} season! Generate new recruits and schedule.
-                </div>
+          {/* Phase CTA - one prominent bar when applicable */}
+          {activeSave.world.phase === 'OFFSEASON' && (
+            <div className="hubPhaseCta">
+              <div className="hubPhaseCtaText">
+                Offseason · Ready to start Season {activeSave.world.seasonYear + 1}
+              </div>
+              <div className="hubPhaseCtaActions">
+                <button type="button" className="hubPhaseCtaLink" onClick={() => setShowSchemeChangeModal(true)}>
+                  Change scheme
+                </button>
+                <button className="btn" onClick={() => setShowSeasonSummary(true)}>
+                  Start new season
+                </button>
+              </div>
+            </div>
+          )}
+          {activeSave.world.phase === 'CONF_TOURNAMENT' && (
+            <div className="hubPhaseCta">
+              <div className="hubPhaseCtaText">Conference tournament week</div>
+              <button className="btn" onClick={() => setScreen('conferenceTournaments')}>
+                Conference tournaments
               </button>
-            ) : null}
-
-            {activeSave?.world.phase === 'CONF_TOURNAMENT' ? (
-              <button 
-                className="tile" 
-                style={{ borderColor: 'var(--primary)', borderWidth: 2 }}
-                onClick={() => setScreen('conferenceTournaments')}
-              >
-                <div className="tileTitle" style={{ color: 'var(--primary)' }}>Conference Tournaments</div>
-                <div className="tileText">
-                  Simulate conference tournaments to determine automatic bids and prestige gains.
-                </div>
-              </button>
-            ) : null}
-
-            {activeSave?.league.tournament || activeSave?.world.phase === 'TOURNAMENT_READY' ? (
-              <button 
-                className="tile" 
+            </div>
+          )}
+          {(activeSave.league.tournament || activeSave.world.phase === 'TOURNAMENT_READY') && (
+            <div className="hubPhaseCta">
+              <div className="hubPhaseCtaText">
+                {activeSave.world.phase === 'TOURNAMENT_READY' ? 'Bracket ready' : 'National tournament'}
+              </div>
+              <button
+                className="btn"
                 onClick={() => {
-                  if (!activeSave) return
                   if (activeSave.world.phase === 'TOURNAMENT_READY') {
-                    // Initialize tournament when in TOURNAMENT_READY phase
                     const updated = initializeTournament(activeSave)
                     setActiveSave(updated)
                   }
                   setScreen('bracket')
                 }}
               >
-                <div className="tileTitle">
-                  {activeSave?.world.phase === 'TOURNAMENT_READY' ? 'Start Tournament' : 'National Tournament'}
-                </div>
-                <div className="tileText">
-                  {activeSave?.world.phase === 'TOURNAMENT_READY' 
-                    ? 'Initialize tournament selection and bracket.' 
-                    : 'View tournament bracket and results.'}
-                </div>
+                {activeSave.world.phase === 'TOURNAMENT_READY' ? 'Start tournament' : 'View bracket'}
               </button>
-            ) : null}
+            </div>
+          )}
 
-            
           </div>
+          {/* Right column: nav tiles - fills the space */}
+          <div className="hubLayoutRight">
+            <div className="hubNavSection">
+              <h3 className="hubNavSectionTitle">Go to</h3>
+              <div className="hubNavGrid">
+                <button className="tile hubTile" onClick={() => setScreen('sim')}>
+                  <span className="hubTileTitle">Sim</span>
+                  <span className="hubTileDesc">Run games</span>
+                </button>
+                <button className="tile hubTile" onClick={() => setScreen('roster')}>
+                  <span className="hubTileTitle">Roster</span>
+                  <span className="hubTileDesc">Players & ratings</span>
+                </button>
+                <button className="tile hubTile" onClick={() => setScreen('rotation')}>
+                  <span className="hubTileTitle">Rotation</span>
+                  <span className="hubTileDesc">Depth chart</span>
+                </button>
+                <button className="tile hubTile" onClick={() => setScreen('recruiting')}>
+                  <span className="hubTileTitle">Recruiting</span>
+                  <span className="hubTileDesc">Board & hours</span>
+                </button>
+                <button className="tile hubTile" onClick={() => setScreen('draftDepartures')}>
+                  <span className="hubTileTitle">Draft departures</span>
+                  <span className="hubTileDesc">Declarations</span>
+                </button>
+                <button className="tile hubTile" onClick={() => setScreen('standings')}>
+                  <span className="hubTileTitle">Standings</span>
+                  <span className="hubTileDesc">Conference & stats</span>
+                </button>
+                <button className="tile hubTile" onClick={() => setScreen('rankings')}>
+                  <span className="hubTileTitle">Rankings</span>
+                  <span className="hubTileDesc">Top 25</span>
+                </button>
+              </div>
+            </div>
+          </div>
+        </div>
 
-          {/* Season Summary Modal */}
+        {/* Season Summary Modal */}
           {showSeasonSummary && activeSave && (
-            <div style={{
-              position: 'fixed',
-              top: 0,
-              left: 0,
-              right: 0,
-              bottom: 0,
-              backgroundColor: 'rgba(0, 0, 0, 0.7)',
-              display: 'flex',
-              alignItems: 'center',
-              justifyContent: 'center',
-              zIndex: 1000
-            }}>
-              <div style={{
-                backgroundColor: 'var(--bg-panel)',
-                border: '2px solid var(--primary)',
-                borderRadius: '12px',
-                padding: '24px',
-                maxWidth: '500px',
-                width: '90%'
-              }}>
-                <h2 style={{ marginTop: 0, marginBottom: 16, color: 'var(--text)' }}>Season Summary</h2>
+            <div className="modal">
+              <div className="modalContent modalWide">
+                <h2 className="modalTitle">Season Summary</h2>
                 
-                <div style={{ marginBottom: 20 }}>
-                  <div style={{ fontSize: '14px', color: 'var(--text-muted)', marginBottom: 4 }}>
+                <div className="modalBody">
+                  <div className="modalMeta">
                     Season {activeSave.world.seasonYear}
                   </div>
-                  <div style={{ fontSize: '18px', fontWeight: 700, marginBottom: 16 }}>
+                  <div className="modalTeamName">
                     {TEAMS.find(t => t.id === activeSave.league.userTeamId)?.name || 'Your Team'}
                   </div>
 
@@ -355,17 +200,11 @@ export function DynastyHubScreen(props: {
                     const wins = teamState?.season?.wins ?? 0
                     const losses = teamState?.season?.losses ?? 0
                     return (
-                      <div style={{
-                        padding: '12px',
-                        backgroundColor: 'rgba(100, 200, 255, 0.1)',
-                        border: '1px solid rgba(100, 200, 255, 0.3)',
-                        borderRadius: '6px',
-                        marginBottom: 12
-                      }}>
-                        <div style={{ fontSize: '12px', color: 'var(--text-muted)', marginBottom: 4 }}>
+                      <div className="modalStatCard modalStatCardBlue">
+                        <div className="modalStatLabel">
                           Regular Season Record
                         </div>
-                        <div style={{ fontSize: '20px', fontWeight: 700, color: '#fff' }}>
+                        <div className="modalStatValue">
                           {wins}-{losses}
                         </div>
                       </div>
@@ -374,38 +213,32 @@ export function DynastyHubScreen(props: {
 
                   {/* Coach Stats */}
                   {activeSave.coach.careerStats && (
-                    <div style={{
-                      padding: '12px',
-                      backgroundColor: 'rgba(76, 175, 80, 0.1)',
-                      border: '1px solid rgba(76, 175, 80, 0.3)',
-                      borderRadius: '6px',
-                      marginBottom: 12
-                    }}>
-                      <div style={{ fontSize: '12px', color: 'var(--text-muted)', marginBottom: 8, fontWeight: 600 }}>
+                    <div className="modalStatCard modalStatCardGreen">
+                      <div className="modalStatSectionTitle">
                         Career Progress
                       </div>
-                      <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 10, fontSize: '13px' }}>
+                      <div className="modalStatsGrid">
                         <div>
-                          <div style={{ color: 'var(--text-muted)', marginBottom: 2 }}>Total Record</div>
-                          <div style={{ fontWeight: 700, fontSize: '15px', color: '#fff' }}>
+                          <div className="modalStatLabel">Total Record</div>
+                          <div className="modalStatValue">
                             {activeSave.coach.careerStats.totalWins}-{activeSave.coach.careerStats.totalLosses}
                           </div>
                         </div>
                         <div>
-                          <div style={{ color: 'var(--text-muted)', marginBottom: 2 }}>Seasons</div>
-                          <div style={{ fontWeight: 700, fontSize: '15px', color: '#fff' }}>
+                          <div className="modalStatLabel">Seasons</div>
+                          <div className="modalStatValue">
                             {activeSave.coach.careerStats.seasonsCoached}
                           </div>
                         </div>
                         <div>
-                          <div style={{ color: 'var(--text-muted)', marginBottom: 2 }}>Current Tier</div>
-                          <div style={{ fontWeight: 700, fontSize: '15px', color: '#fff' }}>
+                          <div className="modalStatLabel">Current Tier</div>
+                          <div className="modalStatValue">
                             {activeSave.coach.careerStats.currentPrestigeTier?.split('_').map(w => w.charAt(0) + w.slice(1).toLowerCase()).join(' ') || 'Unranked'}
                           </div>
                         </div>
                         <div>
-                          <div style={{ color: 'var(--text-muted)', marginBottom: 2 }}>Years at School</div>
-                          <div style={{ fontWeight: 700, fontSize: '15px', color: '#fff' }}>
+                          <div className="modalStatLabel">Years at School</div>
+                          <div className="modalStatValue">
                             {activeSave.coach.careerStats.yearsAtCurrentSchool}
                           </div>
                         </div>
@@ -413,12 +246,12 @@ export function DynastyHubScreen(props: {
                     </div>
                   )}
 
-                  <div style={{ fontSize: '13px', color: 'var(--text-muted)', lineHeight: 1.5 }}>
+                  <div className="modalSubtext">
                     Prepare for recruiting and the upcoming {activeSave.world.seasonYear + 1} season!
                   </div>
                 </div>
 
-                <div style={{ display: 'flex', gap: 10, justifyContent: 'flex-end' }}>
+                <div className="modalActions">
                   <button 
                     className="btn secondary"
                     onClick={() => setShowSeasonSummary(false)}
@@ -442,35 +275,15 @@ export function DynastyHubScreen(props: {
 
           {/* Scheme Change Modal */}
           {showSchemeChangeModal && activeSave && (
-            <div style={{
-              position: 'fixed',
-              top: 0,
-              left: 0,
-              right: 0,
-              bottom: 0,
-              backgroundColor: 'rgba(0, 0, 0, 0.7)',
-              display: 'flex',
-              alignItems: 'center',
-              justifyContent: 'center',
-              zIndex: 1000
-            }}>
-              <div style={{
-                backgroundColor: 'var(--bg-panel)',
-                border: '2px solid var(--accent)',
-                borderRadius: '12px',
-                padding: '24px',
-                maxWidth: '600px',
-                width: '90%',
-                maxHeight: '80vh',
-                overflowY: 'auto'
-              }}>
-                <h2 style={{ marginTop: 0, marginBottom: 16, color: 'var(--text)' }}>Change Coaching Scheme</h2>
+            <div className="modal">
+              <div className="modalContent modalWide">
+                <h2 className="modalTitle">Change Coaching Scheme</h2>
                 
-                <div style={{ fontSize: '12px', color: 'var(--text-muted)', marginBottom: 16 }}>
+                <div className="modalMeta">
                   Current: <strong>{getSchemeName(activeSave.coach.scheme)}</strong>
                 </div>
 
-                <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 12, marginBottom: 20 }}>
+                <div className="schemeGrid">
                   {(Object.keys(SCHEME_PROFILES) as CoachScheme[]).map(scheme => {
                     const profile = SCHEME_PROFILES[scheme]
                     const isCurrentScheme = activeSave.coach.scheme === scheme
@@ -489,33 +302,12 @@ export function DynastyHubScreen(props: {
                           setActiveSave(updated)
                           setShowSchemeChangeModal(false)
                         }}
-                        style={{
-                          padding: '14px',
-                          backgroundColor: isCurrentScheme ? 'rgba(100, 200, 255, 0.3)' : 'rgba(100, 200, 255, 0.08)',
-                          border: isCurrentScheme ? '2px solid rgba(100, 200, 255, 0.8)' : '1px solid rgba(100, 200, 255, 0.3)',
-                          borderRadius: '8px',
-                          color: 'var(--text)',
-                          cursor: 'pointer',
-                          transition: 'all 0.15s ease',
-                          textAlign: 'left'
-                        }}
-                        onMouseEnter={e => {
-                          if (!isCurrentScheme) {
-                            e.currentTarget.style.backgroundColor = 'rgba(100, 200, 255, 0.15)'
-                            e.currentTarget.style.borderColor = 'rgba(100, 200, 255, 0.6)'
-                          }
-                        }}
-                        onMouseLeave={e => {
-                          if (!isCurrentScheme) {
-                            e.currentTarget.style.backgroundColor = 'rgba(100, 200, 255, 0.08)'
-                            e.currentTarget.style.borderColor = 'rgba(100, 200, 255, 0.3)'
-                          }
-                        }}
+                        className={isCurrentScheme ? 'schemeOption schemeOptionActive' : 'schemeOption'}
                       >
-                        <div style={{ fontWeight: 700, fontSize: '14px', marginBottom: 6, color: isCurrentScheme ? '#64c8ff' : 'var(--text)' }}>
+                        <div className="schemeOptionName">
                           {isCurrentScheme && '✓ '}{profile.name}
                         </div>
-                        <div style={{ fontSize: '12px', color: 'var(--text-muted)', lineHeight: 1.4 }}>
+                        <div className="schemeOptionDesc">
                           {profile.description}
                         </div>
                       </button>
@@ -523,7 +315,7 @@ export function DynastyHubScreen(props: {
                   })}
                 </div>
 
-                <div style={{ display: 'flex', gap: 10, justifyContent: 'flex-end' }}>
+                <div className="modalActions">
                   <button 
                     className="btn secondary"
                     onClick={() => setShowSchemeChangeModal(false)}
