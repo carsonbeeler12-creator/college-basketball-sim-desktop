@@ -3,11 +3,14 @@ name: Release All Platforms
 on:
   workflow_dispatch:
 
+env:
+  FORCE_JAVASCRIPT_ACTIONS_TO_NODE24: 'true'
+
 jobs:
   build-windows:
     runs-on: windows-latest
     env:
-      GH_TOKEN: ${{ secrets.GH_TOKEN }}
+      GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
     steps:
       - name: Checkout
         uses: actions/checkout@v4
@@ -22,12 +25,13 @@ jobs:
         run: npm ci
 
       - name: Build Windows
-        run: npm run build
+        run: npm run build -- --publish never
 
       - name: Upload Windows artifacts
         uses: actions/upload-artifact@v4
         with:
           name: windows-builds
+          if-no-files-found: warn
           path: |
             release/**/*.zip
             release/**/*.exe
@@ -36,7 +40,7 @@ jobs:
   build-linux:
     runs-on: ubuntu-latest
     env:
-      GH_TOKEN: ${{ secrets.GH_TOKEN }}
+      GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
     steps:
       - name: Checkout
         uses: actions/checkout@v4
@@ -51,18 +55,20 @@ jobs:
         run: npm ci
 
       - name: Build Linux
-        run: npm run build:linux
+        run: npm run build:linux -- --publish never
 
       - name: Upload Linux artifacts
         uses: actions/upload-artifact@v4
         with:
           name: linux-builds
+          if-no-files-found: warn
           path: release/**/*.tar.gz
 
   build-mac:
     runs-on: macos-latest
     env:
-      GH_TOKEN: ${{ secrets.GH_TOKEN }}
+      FORCE_JAVASCRIPT_ACTIONS_TO_NODE24: 'true'
+      GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
     steps:
       - name: Checkout
         uses: actions/checkout@v4
@@ -77,14 +83,13 @@ jobs:
         run: npm ci
 
       - name: Build macOS
-        run: |
-          npm run build
-          npx electron-builder --mac dmg
+        run: npm run build:mac -- --publish never
 
       - name: Upload macOS artifacts
         uses: actions/upload-artifact@v4
         with:
           name: mac-builds
+          if-no-files-found: warn
           path: release/**/*.dmg
 
   create-release:
@@ -107,33 +112,79 @@ jobs:
       - name: Get version
         id: version
         run: echo "VERSION=$(node -p "require('./package.json').version")" >> $GITHUB_OUTPUT
-      
-      - name: Create GitHub Release
-        uses: softprops/action-gh-release@v1
-        with:
-          tag_name: v${{ steps.version.outputs.VERSION }}
-          name: College Basketball Dynasty v${{ steps.version.outputs.VERSION }}
-          body: |
-            ## College Basketball Dynasty v${{ steps.version.outputs.VERSION }}
-            
-            ### Downloads
-            - **Windows**: Portable `.zip` or `.exe` installer
-            - **Linux**: `.tar.gz`
-            - **macOS**: `.dmg`
-            
-            ### Auto-Updates
-            Apps on v0.9.7-beta+ automatically detect this update!
-            
-            ---
-            
-            [Full changelog](https://github.com/carsonbeeler12-creator/college-basketball-sim-desktop/commits/v${{ steps.version.outputs.VERSION }})
-          draft: false
-          prerelease: true
-          files: |
-            ./artifacts/**/*
-          generate_release_notes: true
+
+      - name: Clean existing release assets
         env:
-          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          TAG: v${{ steps.version.outputs.VERSION }}
+        run: |
+          set -euo pipefail
+
+          if ! gh release view "$TAG" --repo "$GITHUB_REPOSITORY" >/dev/null 2>&1; then
+            echo "Release $TAG does not exist yet; nothing to clean."
+            exit 0
+          fi
+
+          echo "Cleaning colliding assets on release $TAG"
+          mapfile -t UPLOAD_FILES < <(find ./artifacts -type f)
+          if [ ${#UPLOAD_FILES[@]} -eq 0 ]; then
+            echo "No local artifacts found to compare; skipping cleanup."
+            exit 0
+          fi
+
+          for file in "${UPLOAD_FILES[@]}"; do
+            asset_name=$(basename "$file")
+            echo "Ensuring asset does not already exist: $asset_name"
+            gh release delete-asset "$TAG" "$asset_name" --repo "$GITHUB_REPOSITORY" --yes >/dev/null 2>&1 || true
+          done
+      
+      - name: Create or update GitHub Release
+        env:
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          TAG: v${{ steps.version.outputs.VERSION }}
+          VERSION: ${{ steps.version.outputs.VERSION }}
+        run: |
+          set -euo pipefail
+
+          NOTES_FILE=$(mktemp)
+          cat > "$NOTES_FILE" <<EOF
+          ## College Basketball Dynasty v${VERSION}
+
+          ### Downloads
+          - **Windows**: Portable \.zip or \.exe installer
+          - **Linux**: \.tar.gz
+          - **macOS**: \.dmg
+
+          ### Auto-Updates
+          Apps on v0.9.8-beta+ automatically detect this update!
+
+          ---
+
+          [Full changelog](https://github.com/carsonbeeler12-creator/college-basketball-sim-desktop/commits/${TAG})
+          EOF
+
+          if gh release view "$TAG" --repo "$GITHUB_REPOSITORY" >/dev/null 2>&1; then
+            gh release edit "$TAG" --repo "$GITHUB_REPOSITORY" --title "College Basketball Dynasty v${VERSION}" --notes-file "$NOTES_FILE" --prerelease
+          else
+            gh release create "$TAG" --repo "$GITHUB_REPOSITORY" --title "College Basketball Dynasty v${VERSION}" --notes-file "$NOTES_FILE" --prerelease
+          fi
+
+      - name: Upload release assets (clobber)
+        env:
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          TAG: v${{ steps.version.outputs.VERSION }}
+        run: |
+          set -euo pipefail
+          mapfile -t FILES < <(find ./artifacts -type f)
+          if [ ${#FILES[@]} -eq 0 ]; then
+            echo "No artifacts found to upload."
+            exit 1
+          fi
+
+          for file in "${FILES[@]}"; do
+            echo "Uploading: $(basename "$file")"
+            gh release upload "$TAG" "$file" --repo "$GITHUB_REPOSITORY" --clobber
+          done
       
       - name: Install butler
         run: |
@@ -144,12 +195,27 @@ jobs:
       
       - name: Push to itch.io
         run: |
+          if [ -z "$ITCH_TARGET" ] || [ -z "$BUTLER_API_KEY" ]; then
+            echo "Skipping itch.io push: ITCH_TARGET or BUTLER_API_KEY is not configured."
+            exit 0
+          fi
+
           VERSION="${{ steps.version.outputs.VERSION }}"
           
           # Push Windows
-          WIN_ZIP=$(find ./artifacts/windows-builds -name "*Windows-Portable*.zip" | head -n 1)
-          if [ -n "$WIN_ZIP" ]; then
-            butler push "$WIN_ZIP" "$ITCH_TARGET:windows" --userversion="$VERSION"
+          echo "Looking for Windows artifacts..."
+          find ./artifacts/windows-builds -type f \( -name "*.zip" -o -name "*.exe" \) -print || true
+
+          WIN_ARTIFACT=$(find ./artifacts/windows-builds -type f -name "*.zip" | head -n 1)
+          if [ -z "$WIN_ARTIFACT" ]; then
+            WIN_ARTIFACT=$(find ./artifacts/windows-builds -type f -name "*.exe" | head -n 1)
+          fi
+
+          if [ -n "$WIN_ARTIFACT" ]; then
+            echo "Pushing Windows artifact: $WIN_ARTIFACT"
+            butler push "$WIN_ARTIFACT" "$ITCH_TARGET:windows" --userversion="$VERSION"
+          else
+            echo "No Windows .zip or .exe artifact found; skipping Windows itch push."
           fi
           
           # Push Linux

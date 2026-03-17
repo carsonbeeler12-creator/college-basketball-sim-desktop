@@ -18,15 +18,15 @@ export function RankingsScreen(props: {
     )
   }
 
-  // Get top 25 teams by overall rating
+  // Get top 25 teams by dynamic team rating (season performance-based)
   const top25 = useMemo(() => {
     const teamsById = activeSave.league.teamsById
-    const playersById = activeSave.playersById
     
     const teams: Array<{
       teamId: ID
       team: typeof TEAMS[0]
-      overall: number
+      // 0-100 season performance rating (see calculateTeamRating/updateAllTeamRatings)
+      rating: number
       wins: number
       losses: number
       confWins: number
@@ -37,22 +37,13 @@ export function RankingsScreen(props: {
       const teamState = teamsById[team.id]
       if (!teamState) continue
 
-      // Calculate team's overall as average of roster players' overall ratings
-      let totalOverall = 0
-      let playerCount = 0
-      for (const playerId of teamState.roster.playerIds) {
-        const player = playersById[playerId]
-        if (player) {
-          totalOverall += player.ratings.overall
-          playerCount += 1
-        }
-      }
-      const overall = playerCount > 0 ? Math.round(totalOverall / playerCount) : 50
+      // Prefer dynamic season rating if present; fall back to neutral 50
+      const rating = teamState.season?.teamRating ?? 50
 
       teams.push({
         teamId: team.id,
         team,
-        overall,
+        rating,
         wins: teamState.season?.wins ?? 0,
         losses: teamState.season?.losses ?? 0,
         confWins: teamState.season?.confWins ?? 0,
@@ -60,8 +51,16 @@ export function RankingsScreen(props: {
       })
     }
 
-    // Sort by overall rating (descending)
-    teams.sort((a, b) => b.overall - a.overall)
+    // Sort by dynamic rating (descending), then win %
+    teams.sort((a, b) => {
+      if (b.rating !== a.rating) return b.rating - a.rating
+      const aGames = a.wins + a.losses
+      const bGames = b.wins + b.losses
+      const aWinPct = aGames > 0 ? a.wins / aGames : 0
+      const bWinPct = bGames > 0 ? b.wins / bGames : 0
+      if (bWinPct !== aWinPct) return bWinPct - aWinPct
+      return b.wins - a.wins
+    })
 
     // Return top 25
     return teams.slice(0, 25)
@@ -76,143 +75,76 @@ export function RankingsScreen(props: {
   }
 
   return (
-    <section className="card wide">
-      <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: 20 }}>
-        <h2 className="cardTitle" style={{ margin: 0 }}>National Rankings</h2>
-        <button className="btn secondary" onClick={() => setScreen('dynastyHub')}>
-          Back
-        </button>
-      </div>
+    <div className="content">
+      <section className="card wide rankingsContainer">
+        <div className="rankingsHeader">
+          <h2 className="cardTitle">National Rankings</h2>
+          <button className="btn secondary" onClick={() => setScreen('dynastyHub')}>
+            Back
+          </button>
+        </div>
 
-      <div style={{ marginBottom: 12 }}>
-        <p className="cardText muted">
+        <p className="cardText muted" style={{ marginBottom: 20 }}>
           {activeSave.world.seasonYear} Regular Season • {top25.length} teams ranked
         </p>
-      </div>
 
-      <div className="list">
-        {top25.map((teamData, idx) => {
-          const rank = idx + 1
+        <div className="rankingsList">
+          {top25.map((teamData, idx) => {
+            const rank = idx + 1
+            const isUserTeam = teamData.teamId === activeSave.league.userTeamId
 
-          return (
-            <div
-              key={teamData.teamId}
-              className="listRow"
-              style={{
-                cursor: onTeamClick ? 'pointer' : 'default',
-                borderLeft: `4px solid ${getRatingColor(teamData.overall)}`,
-                paddingLeft: 12,
-                backgroundColor: teamData.teamId === activeSave.league.userTeamId ? 'rgba(74, 157, 111, 0.15)' : 'transparent',
-                borderTop: teamData.teamId === activeSave.league.userTeamId ? '2px solid #4a9d6f' : 'none',
-                borderBottom: teamData.teamId === activeSave.league.userTeamId ? '2px solid #4a9d6f' : 'none',
-              }}
-              onClick={() => onTeamClick?.(teamData.teamId)}
-            >
-              <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', width: '100%' }}>
-                <div style={{ display: 'flex', alignItems: 'center', gap: 16, flex: 1 }}>
-                  {/* Rank */}
-                  <div
-                    style={{
-                      fontSize: '20px',
-                      fontWeight: 900,
-                      color: getRatingColor(teamData.overall),
-                      minWidth: '40px',
-                      textAlign: 'center',
-                    }}
-                  >
-                    {rank}
-                  </div>
-
-                  {/* Team Info */}
-                  <div>
-                    <div className="listRowTitle">{teamData.team.name}</div>
-                    <div className="listRowSub">
-                      {teamData.wins}-{teamData.losses}
-                    </div>
-                  </div>
+            return (
+              <div
+                key={teamData.teamId}
+                className={`rankingsTeamRow ${isUserTeam ? 'isUser' : ''}`}
+                onClick={() => onTeamClick?.(teamData.teamId)}
+                style={{ borderLeftColor: getRatingColor(teamData.rating) }}
+              >
+                <div className="rankingsRank" style={{ color: getRatingColor(teamData.rating) }}>
+                  {rank}
                 </div>
-
-                {/* Overall Rating */}
-                <div style={{ textAlign: 'right', minWidth: '80px' }}>
-                  <div
-                    style={{
-                      fontSize: '28px',
-                      fontWeight: 700,
-                      color: getRatingColor(teamData.overall),
-                    }}
-                  >
-                    {teamData.overall}
+                <div className="rankingsTeamInfo">
+                  <div className="rankingsTeamName">{teamData.team.name}</div>
+                  <div className="rankingsTeamRecord">{teamData.wins}-{teamData.losses}</div>
+                </div>
+                <div className="rankingsOverall">
+                  <div className="rankingsRating" style={{ color: getRatingColor(teamData.rating) }}>
+                    {teamData.rating}
                   </div>
+                  <div className="rankingsRatingLabel">Team Rating</div>
                 </div>
               </div>
-            </div>
-          )
-        })}
-      </div>
+            )
+          })}
+        </div>
 
-      {/* Legend */}
-      <div style={{ marginTop: 24, padding: '12px', backgroundColor: 'var(--darkBg)', borderRadius: '4px' }}>
-        <p className="cardText muted" style={{ marginBottom: 8 }}>
-          <strong>Rating Scale:</strong>
-        </p>
-        <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(150px, 1fr))', gap: 12 }}>
-          <div style={{ display: 'flex', alignItems: 'center', gap: 8 }}>
-            <div
-              style={{
-                width: '16px',
-                height: '16px',
-                borderRadius: '2px',
-                backgroundColor: '#4CAF50',
-              }}
-            />
-            <span className="cardText muted">85+ Elite</span>
-          </div>
-          <div style={{ display: 'flex', alignItems: 'center', gap: 8 }}>
-            <div
-              style={{
-                width: '16px',
-                height: '16px',
-                borderRadius: '2px',
-                backgroundColor: '#8BC34A',
-              }}
-            />
-            <span className="cardText muted">75-84 Very Good</span>
-          </div>
-          <div style={{ display: 'flex', alignItems: 'center', gap: 8 }}>
-            <div
-              style={{
-                width: '16px',
-                height: '16px',
-                borderRadius: '2px',
-                backgroundColor: '#FFC107',
-              }}
-            />
-            <span className="cardText muted">65-74 Good</span>
-          </div>
-          <div style={{ display: 'flex', alignItems: 'center', gap: 8 }}>
-            <div
-              style={{
-                width: '16px',
-                height: '16px',
-                borderRadius: '2px',
-                backgroundColor: '#FF9800',
-              }}
-            />
-            <span className="cardText muted">55-64 Average</span>
-          </div>
-          <div style={{ display: 'flex', alignItems: 'center', gap: 8 }}>
-            <div
-              style={{
-                width: '16px',
-                height: '16px',
-                borderRadius: '2px',
-                backgroundColor: '#F44336',
-              }}
-            />
-            <span className="cardText muted">&lt;55 Below Avg</span>
+        {/* Legend */}
+        <div className="rankingsLegend">
+          <div className="rankingsLegendTitle">Rating Scale</div>
+          <div className="rankingsLegendGrid">
+            <div className="rankingsLegendItem">
+              <div className="rankingsLegendColor" style={{ backgroundColor: '#4CAF50' }} />
+              <span>85+ Elite</span>
+            </div>
+            <div className="rankingsLegendItem">
+              <div className="rankingsLegendColor" style={{ backgroundColor: '#8BC34A' }} />
+              <span>75-84 Very Good</span>
+            </div>
+            <div className="rankingsLegendItem">
+              <div className="rankingsLegendColor" style={{ backgroundColor: '#FFC107' }} />
+              <span>65-74 Good</span>
+            </div>
+            <div className="rankingsLegendItem">
+              <div className="rankingsLegendColor" style={{ backgroundColor: '#FF9800' }} />
+              <span>55-64 Average</span>
+            </div>
+            <div className="rankingsLegendItem">
+              <div className="rankingsLegendColor" style={{ backgroundColor: '#F44336' }} />
+              <span>&lt;55 Below Avg</span>
+            </div>
           </div>
         </div>
-      </div>
-    </section>
+      </section>
+    </div>
   )
 }

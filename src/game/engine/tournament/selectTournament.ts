@@ -4,6 +4,7 @@
 import type { Dynasty, ID } from '../../types/dynasty'
 import { TEAMS } from '../../defaultData'
 import { updateAllTeamRatings } from '../ratings/calculateTeamRating'
+import { getEffectivePrestige } from '../development/applyPrestigeAdjustments'
 
 type Rng = { state: number }
 
@@ -37,7 +38,7 @@ export type TournamentSelection = {
 
 /**
  * Helper to get team rating (normalized 0-1)
- * If not available in state, use prestige/100 as fallback
+ * Includes dynamic prestige adjustments earned during season
  */
 function getTeamRatingNormalized(teamId: ID, dynasty: Dynasty): number {
   const teamState = dynasty.league.teamsById[teamId]
@@ -45,9 +46,14 @@ function getTeamRatingNormalized(teamId: ID, dynasty: Dynasty): number {
     return teamState.season.teamRating / 100 // Assume 0-100 scale
   }
   
-  // Fallback to prestige from static data
+  // Use effective prestige (base + earned dynamic modifier)
   const staticTeam = TEAMS.find(t => t.id === teamId)
-  return (staticTeam?.prestige ?? 50) / 100
+  if (staticTeam) {
+    const effectivePrestige = getEffectivePrestige(staticTeam, teamState)
+    return effectivePrestige / 100
+  }
+  
+  return 0.5 // Safe default
 }
 
 /**

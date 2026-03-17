@@ -163,6 +163,57 @@ function ConferenceBracketDisplay({ bracket, accentColor, teamsById, userTeamId 
   )
 }
 
+function getUserTeamTournamentStatus(
+  bracket: ConferenceTournamentBracket,
+  userTeamId: string,
+  teamsById: Dynasty['league']['teamsById']
+): { label: string; detail?: string } | null {
+  const userEntry = bracket.teams?.find(t => t.teamId === userTeamId)
+  if (!userEntry) return null
+
+  if (bracket.champion === userTeamId) {
+    return {
+      label: 'Champion',
+      detail: `Won the ${bracket.conferenceName ?? 'conference'} tournament`
+    }
+  }
+
+  const games = bracket.games.filter(
+    g => g.team1Id === userTeamId || g.team2Id === userTeamId
+  )
+
+  if (games.length === 0) {
+    return { label: `Seed ${userEntry.seed}`, detail: 'In bracket, awaiting first game' }
+  }
+
+  const eliminationGame = games.find(
+    g => g.winnerId && g.winnerId !== userTeamId
+  )
+  if (eliminationGame) {
+    return {
+      label: `Eliminated (${eliminationGame.round})`,
+      detail: 'Season continues to National selection if chosen'
+    }
+  }
+
+  const pendingGame = games
+    .filter(g => !g.winnerId)
+    .sort((a, b) => a.day - b.day)[0]
+
+  if (pendingGame) {
+    const opponentId =
+      pendingGame.team1Id === userTeamId ? pendingGame.team2Id : pendingGame.team1Id
+    const opponentTeam = opponentId ? teamsById[opponentId] : null
+    const opponentName = opponentTeam?.name ?? 'TBD'
+    return {
+      label: `Next: ${pendingGame.round}`,
+      detail: `vs ${opponentName}`
+    }
+  }
+
+  return { label: `Seed ${userEntry.seed}`, detail: 'Still alive in bracket' }
+}
+
 interface Props {
   dynasty: Dynasty
   onGenerateTournaments: () => Promise<void>
@@ -191,6 +242,10 @@ export function ConferenceTournamentsScreen({
 
   const tournamentsGenerated = !!conferenceTournaments && Object.keys(conferenceTournaments).length > 0
   const allComplete = conferenceList.every(c => !getNextRound(c.bracket))
+  const userTeamId = dynasty.league.userTeamId
+  const userConference = conferenceList.find(conf =>
+    conf.bracket.teams?.some(t => t.teamId === userTeamId)
+  ) || null
   
   // Find the next round to simulate across all conferences
   const nextGlobalRound = conferenceList.length > 0 
@@ -203,9 +258,9 @@ export function ConferenceTournamentsScreen({
         }, null as string | null)
     : null
 
-  // Auto-select first conference on load
+  // Auto-select user's conference (or first) on load
   if (tournamentsGenerated && !selectedConference && conferenceList.length > 0) {
-    setSelectedConference(conferenceList[0].id)
+    setSelectedConference((userConference && userConference.id) || conferenceList[0].id)
   }
 
   return (
@@ -272,6 +327,32 @@ export function ConferenceTournamentsScreen({
               <div style={{ color: '#666', fontSize: '0.875rem', marginTop: '0.25rem' }}>
                 {conferenceList.length} tournaments
               </div>
+              {userConference && (
+                <div
+                  style={{
+                    marginTop: '0.5rem',
+                    padding: '0.5rem 0.75rem',
+                    backgroundColor: '#111827',
+                    borderRadius: '6px',
+                    border: '1px solid #4a9d6f55',
+                    fontSize: '0.8rem'
+                  }}
+                >
+                  <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '0.25rem' }}>
+                    <span style={{ color: '#9ca3af' }}>Your team</span>
+                    <button
+                      className="btn secondary"
+                      style={{ padding: '2px 8px', fontSize: '0.75rem' }}
+                      onClick={() => setSelectedConference(userConference.id)}
+                    >
+                      Jump to bracket
+                    </button>
+                  </div>
+                  <div style={{ fontWeight: 600 }}>
+                    {userConference.name}
+                  </div>
+                </div>
+              )}
               {nextGlobalRound && (
                 <button
                   onClick={async () => {
@@ -421,24 +502,55 @@ export function ConferenceTournamentsScreen({
               const championId = conf.bracket.champion
               const championTeam = championId ? dynasty.league.teamsById[championId] : null
               const nextRound = getNextRound(conf.bracket)
+              const userStatus = getUserTeamTournamentStatus(
+                conf.bracket,
+                dynasty.league.userTeamId,
+                dynasty.league.teamsById
+              )
               
               return (
                 <div style={{ padding: '2rem' }}>
-                  <div style={{ marginBottom: '2rem' }}>
-                    <h1 style={{ margin: 0, marginBottom: '0.5rem' }}>{conf.name}</h1>
-                    {championTeam && (
-                      <div style={{ 
-                        display: 'inline-block',
-                        padding: '0.5rem 1rem',
-                        backgroundColor: '#16a34a20',
-                        border: '2px solid #16a34a',
-                        borderRadius: '8px',
-                        fontSize: '1rem',
-                        color: '#16a34a',
-                        fontWeight: 'bold',
-                        marginTop: '0.5rem'
-                      }}>
-                        🏆 Champion: {championTeam.name}
+                  <div style={{ marginBottom: '2rem', display: 'flex', justifyContent: 'space-between', gap: '1rem', alignItems: 'flex-start' }}>
+                    <div>
+                      <h1 style={{ margin: 0, marginBottom: '0.5rem' }}>{conf.name}</h1>
+                      {championTeam && (
+                        <div style={{ 
+                          display: 'inline-block',
+                          padding: '0.5rem 1rem',
+                          backgroundColor: '#16a34a20',
+                          border: '2px solid #16a34a',
+                          borderRadius: '8px',
+                          fontSize: '1rem',
+                          color: '#16a34a',
+                          fontWeight: 'bold',
+                          marginTop: '0.5rem'
+                        }}>
+                          🏆 Champion: {championTeam.name}
+                        </div>
+                      )}
+                    </div>
+                    {userStatus && (
+                      <div
+                        style={{
+                          minWidth: '220px',
+                          padding: '0.75rem 1rem',
+                          borderRadius: '8px',
+                          border: '1px solid #4a9d6f55',
+                          backgroundColor: 'rgba(74, 157, 111, 0.08)',
+                          fontSize: '0.85rem'
+                        }}
+                      >
+                        <div style={{ fontSize: '0.75rem', color: '#9ca3af', marginBottom: '0.25rem' }}>
+                          Your team in this bracket
+                        </div>
+                        <div style={{ fontWeight: 600, marginBottom: '0.15rem' }}>
+                          {userStatus.label}
+                        </div>
+                        {userStatus.detail && (
+                          <div style={{ color: '#d1d5db' }}>
+                            {userStatus.detail}
+                          </div>
+                        )}
                       </div>
                     )}
                   </div>

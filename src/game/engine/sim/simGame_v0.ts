@@ -475,29 +475,37 @@ function computeTeamFTA(rng: Rng, poss: number, rimPressureIndex: number): numbe
  * Usage / shot gravity.
  * This must be strong enough that a 90+ OVR star can dominate a game sometimes.
  */
-function offensiveGravity(p: any, min: number): number {
+function offensiveGravity(p: any, min: number, isTakeoverPlayer?: boolean): number {
   const s3 = R(p.ratings.shooting3);
   const fin = R(p.ratings.finishing);
   const mid = R(p.ratings.shooting2);
   const ball = R(p.ratings.ballHandling);
   const ovr = R(p.ratings.overall);
-
+  const pos = p.identity.position as Position;
   const arch = p.identity.archetype as Archetype;
 
   const archUsage =
-    arch === "PRIMARY_SCORER" || arch === "WING_SCORER" || arch === "POST_SCORER"
+    arch === "PRIMARY_SCORER" || arch === "WING_SCORER"
       ? 1.18
+      : arch === "POST_SCORER"
+      ? 1.10 // Reduced from 1.18 to lower PF scoring (post scorers are often PFs)
       : arch === "SHOOTER"
       ? 1.08
       : arch === "FACILITATOR"
-      ? 0.86
+      ? 0.78 // Reduced from 0.86 to lower PG scoring (facilitators focus on assists, not points)
       : 1.0;
+
+  // Position multiplier: reduce PG/C scoring to match NCAA distributions
+  // For takeover players, exempt from position dampening to allow legendary performances
+  const posMult = isTakeoverPlayer 
+    ? 1.0 
+    : pos === "PG" ? 0.82 : pos === "C" ? 0.75 : 1.0; // Reduced C from 0.85→0.75 to hit 10-15 ppg range
 
   const score = 0.44 * ovr + 0.24 * fin + 0.16 * s3 + 0.10 * ball + 0.06 * mid;
 
   // Higher exponent concentrates attempts (important for star tails)
   const pow = 1.75;
-  return Math.max(0.0001, min * Math.pow(score / 100, pow) * archUsage);
+  return Math.max(0.0001, min * Math.pow(score / 100, pow) * archUsage * posMult);
 }
 
 function isEliteScorerProfile(p: any, min: number): boolean {
@@ -554,19 +562,21 @@ function buildTeamLinesRegulation(args: {
   const top = gravs[0];
 
   const takeover =
-    top && isEliteScorerProfile(top.p, top.min) && rand01(rng) < 0.14; // rare
+    top && isEliteScorerProfile(top.p, top.min) && rand01(rng) < 0.20; // ~20% for elite
   const hot =
-    top && isEliteScorerProfile(top.p, top.min) && rand01(rng) < 0.04; // very rare
+    top && isEliteScorerProfile(top.p, top.min) && rand01(rng) < 0.08; // ~8% for elite
   const historicNight =
-    top && isEliteScorerProfile(top.p, top.min) && rand01(rng) < 0.0008; // almost never
+    top && isEliteScorerProfile(top.p, top.min) && rand01(rng) < 0.02; // ~2% for elite — increased for more legendary performances
 
-  // Takeover boosts usage share
-  const takeoverMult = historicNight ? 2.6 : takeover ? 1.75 : 1.0;
+  // Takeover boosts usage share — historic nights get massive boost
+  const takeoverMult = historicNight ? 3.8 : takeover ? 1.90 : 1.0; // Further increased for legendary performances
 
   // Allocate FGA by gravity (with takeover concentration)
+  // Pass isTakeoverPlayer flag to exempt elite scorers from position dampening
   const gsum =
     active.reduce((a, x) => {
-      const g = offensiveGravity(x.p, x.min);
+      const isTakeoverPlayer = takeover && x.pid === top?.pid;
+      const g = offensiveGravity(x.p, x.min, isTakeoverPlayer);
       const boosted = x.pid === top?.pid ? g * takeoverMult : g;
       return a + boosted;
     }, 0) || 1;
@@ -574,7 +584,8 @@ function buildTeamLinesRegulation(args: {
   const fgaBy = roundToTotal(
     rng,
     active.map((x) => {
-      const g = offensiveGravity(x.p, x.min);
+      const isTakeoverPlayer = takeover && x.pid === top?.pid;
+      const g = offensiveGravity(x.p, x.min, isTakeoverPlayer);
       const boosted = x.pid === top?.pid ? g * takeoverMult : g;
       return { pid: x.pid, raw: (boosted / gsum) * teamFGA };
     }),
@@ -756,11 +767,11 @@ function buildTeamLinesRegulation(args: {
     // Hot night (rare tail): boosts alpha efficiency
     const hotBoost =
       hot && pid === top?.pid
-        ? 0.06 + rand01(rng) * 0.04 // +6% to +10% (bounded later)
+        ? 0.08 + rand01(rng) * 0.06 // +8% to +14%
         : 0;
     const historicBoost =
       historicNight && pid === top?.pid
-        ? 0.10 + rand01(rng) * 0.06 // +10% to +16% (extremely rare)
+        ? 0.18 + rand01(rng) * 0.10 // +18% to +28% — allows dominant 50+ point performances
         : 0;
 
     // Defense suppression
@@ -782,9 +793,14 @@ function buildTeamLinesRegulation(args: {
     const fatiguePenalty = Math.min(0.05, Math.max(0, (min - 25) * 0.005));
 
     // Apply scheme modifiers to shooting percentages
-    const tpPct = clamp(tpBase + perimSupp(oppDef.perimD) + form + hotBoost + historicBoost - fatiguePenalty + (shootingModifier / 100), 0.18, 0.62);
-    const rimPct = clamp(rimBase + rimSupp(oppDef.rimD) + form * 0.7 + hotBoost * 0.65 + historicBoost * 0.6 - fatiguePenalty * 0.8 + (shootingModifier / 100), 0.34, 0.82);
-    const midPct = clamp(midBase + perimSupp(oppDef.perimD) * 0.35 + form * 0.6 + hotBoost * 0.45 + historicBoost * 0.4 - fatiguePenalty * 0.9 + (shootingModifier / 100), 0.25, 0.66);
+    // Raise shooting caps for historic nights to allow truly dominant performances
+    const tpCap = historicNight && pid === top?.pid ? 0.70 : 0.62; // +8% ceiling for historic 3PT (was +6%)
+    const rimCap = historicNight && pid === top?.pid ? 0.90 : 0.82; // +8% ceiling for historic rim
+    const midCap = historicNight && pid === top?.pid ? 0.74 : 0.66; // +8% ceiling for historic mid
+
+    const tpPct = clamp(tpBase + perimSupp(oppDef.perimD) + form + hotBoost + historicBoost - fatiguePenalty + (shootingModifier / 100), 0.18, tpCap);
+    const rimPct = clamp(rimBase + rimSupp(oppDef.rimD) + form * 0.7 + hotBoost * 0.65 + historicBoost * 0.6 - fatiguePenalty * 0.8 + (shootingModifier / 100), 0.34, rimCap);
+    const midPct = clamp(midBase + perimSupp(oppDef.perimD) * 0.35 + form * 0.6 + hotBoost * 0.45 + historicBoost * 0.4 - fatiguePenalty * 0.9 + (shootingModifier / 100), 0.25, midCap);
     const ftPct = clamp(ftBase + form * 0.3 + (hot && pid === top?.pid ? 0.02 : 0) - fatiguePenalty * 0.5 + (shootingModifier / 100), 0.45, 0.95);
 
     const tpm = binomial(rng, tpa, tpPct);
@@ -814,10 +830,11 @@ function buildTeamLinesRegulation(args: {
     });
   }
 
-  // --- Event stats budgets ---
   // Rebounds: typical team totals mid-30s to low-40s (increased for better center numbers)
-  const rareRebSpike = rand01(rng) < 0.004 ? randInt(rng, 8, 18) : 0;
-  const baseReb = clamp(38 + randInt(rng, -3, 5) + rareRebSpike, 28, 58);
+  // During historic nights for bigs, boost rebound total for dominant performances
+  const isBigManHistoric = historicNight && (top?.p.identity.position === "C" || top?.p.identity.position === "PF");
+  const rareRebSpike = isBigManHistoric ? randInt(rng, 5, 12) : rand01(rng) < 0.004 ? randInt(rng, 8, 18) : 0;
+  const baseReb = clamp(38 + randInt(rng, -3, 5) + rareRebSpike, 28, 62); // Raised ceiling 58→62 for dominant big man games
 
   // Team steals/blocks based on lineup defensive ratings (but capped to reality)
   const teamStlRating =
@@ -833,7 +850,7 @@ function buildTeamLinesRegulation(args: {
   const stlCap = rareStlSpike > 0 ? 18 : 14;
   const blkCap = rareBlkSpike > 0 ? 16 : 10;
   const teamSteals = clamp(Math.round(7 + randInt(rng, -2, 4) + (teamStlRating - 50) / 18 + rareStlSpike), 4, stlCap);
-  const teamBlocks = clamp(Math.round(4 + randInt(rng, -2, 3) + (teamBlkRating - 50) / 22 + rareBlkSpike), 1, blkCap);
+  const teamBlocks = clamp(Math.round(4.5 + randInt(rng, -2, 3) + (teamBlkRating - 50) / 22 + rareBlkSpike), 2, blkCap); // Increased from 4→4.5 to ensure guards get minimum 0.3 blocks
 
   const baseFouls = 16 + randInt(rng, -3, 5);
 
@@ -842,17 +859,19 @@ function buildTeamLinesRegulation(args: {
   const defPressure = (oppDef.stl * 0.6 + oppDef.perimD * 0.4);
   const baseTO = clamp(11 + randInt(rng, -2, 4) + Math.round((defPressure - 50) / 18), 7, 18);
 
-  // Assists tied to passing and makes
+  // Assists tied to passing and makes - boosted rate to reach NCAA averages
+  // During historic nights, boost assist totals to allow PG explosion games (15+ assists)
   const teamPass =
     active.reduce((a, x) => a + R(x.p.ratings.passing) * (x.min / 40), 0) / Math.max(1, active.length);
-  const assistRate = clamp(0.52 + (teamPass - 50) / 200, 0.40, 0.72);
-  const targetAst = clamp(Math.round(lines.reduce((a, b) => a + b.fgm, 0) * assistRate), 10, 25);
+  const baseAssistRate = historicNight && top?.p.identity.position === "PG" ? 0.68 : 0.60; // Boost for PG historic nights
+  const assistRate = clamp(baseAssistRate + (teamPass - 50) / 200, 0.50, 0.85);
+  const targetAst = clamp(Math.round(lines.reduce((a, b) => a + b.fgm, 0) * assistRate), 12, 32); // Raised ceiling 28→32 for PG explosions
 
   // Rebounds allocation - tuned by position for NCAA ranges
-  const posRebMult: Record<string, number> = { PG: 0.60, SG: 0.70, SF: 0.95, PF: 1.35, C: 1.70 };
-  const posAstMult: Record<string, number> = { PG: 1.35, SG: 0.90, SF: 0.85, PF: 0.70, C: 0.60 };
+  const posRebMult: Record<string, number> = { PG: 0.60, SG: 0.70, SF: 0.95, PF: 1.35, C: 1.60 }; // Reduced C from 1.70 to 1.60 to lower reb from 13→12
+  const posAstMult: Record<string, number> = { PG: 2.25, SG: 0.75, SF: 0.70, PF: 0.60, C: 0.50 }; // Boosted PG from 1.85→2.25 to reach NCAA 6-8; reduced others proportionally
   const posStlMult: Record<string, number> = { PG: 1.25, SG: 1.20, SF: 1.05, PF: 0.90, C: 0.75 };
-  const posBlkMult: Record<string, number> = { PG: 0.40, SG: 0.50, SF: 0.80, PF: 1.20, C: 1.60 };
+  const posBlkMult: Record<string, number> = { PG: 0.60, SG: 0.70, SF: 0.90, PF: 1.20, C: 1.55 }; // Further increased guard blocks; reduced C to balance
   const rebWsum =
     active.reduce((a, x) => {
       const p = x.p;
@@ -883,13 +902,22 @@ function buildTeamLinesRegulation(args: {
   );
 
   // Assists allocation
+  // During historic PG nights, concentrate assists to the elite facilitator
+  const isPGHistoric = historicNight && top?.p.identity.position === "PG";
+  
   const astWsum =
     active.reduce((a, x) => {
       const p = x.p;
       const pos = p.identity.position as Position;
-      const w = (R(p.ratings.passing) * 1.2 + R(p.ratings.ballHandling) * 0.4) *
+      let w = (R(p.ratings.passing) * 1.2 + R(p.ratings.ballHandling) * 0.4) *
         (posAstMult[pos] ?? 1) *
         (x.min / 40);
+      
+      // Boost historic PG's assist share dramatically (allows 15-20 assist games)
+      if (isPGHistoric && x.pid === top?.pid) {
+        w *= 2.5; // 2.5x concentration for historic facilitator performances
+      }
+      
       return a + Math.max(0.001, w);
     }, 0) || 1;
 
@@ -898,9 +926,15 @@ function buildTeamLinesRegulation(args: {
     active.map((x) => {
       const p = x.p;
       const pos = p.identity.position as Position;
-      const w = (R(p.ratings.passing) * 1.2 + R(p.ratings.ballHandling) * 0.4) *
+      let w = (R(p.ratings.passing) * 1.2 + R(p.ratings.ballHandling) * 0.4) *
         (posAstMult[pos] ?? 1) *
         (x.min / 40);
+      
+      // Boost historic PG's assist share dramatically (allows 15-20 assist games)
+      if (isPGHistoric && x.pid === top?.pid) {
+        w *= 2.5; // 2.5x concentration for historic facilitator performances
+      }
+      
       return { pid: x.pid, raw: (Math.max(0.001, w) / astWsum) * targetAst };
     }),
     targetAst
@@ -927,7 +961,7 @@ function buildTeamLinesRegulation(args: {
     total: teamSteals,
     weights: stlWeights,
     capsByPos: { PG: 5, SG: 5, SF: 4, PF: 3, C: 3 },
-    spikeChance: 0.03,
+    spikeChance: 0.015,  // Reduced: 3% → 1.5% (rare spike games)
     spikeMaxExtra: 2,
   });
 
@@ -941,7 +975,8 @@ function buildTeamLinesRegulation(args: {
       (x.min / 40);
 
     // Stronger concentration for blocks (rim protectors dominate)
-    const w = Math.pow(Math.max(0.001, wRaw), 1.75);
+    // Reduced exponent from 1.75→1.55 to give guards more chance at blocks
+    const w = Math.pow(Math.max(0.001, wRaw), 1.55);
 
     // "Interior defender PG" exception: elite rim+block+athleticism with minutes
     const elite =
@@ -957,8 +992,8 @@ function buildTeamLinesRegulation(args: {
     total: teamBlocks,
     weights: blkWeights,
     capsByPos: { PG: 2, SG: 2, SF: 3, PF: 5, C: 7 },
-    spikeChance: 0.025,
-    spikeMaxExtra: 3,
+    spikeChance: 0.01,    // Reduced: 2.5% → 1% (very rare spike games)
+    spikeMaxExtra: 2,     // Reduced: 3 → 2 (smaller spike size)
   });
 
   // Turnovers by usage + ball security (ballHandling/passing) + opponent pressure (steal/perimeterDefense per spec)

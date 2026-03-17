@@ -41,16 +41,21 @@ export function applyPrestigeAdjustments(dynasty: Dynasty): Dynasty {
 
     // Only count if they played games
     if (totalGames > 0) {
-      // 20+ wins
-      if (wins >= 20) prestigeGain += 0.5
-      // 25+ wins
-      if (wins >= 25) prestigeGain += 1.0
-      // 30+ wins
-      if (wins >= 30) prestigeGain += 1.5
-
-      // Losing season penalty (optional - can be toggled)
       const hasLosingRecord = wins < losses
-      if (hasLosingRecord) prestigeGain -= 0.5
+      
+      // Prestige gains for good records
+      // 30+ wins: +1.5
+      if (wins >= 30) prestigeGain += 1.5
+      // 25+ wins: +1.0
+      else if (wins >= 25) prestigeGain += 1.0
+      // 20+ wins: +0.5
+      else if (wins >= 20) prestigeGain += 0.5
+      // 15+ wins (minor achievement, helps low-prestige teams): +0.25
+      else if (wins >= 15) prestigeGain += 0.25
+      
+      // Prestige LOSS for losing seasons is more severe (-2 instead of -0.5)
+      // This incentivizes teams to compete and allows prestige decay for truly bad programs
+      if (hasLosingRecord) prestigeGain -= 2.0
     }
 
     // ===== TOURNAMENT ACHIEVEMENTS =====

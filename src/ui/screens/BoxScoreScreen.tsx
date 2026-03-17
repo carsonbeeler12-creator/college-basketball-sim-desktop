@@ -47,8 +47,8 @@ export function BoxScoreScreen(props: {
         <p className="cardText muted">No box score found.</p>
       ) : (
         <>
-          <div className="row" style={{ justifyContent: 'space-between' }}>
-            <div style={{ display: 'flex', gap: '8px' }}>
+          <div className="boxScoreHeader">
+            <div className="boxScoreActions">
               <button className="btn secondary" onClick={() => setScreen('simResults')}>
                 ← Back
               </button>
@@ -62,7 +62,7 @@ export function BoxScoreScreen(props: {
             </div>
           </div>
 
-          <div style={{ height: 12 }} />
+          <div className="boxScoreSpacer" />
 
           <div className="grid2">
             {(['away', 'home'] as const).map(side => {
@@ -88,19 +88,19 @@ export function BoxScoreScreen(props: {
               const schemeLabel = coachScheme ? getSchemeName(coachScheme) : null
 
               return (
-                <section key={side} className="boxScoreTeamCard" style={{ borderLeftWidth: 4, borderLeftColor: teamColor }}>
+                <section key={side} className="boxScoreTeamCard" style={{ borderLeftColor: teamColor }}>
                   <div className="boxScoreTeamHeader">
                     <div>
                       <div className="boxScoreTeamName" style={{ color: teamColor }}>
                         {teamName(teamId)}
                       </div>
                       {schemeLabel && (
-                        <div style={{ fontSize: '12px', color: 'var(--text-muted)', marginTop: '2px' }}>
+                        <div className="boxScoreSchemeLabel">
                           {schemeLabel} System
                         </div>
                       )}
                     </div>
-                    <div className="boxScoreTeamScore" style={{ backgroundImage: `linear-gradient(135deg, ${teamColor} 0%, ${teamColor}80 100%)`, WebkitBackgroundClip: 'text', WebkitTextFillColor: 'transparent', backgroundClip: 'text' }}>
+                    <div className="boxScoreTeamScore" style={{ color: teamColor }}>
                       {teamLine.points}
                     </div>
                   </div>
@@ -140,7 +140,7 @@ export function BoxScoreScreen(props: {
                     </div>
                   </div>
 
-                  <div style={{ fontSize: 12, fontWeight: 600, marginBottom: 12, color: teamColor, textTransform: 'uppercase', letterSpacing: '0.3px' }}>
+                  <div className="boxScorePlayerStatsTitle" style={{ color: teamColor }}>
                     Player Stats
                   </div>
 

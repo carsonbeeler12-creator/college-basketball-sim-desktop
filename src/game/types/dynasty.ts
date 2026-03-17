@@ -173,6 +173,13 @@ export type PlayerState = {
     potential: number;
     workEthic?: number;
     durability?: number;
+    isGenerational?: boolean; // Flag for rare generational talents
+    
+    // NEW: Progression variance and curves (backwards compatible - all optional)
+    volatility?: number; // 0-100: How unpredictable development is (higher = more variance)
+    growthCurve?: "early" | "normal" | "late"; // When player reaches peak performance
+    confidence?: number; // 0-100: Derived from recent performance, affects short-term development
+    yearsSincePeak?: number; // Tracks if player has plateaued (0 = still improving)
   };
 
   // Career awards and honors
@@ -366,6 +373,7 @@ export type Recruit = {
   
   // Potential and development
   potential: number; // Max ceiling (35-99)
+  workEthic?: number; // 20-100, affects development rate
   gemBustStatus: GemBustStatus; // Hidden until scouted
   
   // Star rating (1-5, reflects current ability and national demand)
@@ -377,8 +385,15 @@ export type Recruit = {
   // National recruiting rank (1-100, only top 100 are ranked)
   rank?: number; // 1 = #1 recruit, 100 = #100 recruit
   
+  // Personality type (affects what factors they value most)
+  personality?: 'LOYALIST' | 'WINNER' | 'STAR' | 'DEVELOPER' | 'SCHEME_FIT'; // LOYALIST=geography 2x, WINNER=recent success 2x, STAR=prestige 2x, DEVELOPER=PT/coaching 2x, SCHEME_FIT=scheme match 2x
+  
   // Interest in schools (0-100, higher = more interested)
   interestByTeamId: Record<ID, number>;
+  
+  // Recruiting momentum (can spike mid-season for "sleepers")
+  isSleeper?: boolean; // Hidden gem that can suddenly become hot mid-season
+  hasHadBreakout?: boolean; // Whether sleeper breakout already happened
   
   // Status
   status: RecruitStatus;
@@ -418,6 +433,9 @@ export type RecruitingBoard = {
   
   // Progress tracking (percentage toward commitment, 0-100)
   progressByRecruitId: Record<ID, number>;
+  
+  // Momentum tracking (+/- modifiers that amplify/dampen progress, -20 to +20)
+  momentumByRecruitId?: Record<ID, number>;
   
   // Scholarship offers (must offer scholarship for player to commit)
   scholarshipOfferedToRecruitId: Record<ID, boolean>;
@@ -459,9 +477,11 @@ export type Conference = {
  * Season highlights - major events to display at end of season
  */
 export type SeasonHighlight = {
-  type: 'AWARD' | 'TOURNAMENT' | 'PRESTIGE' | 'MILESTONE' | 'RECRUITING';
+  type: 'AWARD' | 'TOURNAMENT' | 'PRESTIGE' | 'MILESTONE' | 'RECRUITING' | 'PERFORMANCE';
   teamId?: ID;
   playerId?: ID;
+  gameId?: ID; // For performance highlights
+  statLine?: string; // e.g., "42 PTS, 8 REB, 5 AST"
   title: string;
   description: string;
   importance: 'HIGH' | 'MEDIUM' | 'LOW'; // For sorting/filtering

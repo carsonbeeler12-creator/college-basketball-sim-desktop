@@ -9,15 +9,18 @@ import { TEAMS } from '../../defaultData'
  * Higher-ranked recruits are harder to recruit (require more weeks).
  * 
  * Uses rank-based saturating curve: gain(h) = cap * (1 - exp(-h / tau))
- * Scholarship reduces tau by 10% (makes curve steeper, accelerating progress).
- * Prestige reduces tau (higher prestige = faster approach to cap, but same cap).
+ * Scholarship reduces tau by 10-15% (makes curve steeper, accelerating progress).
+ * Prestige reduces tau significantly for elite programs (compounding advantage).
  * For unranked recruits only, prestige also slightly increases the cap.
+ * 
+ * New: Momentum can amplify or dampen progress (recruiting battles, big wins/losses).
  */
 function calculateWeeklyProgressGain(
   hoursAllocated: number,
   scholarshipOffered: boolean,
   recruitRank: number | undefined,
-  prestige: number
+  prestige: number,
+  momentum?: number // New: -20 to +20 modifier affecting progress
 ): number {
   const hours = Math.min(hoursAllocated, 300)
 
@@ -58,39 +61,70 @@ function calculateWeeklyProgressGain(
     tau = 60
   }
 
-  // Prestige effect: normalize prestige (40→0.0, 100→1.0)
-  // Prestige reduces tau (makes progress approach cap faster), max 15% reduction
+  // === PRESTIGE EFFECT (COMPOUNDING ADVANTAGE) ===
+  // Normalize prestige (40→0.0, 100→1.0)
   const prestigeNormalized = Math.max(0, Math.min(1, (prestige - 40) / 60))
-  const prestigeEffect = 0.15 * prestigeNormalized // max 15% for prestige 100
+  
+  // Elite programs (85+) get a modest prestige effect
+  // Personality system handles most of recruit preference differentiation now
+  // Prestige advantage was increased too much when we added personalities
+  let prestigeEffect: number
+  if (prestige >= 90) {
+    // Elite (90-100): 12-18% tau reduction (reduced from 20-30%)
+    prestigeEffect = 0.12 + (prestigeNormalized * 0.06)
+  } else if (prestige >= 85) {
+    // Top tier (85-89): 10-14% tau reduction
+    prestigeEffect = 0.10 + (prestigeNormalized * 0.04)
+  } else if (prestige >= 75) {
+    // Power (75-84): 8-12% tau reduction
+    prestigeEffect = 0.08 + (prestigeNormalized * 0.04)
+  } else if (prestige >= 60) {
+    // Mid-major (60-74): 6-10% tau reduction
+    prestigeEffect = 0.06 + (prestigeNormalized * 0.04)
+  } else {
+    // Low prestige (<60): 0-5% tau reduction (minimal advantage)
+    prestigeEffect = prestigeNormalized * 0.05
+  }
 
   // Apply prestige to tau: reduce tau by prestigeEffect (faster approach to cap)
   let effectiveTau = tau * (1 - prestigeEffect)
 
-  // Scholarship reduces tau by additional 10% (makes curve steeper, accelerating progress)
-  // This boosts early and mid-range gains without breaking timelines
-  effectiveTau = scholarshipOffered ? effectiveTau * 0.90 : effectiveTau
+  // === SCHOLARSHIP EFFECT ===
+  // Scholarship reduces tau by additional 10-15% (makes curve steeper, accelerating progress)
+  // Elite programs get slightly better scholarship impact (15% vs 10%)
+  const scholarshipBonus = prestige >= 85 ? 0.15 : 0.10
+  effectiveTau = scholarshipOffered ? effectiveTau * (1 - scholarshipBonus) : effectiveTau
 
-  // For unranked recruits only: prestige can slightly increase the cap (max +10%)
+  // For unranked recruits only: prestige can slightly increase the cap (max +12%)
   // This allows high prestige teams to close low-tier recruits faster
   // Do NOT apply cap boost to ranked recruits (Top 100)
   let effectiveCap = cap
   if (isUnranked) {
-    const capBoost = 0.10 * prestigeNormalized // max +10% cap boost for unranked
+    const capBoost = 0.12 * prestigeNormalized // max +12% cap boost for unranked (up from 10%)
     effectiveCap = cap * (1 + capBoost)
   }
 
-  // Calculate weekly gain using saturating curve
-  // gain(h) = cap * (1 - exp(-h / tau))
-  const weeklyGain = effectiveCap * (1 - Math.exp(-hours / effectiveTau))
+  // === MOMENTUM EFFECT (NEW) ===
+  // Momentum from -20 to +20 affects progress rate
+  // Big wins, tournament runs add positive momentum
+  // Losses, scandals add negative momentum
+  // Creates recruiting swings and makes process feel dynamic
+  const momentumModifier = momentum !== undefined ? (1 + (momentum / 100)) : 1.0 // -20% to +20%
 
-  return weeklyGain
+  // Calculate weekly gain using saturating curve
+  // gain(h) = cap * (1 - exp(-h / tau)) * momentumModifier
+  const baseGain = effectiveCap * (1 - Math.exp(-hours / effectiveTau))
+  const weeklyGain = baseGain * momentumModifier
+
+  return Math.max(0, weeklyGain) // Never negative
 }
 
 /**
  * Calculate recruiting progress for a team's recruit (for display purposes).
- * Returns the current stored progress, or initial interest if no progress stored yet.
+ * Returns the current stored progress (always starts at 0, not initial interest).
  * 
  * Note: Actual progress accumulation happens in updateProgressForBoard during weekly sims.
+ * Decoupled: initial interest affects RATE of progress, not starting progress.
  */
 export function calculateProgress(
   dynasty: Dynasty,
@@ -110,8 +144,8 @@ export function calculateProgress(
     return 100
   }
 
-  // Return stored progress, or initial interest if no progress stored yet
-  return board.progressByRecruitId?.[recruitId] ?? (recruit.interestByTeamId[teamId] ?? 0)
+  // Return stored progress (starts at 0, builds up over weeks)
+  return board.progressByRecruitId?.[recruitId] ?? 0
 }
 
 /**
@@ -129,6 +163,58 @@ export function updateProgressForBoard(dynasty: Dynasty, teamId: ID): Dynasty {
   // Get team prestige for prestige boost calculation
   const team = TEAMS.find(t => t.id === teamId)
   const prestige = team?.prestige ?? 50 // Default to 50 if team not found
+  
+  // === CALCULATE TEAM MOMENTUM (NEW) ===
+  // Momentum affects recruiting progress based on recent performance
+  // Big wins, tournament runs boost momentum; losses dampen it
+  let teamMomentum = 0
+  
+  // Check recent game results (last 3-5 games if available)
+  const allGames = Object.values(dynasty.league.gamesById)
+  const teamGames = allGames
+    .filter(g => g.status === 'FINAL' && (g.homeTeamId === teamId || g.awayTeamId === teamId))
+    .sort((a, b) => b.day - a.day) // Most recent first
+    .slice(0, 5) // Last 5 games
+  
+  // Count recent wins/losses
+  let recentWins = 0
+  let recentLosses = 0
+  for (const game of teamGames) {
+    if (!game.result) continue
+    const isHome = game.homeTeamId === teamId
+    const teamScore = isHome ? game.result.homeScore : game.result.awayScore
+    const oppScore = isHome ? game.result.awayScore : game.result.homeScore
+    if (teamScore > oppScore) recentWins++
+    else recentLosses++
+  }
+  
+  // Win streak boosts momentum
+  if (recentWins >= 4) teamMomentum += 12 // 4+ game win streak
+  else if (recentWins >= 3) teamMomentum += 8  // 3 game win streak
+  else if (recentWins >= 2) teamMomentum += 4  // 2 game win streak
+  
+  // Loss streak dampens momentum
+  if (recentLosses >= 4) teamMomentum -= 10 // 4+ game losing streak
+  else if (recentLosses >= 3) teamMomentum -= 6  // 3 game losing streak
+  
+  // Tournament success gives MAJOR momentum boost
+  // Check if team made tournament (would be in current world state)
+  if (dynasty.world.phase === 'POSTSEASON' || dynasty.world.phase === 'TOURNAMENT_READY') {
+    const tournament = dynasty.league.tournament
+    if (tournament?.games) {
+      // Check if team won any tournament games
+      const tourneyWins = tournament.games.filter(g => 
+        g.winnerId === teamId
+      ).length
+      
+      if (tourneyWins >= 3) teamMomentum += 20 // Elite Eight or better
+      else if (tourneyWins >= 2) teamMomentum += 15 // Sweet Sixteen
+      else if (tourneyWins >= 1) teamMomentum += 10 // Won first round
+    }
+  }
+  
+  // Clamp momentum to -20/+20
+  teamMomentum = Math.max(-20, Math.min(20, teamMomentum))
 
   let updatedRecruitPool = { ...recruitingState.recruitPool }
   let updatedDynasty = dynasty
@@ -136,6 +222,10 @@ export function updateProgressForBoard(dynasty: Dynasty, teamId: ID): Dynasty {
   // Start with existing progress to preserve it (critical: don't lose progress when hours are cleared!)
   // Handle case where progressByRecruitId might be undefined/null
   const progressByRecruitId: Record<ID, number> = { ...(board.progressByRecruitId ?? {}) }
+  
+  // Initialize momentum tracking if it doesn't exist
+  const momentumByRecruitId: Record<ID, number> = { ...(board.momentumByRecruitId ?? {}) }
+  
   const recruitsToRemoveFromBoard: ID[] = [] // Track commits to remove from board
   
   for (const recruitId of board.recruitIds) {
@@ -153,14 +243,62 @@ export function updateProgressForBoard(dynasty: Dynasty, teamId: ID): Dynasty {
     const currentStoredProgress = progressByRecruitId[recruitId] ?? (recruit.interestByTeamId[teamId] ?? 0)
     const hoursAllocated = board.hoursAllocatedByRecruitId[recruitId] ?? 0
     const scholarshipOffered = board.scholarshipOfferedToRecruitId[recruitId] ?? false
-    const weeklyGain = calculateWeeklyProgressGain(hoursAllocated, scholarshipOffered, recruit.rank, prestige)
+    
+    // Get or initialize recruit-specific momentum (starts at team momentum, but can diverge)
+    const recruitMomentum = momentumByRecruitId[recruitId] ?? teamMomentum
+    
+    // === SMALL SCHOOL UNDERDOG BONUS (NEW) ===
+    // If low-prestige team (<65) is recruiting a player with few competitors,
+    // they get a "diamond in the rough" bonus (+50% progress for that recruit)
+    // This gives small schools chances to land impact players if they're early/committed
+    let underdogBonus = 1.0
+    if (prestige < 65 && hoursAllocated >= 40) {
+      // Check how many other teams are seriously recruiting this player (40+ hours)
+      const allBoards = Object.values(recruitingState.boardsByTeamId)
+      const competitorCount = allBoards.filter(otherBoard => {
+        if (otherBoard.teamId === teamId) return false // Don't count self
+        const otherTeamHours = otherBoard.hoursAllocatedByRecruitId[recruitId] ?? 0
+        return otherTeamHours >= 40 // High investment threshold
+      }).length
+      
+      // If 0-1 serious competitors, small school gets bonus
+      if (competitorCount <= 1) {
+        underdogBonus = 1.5 // +50% progress boost
+      } else if (competitorCount === 2) {
+        underdogBonus = 1.25 // +25% progress boost with 2 competitors
+      }
+    }
+    
+    // Calculate weekly gain with momentum AND underdog bonus
+    let weeklyGain = calculateWeeklyProgressGain(
+      hoursAllocated, 
+      scholarshipOffered, 
+      recruit.rank, 
+      prestige,
+      recruitMomentum
+    )
+    
+    // Apply underdog bonus
+    weeklyGain = weeklyGain * underdogBonus
+    
     const newProgress = Math.min(100, Math.round(currentStoredProgress + weeklyGain))
     
     // Always update progress (even if hours are 0, progress should still accumulate with scholarship)
     progressByRecruitId[recruitId] = newProgress
+    
+    // Update momentum with decay (momentum gradually returns to 0 over time)
+    // This prevents permanent momentum boosts/penalties
+    const momentumDecay = 0.85 // Momentum decays by 15% per week
+    momentumByRecruitId[recruitId] = Math.round(recruitMomentum * momentumDecay)
 
-    // If progress reaches 100% and recruit isn't committed, they commit!
-    if (newProgress >= 100 && recruit.status === 'UNCOMMITTED') {
+    // === MINIMUM RECRUITMENT WINDOW ===
+    // Recruits must be recruited for AT LEAST 8 weeks (56 days) before they can commit
+    // This prevents lightning-fast commitments and makes recruiting feel more gradual
+    const minimumRecruitmentDays = 56 // 8 weeks
+    const canCommit = dynasty.world.day >= minimumRecruitmentDays
+    
+    // If progress reaches 100% and recruit isn't committed, they commit (if window passed)
+    if (newProgress >= 100 && recruit.status === 'UNCOMMITTED' && canCommit) {
       updatedRecruitPool[recruitId] = {
         ...recruit,
         status: 'COMMITTED',
@@ -175,28 +313,23 @@ export function updateProgressForBoard(dynasty: Dynasty, teamId: ID): Dynasty {
   }
 
   // Build updated board, removing committed recruits
-  // CRITICAL: Preserve all existing board data (hours, scholarships, visits) and only update progress
-  // Don't create new empty objects - preserve existing ones to avoid data loss
-  // Reset scouting hours each week (they come back)
+  // CRITICAL: Preserve all existing board data (hours, scholarships, visits) and only update progress + momentum
   const updatedBoard = {
     ...board,
     recruitIds: board.recruitIds.filter(id => !recruitsToRemoveFromBoard.includes(id)),
     progressByRecruitId,
-    // Preserve existing hours and scholarships - only create new objects if they don't exist
+    momentumByRecruitId, // NEW: Store momentum per recruit
     hoursAllocatedByRecruitId: board.hoursAllocatedByRecruitId ? { ...board.hoursAllocatedByRecruitId } : {},
     scholarshipOfferedToRecruitId: board.scholarshipOfferedToRecruitId ? { ...board.scholarshipOfferedToRecruitId } : {},
-    // Preserve visit scheduling if it exists
     visitScheduledForRecruitId: board.visitScheduledForRecruitId ? { ...board.visitScheduledForRecruitId } : {},
-    // Reset scouting hours each week (they come back)
     scoutingHoursUsedByRecruitId: {},
   }
   
-  // Clean up hours/progress tracking for removed recruits (only remove committed recruits)
+  // Clean up hours/progress/momentum tracking for removed recruits
   for (const recruitId of recruitsToRemoveFromBoard) {
     delete updatedBoard.hoursAllocatedByRecruitId[recruitId]
     delete updatedBoard.progressByRecruitId[recruitId]
-    // Keep scholarship offered status (for reference, but not needed)
-    // Keep visit scheduling (visits might still be relevant)
+    delete updatedBoard.momentumByRecruitId![recruitId]
   }
 
   return {

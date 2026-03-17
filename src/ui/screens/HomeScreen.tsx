@@ -1,6 +1,23 @@
+import { useState } from 'react'
 import { TEAMS } from '../../game/defaultData'
 import type { Screen } from '../../game/types'
 import type { DynastyIndexEntry } from '../../game/types/dynastyIndex'
+
+function formatLastPlayed(isoString: string): string {
+  const date = new Date(isoString)
+  const now = new Date()
+  const diffMs = now.getTime() - date.getTime()
+  const diffMins = Math.floor(diffMs / 60000)
+  const diffHours = Math.floor(diffMs / 3600000)
+  const diffDays = Math.floor(diffMs / 86400000)
+  
+  if (diffMins < 1) return 'Just now'
+  if (diffMins < 60) return `${diffMins}m ago`
+  if (diffHours < 24) return `${diffHours}h ago`
+  if (diffDays === 1) return 'Yesterday'
+  if (diffDays < 7) return `${diffDays} days ago`
+  return date.toLocaleDateString()
+}
 
 export function HomeScreen(props: {
   saves: DynastyIndexEntry[]
@@ -9,65 +26,117 @@ export function HomeScreen(props: {
   deleteSave: (id: string) => Promise<void>
 }) {
   const { saves, setScreen, loadSave, deleteSave } = props
+  const [deleteConfirm, setDeleteConfirm] = useState<string | null>(null)
 
   return (
-    <div className="grid2">
-      <div style={{ gridColumn: '1 / -1', background: '#ff6b35', padding: '12px', borderRadius: '4px', textAlign: 'center', marginBottom: '16px' }}>
-        <strong>🚧 BETA VERSION 0.9.6</strong> - Help us improve! Report bugs and suggestions.
+    <div className="homeContainer">
+      {/* Beta Banner */}
+      <div className="betaBanner">
+        <span className="betaBannerIcon">🚧</span>
+        <strong>BETA VERSION 0.9.8</strong>
+        <span className="betaBannerText">Help us improve! Report bugs and suggestions.</span>
       </div>
-      
-      <section className="card">
-        <h2 className="cardTitle">Start</h2>
-        <div className="stack">
-          <button className="btn" onClick={() => setScreen('newDynasty')}>
-            New Dynasty
-          </button>
-        </div>
+
+      {/* Hero Section */}
+      <section className="homeHero">
+        <h1 className="homeTitle">College Basketball Dynasty</h1>
+        <p className="homeSubtitle">Build your program. Recruit elite talent. Win championships.</p>
+        <button className="btn homeCtaBtn" onClick={() => setScreen('newDynasty')}>
+          <span className="homeCtaIcon">🏀</span>
+          Start New Dynasty
+        </button>
       </section>
 
-      <section className="card">
-        <h2 className="cardTitle">Load Dynasty</h2>
-
-        {saves.length === 0 ? (
-          <p className="cardText muted">No saves yet. Create your first dynasty.</p>
-        ) : (
-          <div className="list">
+      {/* Dynasties Section */}
+      {saves.length > 0 && (
+        <section className="homeDynastiesSection">
+          <h2 className="homeSectionTitle">Your Dynasties</h2>
+          <div className="savesGrid">
             {saves.map(s => {
               const team = TEAMS.find(t => t.id === s.userTeamId)
+              const isDeleting = deleteConfirm === s.dynastyId
+              
               return (
-                <div key={s.dynastyId} style={{ display: 'flex', gap: '8px', alignItems: 'stretch' }}>
-                  <button 
-                    className="listRow" 
-                    onClick={() => loadSave(s.dynastyId)}
-                    style={{ flex: 1 }}
+                <div key={s.dynastyId} className="saveCard">
+                  <div 
+                    className="saveCardMain"
+                    onClick={() => !isDeleting && loadSave(s.dynastyId)}
+                    style={{ cursor: isDeleting ? 'default' : 'pointer' }}
                   >
-                    <div className="listRowTitle">{team ? team.name : s.userTeamId}</div>
-                    <div className="listRowSub">
-                      Coach {s.coachName} • Season {s.seasonYear}
+                    <div className="saveCardHeader">
+                      <div className="saveCardTeam">{team ? team.name : 'Unknown'}</div>
+                      <div className="saveCardBadge">Season {s.seasonYear}</div>
                     </div>
-                  </button>
-                  <button
-                    className="btn"
-                    onClick={async (e) => {
-                      e.stopPropagation()
-                      if (confirm(`Delete dynasty: ${team?.name || 'Unknown'} - Coach ${s.coachName}?`)) {
-                        await deleteSave(s.dynastyId)
-                      }
-                    }}
-                    style={{ 
-                      background: '#dc3545', 
-                      padding: '8px 16px',
-                      minWidth: 'auto'
-                    }}
-                  >
-                    Delete
-                  </button>
+                    
+                    <div className="saveCardCoach">Coach {s.coachName}</div>
+                    
+                    <div className="saveCardMeta">
+                      <span className="saveCardMetaItem">
+                        <span className="saveCardMetaIcon">📅</span>
+                        {formatLastPlayed(s.lastSavedAtISO)}
+                      </span>
+                    </div>
+                  </div>
+
+                  <div className="saveCardActions">
+                    {!isDeleting ? (
+                      <>
+                        <button 
+                          className="btn saveCardBtn"
+                          onClick={() => loadSave(s.dynastyId)}
+                        >
+                          Continue
+                        </button>
+                        <button 
+                          className="btn secondary saveCardBtnDelete"
+                          onClick={() => setDeleteConfirm(s.dynastyId)}
+                        >
+                          Delete
+                        </button>
+                      </>
+                    ) : (
+                      <>
+                        <div className="deleteConfirmText">Delete this dynasty?</div>
+                        <button 
+                          className="btn saveCardBtnConfirm"
+                          onClick={async () => {
+                            await deleteSave(s.dynastyId)
+                            setDeleteConfirm(null)
+                          }}
+                        >
+                          Yes, Delete
+                        </button>
+                        <button 
+                          className="btn secondary"
+                          onClick={() => setDeleteConfirm(null)}
+                        >
+                          Cancel
+                        </button>
+                      </>
+                    )}
+                  </div>
                 </div>
               )
             })}
           </div>
-        )}
-      </section>
+        </section>
+      )}
+
+      {/* Empty State */}
+      {saves.length === 0 && (
+        <section className="homeEmptyState">
+          <div className="emptyStateIcon">🏀</div>
+          <h3 className="emptyStateTitle">No Dynasties Yet</h3>
+          <p className="emptyStateText">
+            Start your journey to become a championship coach.
+            <br />
+            Recruit star players, develop your roster, and build a legacy.
+          </p>
+          <button className="btn" onClick={() => setScreen('newDynasty')}>
+            Create Your First Dynasty
+          </button>
+        </section>
+      )}
     </div>
   )
 }

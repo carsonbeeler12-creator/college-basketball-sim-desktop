@@ -97,6 +97,10 @@ export function advanceToOffseason(dynasty: Dynasty): Dynasty {
     const team = newDynasty.league.teamsById[teamId]
     const newPlayerIds: ID[] = []
     
+    // Get coach scheme if this is the user's team
+    const isUserTeam = teamId === newDynasty.league.userTeamId
+    const coachScheme = isUserTeam ? newDynasty.coach.scheme : undefined
+    
     // Process current roster
     for (const playerId of team.roster.playerIds) {
       const player = newDynasty.playersById[playerId]
@@ -109,8 +113,8 @@ export function advanceToOffseason(dynasty: Dynasty): Dynasty {
         continue
       }
       
-      // Progress younger players
-      const progressedPlayer = progressPlayer(player, rng, 0)
+      // Progress younger players (pass scheme for user team, undefined for CPU teams)
+      const progressedPlayer = progressPlayer(player, rng, 0, coachScheme)
       
       // Advance class year
       let newClassYear: PlayerState['identity']['classYear']
@@ -248,7 +252,7 @@ function convertRecruitToPlayer(recruit: Recruit, teamId: ID, newSeasonYear: num
     ratings: recruit.ratings,
     development: {
       potential: recruit.potential,
-      workEthic: 50, // Default work ethic for recruits
+      workEthic: recruit.workEthic ?? 50,  // Use recruit's work ethic, fallback to 50 for old saves
       durability: 70, // Default durability
     },
     team: {

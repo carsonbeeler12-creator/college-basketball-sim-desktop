@@ -1,9 +1,10 @@
 // src/game/engine/recruiting/generateRecruitPool.ts
 
-import type { Dynasty, ID, Position, Recruit, GemBustStatus } from '../../types/dynasty'
+import type { Dynasty, ID, Position, Recruit, GemBustStatus, Archetype } from '../../types/dynasty'
 import { pickArchetypeForPosition } from '../ratings/archetypes'
 import { genRatings } from '../generateLeague'
 import { TEAMS } from '../../defaultData'
+import { evaluateArchetypeFit } from '../schemes/schemeDefinitions'
 
 type Rng = { state: number }
 
@@ -178,8 +179,44 @@ function generateRecruit(
   const firstName = pick(rng, FIRST)
   const lastName = pick(rng, LAST)
   
+  // Assign personality type FIRST (before calculating interest, since it affects interest calculation)
+  const personalityRoll = rand01(rng)
+  let personality: 'LOYALIST' | 'WINNER' | 'STAR' | 'DEVELOPER' | 'SCHEME_FIT'
+  if (personalityRoll < 0.20) personality = 'LOYALIST'       // 20%: Values hometown/geography
+  else if (personalityRoll < 0.40) personality = 'WINNER'    // 20%: Values recent success/winning
+  else if (personalityRoll < 0.60) personality = 'STAR'      // 20%: Values prestige/exposure  
+  else if (personalityRoll < 0.80) personality = 'DEVELOPER' // 20%: Values playing time/coaching
+  else personality = 'SCHEME_FIT'                             // 20%: Values scheme archetype match
+  
   // Calculate initial interest in schools (uses star rating to determine difficulty)
-  const interestByTeamId = calculateInitialInterest(rng, dynasty, starRating, hometownTeam.id)
+  const interestByTeamId = calculateInitialInterest(rng, dynasty, starRating, hometownTeam.id, personality, archetype)
+  
+  // Generate work ethic: higher stars tend to have higher work ethic
+  // 5★: 50-65 avg, 4★: 45-60, 3★: 40-55, 2★: 35-50, 1★: 30-45
+  let workEthicBase = 50
+  switch (starRating) {
+    case 5: workEthicBase = randInt(rng, 50, 70); break
+    case 4: workEthicBase = randInt(rng, 45, 65); break
+    case 3: workEthicBase = randInt(rng, 40, 60); break
+    case 2: workEthicBase = randInt(rng, 35, 55); break
+    case 1: workEthicBase = randInt(rng, 30, 50); break
+  }
+  //Gems tend to have higher work ethic, busts lower
+  let finalWorkEthic = workEthicBase
+  if (gemBustStatus === 'GEM') finalWorkEthic = Math.min(100, finalWorkEthic + randInt(rng, 5, 10))
+  else if (gemBustStatus === 'BUST') finalWorkEthic = Math.max(20, finalWorkEthic - randInt(rng, 5, 10))
+  
+  // Identify potential sleepers (hidden gems that can suddenly spike in interest mid-season)
+  // More common in lower-star ratings (2-3★), especially gems
+  // Simulates summer camp performances, growth spurts, injury recoveries
+  let isSleeper = false
+  if (gemBustStatus === 'GEM' && starRating <= 3) {
+    isSleeper = rand01(rng) < 0.18 // 18% of 2-3★ gems are sleepers
+  } else if (starRating === 2) {
+    isSleeper = rand01(rng) < 0.08 // 8% of 2★ normals are sleepers
+  } else if (starRating === 3) {
+    isSleeper = rand01(rng) < 0.05 // 5% of 3★ normals are sleepers
+  }
   
   return {
     recruitId,
@@ -195,6 +232,9 @@ function generateRecruit(
     gemBustStatus,
     starRating,
     isGenerational: isGenerational || undefined, // Only set if true
+    workEthic: finalWorkEthic,  // Add variance to work ethic
+    personality,  // Affects which factors they prioritize
+    isSleeper: isSleeper || undefined, // Only set if true
     interestByTeamId,
     status: 'UNCOMMITTED',
     scoutedByTeamId: {},
@@ -275,15 +315,16 @@ function calculatePotential(
 
 /**
  * Calculate initial interest in schools.
- * Factors: geography, prestige, star rating alignment.
+ * Factors: geography, prestige, star rating alignment, personality type, recent success, scheme fit, PT availability.
  * Higher-star recruits have lower initial interest (they're in high demand).
  */
 function calculateInitialInterest(
   rng: Rng,
   dynasty: Dynasty,
-  // recruitId: ID,
   starRating: number,
-  hometownTeamId: ID
+  hometownTeamId: ID,
+  personality: 'LOYALIST' | 'WINNER' | 'STAR' | 'DEVELOPER' | 'SCHEME_FIT',
+  archetype: Archetype
 ): Record<ID, number> {
   const interest: Record<ID, number> = {}
   const allTeamIds = Object.keys(dynasty.league.teamsById)
@@ -307,50 +348,121 @@ function calculateInitialInterest(
     return interest
   }
   
+  // Get coach scheme for scheme fit evaluation
+  const coachScheme = dynasty.coach?.scheme ?? 'BALANCED'
+  
   for (const teamId of allTeamIds) {
-    // const team = dynasty.league.teamsById[teamId]
+    const teamState = dynasty.league.teamsById[teamId]
     const teamData = TEAMS.find(t => t.id === teamId)
-    if (!teamData) continue
+    if (!teamData || !teamState) continue
     
     let baseInterest = 0
     const isSameState = hometownTeamData.state === teamData.state
     
     // Hometown team ALWAYS gets interest (recruits are interested in their local team)
-    // Match by team ID, or by city+state if team ID doesn't match (fallback for edge cases)
     const isHometownTeam = teamId === hometownTeamId || 
       (teamData.city === hometownTeamData.city && teamData.state === hometownTeamData.state)
     
     if (isHometownTeam) {
-      baseInterest += 30 * interestModifier
-      const final = clamp(Math.round(baseInterest + jitter(rng, 5 * interestModifier)), 5, 35)
+      const homeBonusBase = 30 * interestModifier
+      // LOYALIST personality doubles hometown bonus
+      const homeBonusFinal = personality === 'LOYALIST' ? homeBonusBase * 1.8 : homeBonusBase
+      baseInterest += homeBonusFinal
+      const final = clamp(Math.round(baseInterest + jitter(rng, 5 * interestModifier)), 5, 40)
       interest[teamId] = final
       continue // Skip other factors for hometown (already guaranteed)
     }
     
-    // Geography: Same state gets a significant boost
+    // === GEOGRAPHY FACTOR ===
+    // Same state gets a significant boost
+    let geographyBonus = 0
     if (isSameState) {
-      baseInterest += 20 * interestModifier
+      geographyBonus = 20 * interestModifier
+      // LOYALIST personality amplifies geography bonus
+      if (personality === 'LOYALIST') geographyBonus *= 1.6
     }
+    baseInterest += geographyBonus
     
+    // === PRESTIGE FACTOR ===
     // Prestige alignment (higher prestige teams more interested in higher stars)
     const prestige = teamData.prestige
     const prestigeMatch = Math.abs(prestige / 20 - starRating) // 0-5 scale
-    const prestigeScore = (5 - prestigeMatch) * 4 * interestModifier
-    
-    // Add prestige score
+    let prestigeScore = (5 - prestigeMatch) * 4 * interestModifier
+    // STAR personality amplifies prestige bonus
+    if (personality === 'STAR') prestigeScore *= 1.7
     baseInterest += prestigeScore
+    
+    // === RECENT SUCCESS FACTOR ===
+    // Teams with recent tournament success or winning records are more attractive
+    let recentSuccessBonus = 0
+    
+    // Check tournament history if it exists (major boost)
+    // Note: tournamentHistory may not be directly accessible - we'll use prestige baseline
+    // Real tournament success is reflected in prestige already
+    // This is a proxy for "hot" teams with recent success
+    
+    // Check recent win percentage (base team season record)
+    const wins = teamState.season?.wins ?? 0
+    const losses = teamState.season?.losses ?? 0
+    const totalGames = wins + losses
+    if (totalGames > 0) {
+      const winPct = wins / totalGames
+      // 75%+ win rate = +5, 60-75% = +3, 50-60% = +1
+      if (winPct >= 0.75) recentSuccessBonus += 5
+      else if (winPct >= 0.60) recentSuccessBonus += 3
+      else if (winPct >= 0.50) recentSuccessBonus += 1
+    }
+    
+    // WINNER personality amplifies recent success bonus
+    if (personality === 'WINNER') recentSuccessBonus *= 1.8
+    baseInterest += recentSuccessBonus * interestModifier
+    
+    // === SCHEME FIT FACTOR ===
+    // Recruits value schools whose scheme matches their archetype
+    const schemeFit = evaluateArchetypeFit(archetype, coachScheme)
+    let schemeFitBonus = schemeFit * 2 // Base: -2 to +5 depending on fit
+    // SCHEME_FIT personality amplifies scheme fit bonus
+    if (personality === 'SCHEME_FIT') schemeFitBonus *= 2.0
+    baseInterest += schemeFitBonus * interestModifier
+    
+    // === PLAYING TIME FACTOR ===
+    // Recruits value schools with PT opportunities (check roster depth at their position)
+    // This is a proxy - use teamState.roster size (O(1)), NOT a full scan of playersById (O(players)).
+    // Scanning all players for every team for every recruit is extremely expensive and can freeze dynasty creation.
+    const rosterSize = teamState.roster?.playerIds?.length ?? 0
+    let playingTimeBonus = 0
+    if (rosterSize < 10) playingTimeBonus = 4 // Thin roster = more PT
+    else if (rosterSize < 12) playingTimeBonus = 2 // Normal roster
+    // Over-stacked rosters get no bonus or penalty (recruit should avoid if DEVELOPER)
+    
+    // DEVELOPER personality amplifies PT bonus
+    if (personality === 'DEVELOPER') playingTimeBonus *= 1.8
+    baseInterest += playingTimeBonus * interestModifier
+    
+    // === CONFERENCE PRESTIGE FACTOR ===
+    // Playing in a high-prestige conference (measured by avg prestige of teams) adds appeal
+    // Simplified: use team's conferenceId as proxy (power conferences have higher base prestige)
+    const conference = teamData.conferenceId ?? 'Other'
+    let conferenceFactor = 0
+    // Power conferences (SEC, ACC, Big Ten, Big 12, Big East, Pac-12) get bonus
+    const powerConferences = ['SEC', 'ACC', 'Big Ten', 'Big 12', 'Big East', 'Pac-12']
+    if (powerConferences.includes(conference)) conferenceFactor = 3
+    // STAR personality values conference prestige
+    if (personality === 'STAR') conferenceFactor *= 1.5
+    baseInterest += conferenceFactor * interestModifier
     
     // Add randomness for variety
     baseInterest += jitter(rng, 8 * interestModifier)
     
     // Calculate final interest
-    const final = clamp(Math.round(baseInterest), 0, 35)
+    // Reduced cap from 40 to 25 to slow down initial interest momentum
+    // Recruits still get interested, but need more weekly gains to commit
+    const final = clamp(Math.round(baseInterest), 0, 25)
     
     // Probability-based selection: Not every team gets interest
     // Same state teams have higher chance, but still not guaranteed
-    // This prevents all top recruits from having interest in all teams
     // Increased same-state probability so more local recruits show interest
-    const baseChance = isSameState ? 0.85 : 0.40 // 85% chance for same state, 40% for others
+    const baseChance = isSameState ? 0.85 : 0.45 // 85% chance for same state, 45% for others (up from 40%)
     const roll = rand01(rng)
     
     // Only store interest if:

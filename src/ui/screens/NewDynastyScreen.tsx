@@ -13,11 +13,13 @@ export function NewDynastyScreen(props: {
   selectedTeamId: string
   setSelectedTeamId: (s: string) => void
   setScreen: (s: Screen) => void
-  startNewDynasty: (args: { coachName: string; userTeamId: ID; coachScheme: CoachScheme; seasonYear: number }) => Promise<void>
+  startNewDynasty: (args: { coachName: string; userTeamId: ID; coachScheme: CoachScheme; seasonYear: number; onProgress?: (detail: string) => void }) => Promise<void>
 }) {
   const { coachName, setCoachName, selectedTeamId, setSelectedTeamId, setScreen, startNewDynasty } = props
   const [searchQuery, setSearchQuery] = useState('')
   const [selectedScheme, setSelectedScheme] = useState<CoachScheme>('BALANCED')
+  const [isCreating, setIsCreating] = useState(false)
+  const [createProgress, setCreateProgress] = useState<string>('')
 
   // Group teams by conference
   const teamsByConference = useMemo(() => {
@@ -93,9 +95,11 @@ export function NewDynastyScreen(props: {
   const canCreate = coachName.trim().length > 0 && selectedTeamId.length > 0
 
   async function handleCreate() {
-    if (!canCreate) return
+    if (!canCreate || isCreating) return
     
     try {
+      setIsCreating(true)
+      setCreateProgress('Starting…')
       // Check if window.api is available
       if (typeof window === 'undefined' || !window.api) {
         throw new Error('Electron API not available. Please restart the app (close and reopen).')
@@ -105,12 +109,19 @@ export function NewDynastyScreen(props: {
         throw new Error('saveDynasty function not available. Please restart the dev server.')
       }
       
-      await startNewDynasty({
-        coachName: coachName.trim(),
-        userTeamId: selectedTeamId as ID,
-        coachScheme: selectedScheme,
-        seasonYear: 2026,
-      })
+      const timeoutMs = 45_000
+      await Promise.race([
+        startNewDynasty({
+          coachName: coachName.trim(),
+          userTeamId: selectedTeamId as ID,
+          coachScheme: selectedScheme,
+          seasonYear: 2026,
+          onProgress: (detail) => setCreateProgress(detail),
+        }),
+        new Promise<void>((_, reject) =>
+          setTimeout(() => reject(new Error(`Dynasty creation timed out after ${Math.round(timeoutMs / 1000)}s`)), timeoutMs)
+        ),
+      ])
       setScreen('dynastyHub')
     } catch (error) {
       console.error('Failed to create dynasty:', error)
@@ -118,6 +129,8 @@ export function NewDynastyScreen(props: {
       console.error('window.api?.saveDynasty:', window.api?.saveDynasty)
       const errorMessage = error instanceof Error ? error.message : 'Unknown error'
       alert(`Failed to create dynasty: ${errorMessage}\n\nCheck the browser console (F12) for more details.\n\nTry: 1) Restart the dev server, 2) Close and reopen the app window`)
+    } finally {
+      setIsCreating(false)
     }
   }
 
@@ -341,11 +354,16 @@ export function NewDynastyScreen(props: {
         <button
           className="btn"
           onClick={handleCreate}
-          disabled={!canCreate}
+          disabled={!canCreate || isCreating}
         >
-          Create Dynasty
+          {isCreating ? 'Creating…' : 'Create Dynasty'}
         </button>
       </div>
+      {isCreating && (
+        <p className="cardText muted" style={{ marginTop: 10 }}>
+          {createProgress || 'Working…'}
+        </p>
+      )}
     </section>
   )
 }

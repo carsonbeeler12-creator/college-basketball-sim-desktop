@@ -2,9 +2,9 @@ name: Release (Windows + Linux + GitHub)
 
 on:
   workflow_dispatch:
-  push:
-    tags:
-      - 'v*'
+
+env:
+  FORCE_JAVASCRIPT_ACTIONS_TO_NODE24: 'true'
 
 jobs:
   build-windows:
@@ -25,12 +25,13 @@ jobs:
       - name: Build Windows
         shell: pwsh
         run: |
-          npm run build
+          npm run build -- --publish never
 
       - name: Upload Windows artifacts
         uses: actions/upload-artifact@v4
         with:
           name: windows-builds
+          if-no-files-found: warn
           path: |
             release/**/*.zip
             release/**/*.exe
@@ -52,12 +53,13 @@ jobs:
         run: npm ci
 
       - name: Build Linux tar.gz
-        run: npm run build:linux
+        run: npm run build:linux -- --publish never
 
       - name: Upload Linux tar.gz artifact
         uses: actions/upload-artifact@v4
         with:
           name: linux-builds
+          if-no-files-found: warn
           path: release/**/*.tar.gz
   
   create-release:
@@ -84,30 +86,76 @@ jobs:
       - name: Get version
         id: version
         run: echo "VERSION=$(node -p "require('./package.json').version")" >> $GITHUB_OUTPUT
-      
-      - name: Create GitHub Release
-        uses: softprops/action-gh-release@v1
-        with:
-          tag_name: v${{ steps.version.outputs.VERSION }}
-          name: College Basketball Dynasty v${{ steps.version.outputs.VERSION }}
-          body: |
-            ## College Basketball Dynasty v${{ steps.version.outputs.VERSION }}
-            
-            ### Downloads
-            - **Windows**: Download the portable `.zip` or `.exe` installer
-            - **Linux**: Download the `.tar.gz`
-            - **macOS**: Use the macOS workflow or download from itch.io
-            
-            ### Auto-Updates
-            Apps running v0.9.7-beta or later will automatically detect and install this update!
-            
-            ---
-            
-            See the [full changelog](https://github.com/carsonbeeler12-creator/college-basketball-sim-desktop/commits/v${{ steps.version.outputs.VERSION }})
-          draft: false
-          prerelease: true
-          files: |
-            ./artifacts/**/*
-          generate_release_notes: true
+
+      - name: Clean existing release assets
         env:
-          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          TAG: v${{ steps.version.outputs.VERSION }}
+        run: |
+          set -euo pipefail
+
+          if ! gh release view "$TAG" --repo "$GITHUB_REPOSITORY" >/dev/null 2>&1; then
+            echo "Release $TAG does not exist yet; nothing to clean."
+            exit 0
+          fi
+
+          echo "Cleaning colliding assets on release $TAG"
+          mapfile -t UPLOAD_FILES < <(find ./artifacts -type f)
+          if [ ${#UPLOAD_FILES[@]} -eq 0 ]; then
+            echo "No local artifacts found to compare; skipping cleanup."
+            exit 0
+          fi
+
+          for file in "${UPLOAD_FILES[@]}"; do
+            asset_name=$(basename "$file")
+            echo "Ensuring asset does not already exist: $asset_name"
+            gh release delete-asset "$TAG" "$asset_name" --repo "$GITHUB_REPOSITORY" --yes >/dev/null 2>&1 || true
+          done
+      
+      - name: Create or update GitHub Release
+        env:
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          TAG: v${{ steps.version.outputs.VERSION }}
+          VERSION: ${{ steps.version.outputs.VERSION }}
+        run: |
+          set -euo pipefail
+
+          NOTES_FILE=$(mktemp)
+          cat > "$NOTES_FILE" <<EOF
+          ## College Basketball Dynasty v${VERSION}
+
+          ### Downloads
+          - **Windows**: Download the portable \.zip or \.exe installer
+          - **Linux**: Download the \.tar.gz
+          - **macOS**: Use the macOS workflow or download from itch.io
+
+          ### Auto-Updates
+          Apps running v0.9.8-beta or later will automatically detect and install this update!
+
+          ---
+
+          See the [full changelog](https://github.com/carsonbeeler12-creator/college-basketball-sim-desktop/commits/${TAG})
+          EOF
+
+          if gh release view "$TAG" --repo "$GITHUB_REPOSITORY" >/dev/null 2>&1; then
+            gh release edit "$TAG" --repo "$GITHUB_REPOSITORY" --title "College Basketball Dynasty v${VERSION}" --notes-file "$NOTES_FILE" --prerelease
+          else
+            gh release create "$TAG" --repo "$GITHUB_REPOSITORY" --title "College Basketball Dynasty v${VERSION}" --notes-file "$NOTES_FILE" --prerelease
+          fi
+
+      - name: Upload release assets (clobber)
+        env:
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          TAG: v${{ steps.version.outputs.VERSION }}
+        run: |
+          set -euo pipefail
+          mapfile -t FILES < <(find ./artifacts -type f)
+          if [ ${#FILES[@]} -eq 0 ]; then
+            echo "No artifacts found to upload."
+            exit 1
+          fi
+
+          for file in "${FILES[@]}"; do
+            echo "Uploading: $(basename "$file")"
+            gh release upload "$TAG" "$file" --repo "$GITHUB_REPOSITORY" --clobber
+          done

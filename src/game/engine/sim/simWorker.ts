@@ -99,6 +99,11 @@ function precomputeTeamData(
     .sort((a, b) => (b.ratings.overall || 0) - (a.ratings.overall || 0))
     .slice(0, 10) // Top 10 players
 
+  // Guard: ensure roster has active players
+  if (availablePlayers.length === 0) {
+    throw new Error(`Team ${teamId}: no active players with valid overall ratings`)
+  }
+
   let totalMinutes = 0
   const minuteShares: number[] = []
   
@@ -117,6 +122,9 @@ function precomputeTeamData(
   }
 
   // Normalize to 200 total minutes
+  if (totalMinutes <= 0) {
+    throw new Error(`Team ${teamId}: totalMinutes is ${totalMinutes}, cannot normalize minutes`)
+  }
   const scale = 200 / totalMinutes
   for (let i = 0; i < availablePlayers.length; i++) {
     const player = availablePlayers[i]
@@ -328,7 +336,7 @@ function distributeTeamStats(
 
   // Distribute proportionally by minutes and usage (slightly more concentrated for stars)
   const totalUsageWeight = teamData.players.reduce((sum, p) => sum + Math.pow(p.usage, 1.75) * p.minutesPct, 0)
-  const safeUsageWeight = totalUsageWeight > 0 ? totalUsageWeight : 1
+  const safeUsageWeight = Number.isFinite(totalUsageWeight) && totalUsageWeight > 0 ? totalUsageWeight : 1
 
   const posRebMult: Record<string, number> = { PG: 0.60, SG: 0.70, SF: 0.95, PF: 1.35, C: 1.70, G: 0.65, F: 1.15 }
   const posAstMult: Record<string, number> = { PG: 1.35, SG: 0.90, SF: 0.85, PF: 0.70, C: 0.60, G: 1.15, F: 0.75 }
@@ -515,8 +523,11 @@ self.onmessage = (e: MessageEvent<SimDayRequest>) => {
     const awayData = teamDataCache.get(game.awayTeamId)
 
     if (!homeData || !awayData) {
-      console.error(`Missing team data for game ${game.gameId}`)
-      continue
+      throw new Error(
+        `Missing team data for game ${game.gameId}: ` +
+        `home=${game.homeTeamId} (${homeData ? 'OK' : 'MISSING'}), ` +
+        `away=${game.awayTeamId} (${awayData ? 'OK' : 'MISSING'})`
+      )
     }
 
     const { homeScore, awayScore, homeLines, awayLines, homeTeamLine, awayTeamLine } = 

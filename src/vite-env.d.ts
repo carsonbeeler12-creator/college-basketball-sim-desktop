@@ -4,7 +4,7 @@ export {}
 declare global {
   interface Window {
     api: {
-      saveDynasty: (dynasty: unknown) => Promise<{ ok: true }>
+      saveDynasty: (dynasty: unknown) => Promise<{ ok: boolean; dynastyId?: string; error?: string }>
       loadDynasties: () => Promise<unknown[]>
       loadDynastyIndex: () => Promise<unknown[]>
       loadDynasty: (dynastyId: string) => Promise<unknown>

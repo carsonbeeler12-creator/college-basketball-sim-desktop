@@ -11,7 +11,7 @@ export function ensureSeasonStats(dynasty: AnyDynasty) {
 
 function addInto<T extends Record<string, number>>(target: T, add: Partial<T>) {
   for (const [k, v] of Object.entries(add)) {
-    if (typeof v !== 'number') continue
+    if (typeof v !== 'number' || !Number.isFinite(v)) continue // Skip NaN, Infinity, null
     ;(target as any)[k] = ((target as any)[k] ?? 0) + v
   }
 }
@@ -19,6 +19,16 @@ function addInto<T extends Record<string, number>>(target: T, add: Partial<T>) {
 export function applyFinalGameToSeasonStats(dynasty: AnyDynasty, game: any) {
   if (!game?.result?.boxScore) return dynasty
   if (game.status !== 'FINAL') return dynasty
+
+  // Sanity check: scores should be valid and reasonable
+  const scoredPts = {
+    home: game.result?.boxScore?.teamStats?.home?.points ?? 0,
+    away: game.result?.boxScore?.teamStats?.away?.points ?? 0,
+  }
+  if (!Number.isFinite(scoredPts.home) || !Number.isFinite(scoredPts.away) || scoredPts.home < 0 || scoredPts.away < 0 || scoredPts.home > 200 || scoredPts.away > 200) {
+    console.error(`Invalid game scores: home=${scoredPts.home}, away=${scoredPts.away}`)
+    return dynasty // Skip this game
+  }
 
   ensureSeasonStats(dynasty)
 

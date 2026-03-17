@@ -72,7 +72,8 @@ export function useDynastyController() {
         ...dynasty,
         lastSavedAtISO: new Date().toISOString(),
       }
-      await window.api.saveDynasty(stamped)
+      // Send as JSON string to reduce IPC structured-clone overhead for large saves.
+      await window.api.saveDynasty(JSON.stringify(stamped))
       setActiveSaveState(stamped)
       await loadDynastyIndex() // Refresh the saves list
     } catch (err) {
@@ -104,6 +105,9 @@ export function useDynastyController() {
             yearsAtCurrentSchool: 1
           }
         }
+        // Migration: Add missing appearances to players
+        let seed = loaded.rng.seed
+        loaded.rng.seed = seed
         setActiveSaveState(loaded)
       }
       measure('dynasty:load:complete', 'dynasty:load:start', 'dynasty:load:end')
@@ -130,10 +134,59 @@ export function useDynastyController() {
     }
   }
 
-  async function startNewDynasty(args: { coachName: string; userTeamId: ID; coachScheme: any; seasonYear: number }) {
-    const dynasty = createDynasty(args)
+  async function startNewDynasty(args: { coachName: string; userTeamId: ID; coachScheme: any; seasonYear: number; onProgress?: (detail: string) => void }) {
+    // Create dynasty in a worker to avoid freezing the UI thread (league/rosters/recruiting init is heavy).
+    const dynasty = await createDynastyInWorker(args, args.onProgress)
     await persistActiveSave(dynasty)
-    setActiveSaveState(dynasty)
+  }
+
+  function createDynastyInWorker(
+    args: { coachName: string; userTeamId: ID; coachScheme: any; seasonYear: number },
+    onProgress?: (detail: string) => void
+  ): Promise<Dynasty> {
+    return new Promise((resolve, reject) => {
+      try {
+        const worker = new Worker(new URL('../workers/createDynastyWorker.ts', import.meta.url), { type: 'module' })
+
+        const cleanup = () => {
+          try { worker.terminate() } catch {}
+        }
+
+        worker.onmessage = (event: MessageEvent<any>) => {
+          const msg = event.data
+          if (!msg) return
+          if (msg.type === 'PROGRESS') {
+            if (typeof msg.detail === 'string' && onProgress) onProgress(msg.detail)
+            return
+          }
+          if (msg.type === 'COMPLETE') {
+            cleanup()
+            resolve(msg.dynasty as Dynasty)
+            return
+          }
+          if (msg.type === 'ERROR') {
+            cleanup()
+            reject(new Error(msg.message ?? 'Failed to create dynasty in worker'))
+            return
+          }
+        }
+
+        worker.onerror = (e) => {
+          cleanup()
+          reject(new Error(e?.message ?? 'Dynasty worker error'))
+        }
+
+        worker.postMessage({ type: 'CREATE_DYNASTY', args })
+      } catch (err) {
+        // Fallback: create on main thread if worker can't be constructed (should be rare)
+        try {
+          const dynasty = createDynasty(args as any)
+          resolve(dynasty)
+        } catch (e) {
+          reject(e)
+        }
+      }
+    })
   }
 
   async function handleSimWeek() {

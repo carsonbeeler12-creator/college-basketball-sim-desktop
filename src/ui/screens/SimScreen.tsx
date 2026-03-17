@@ -32,7 +32,7 @@ export function SimScreen(props: {
               <div className="hubMeta">
                 Season {activeSave.world.seasonYear} • {formatGameDayShort(activeSave.world.day, activeSave.world.seasonYear)}
                 {activeSave.world.phase === 'TOURNAMENT_READY' && (
-                  <span style={{ color: '#ff6b35', fontWeight: 'bold', marginLeft: '8px' }}>
+                  <span className="simTournamentBadge">
                     🏀 TOURNAMENT READY
                   </span>
                 )}
@@ -44,14 +44,41 @@ export function SimScreen(props: {
                 const wins = teamState?.season?.wins ?? 0
                 const losses = teamState?.season?.losses ?? 0
                 const totalGames = wins + losses
-                if (totalGames > 0) {
-                  return (
-                    <div className="hubMeta" style={{ marginTop: 4, fontWeight: 600 }}>
-                      Record: {wins}-{losses}
-                    </div>
-                  )
-                }
-                return null
+                const rating = teamState?.season?.teamRating
+
+                if (totalGames === 0 && rating == null) return null
+
+                const outlook = (() => {
+                  if (rating == null) return null
+                  // Strong safeguards: great records should never show as bubble
+                  if (wins >= 30 && losses <= 1) return 'Tournament lock'
+                  if (wins >= 28 && losses <= 2) return 'Strong position'
+                  if (rating >= 78) return 'Tournament lock'
+                  if (rating >= 68) return 'Strong position'
+                  if (rating >= 58) return 'On the bubble'
+                  return 'Longshot'
+                })()
+
+                return (
+                  <div className="simRecordMeta">
+                    {totalGames > 0 && (
+                      <span>
+                        Record: {wins}-{losses}
+                      </span>
+                    )}
+                    {rating != null && (
+                      <span className="simMetaDivider">•</span>
+                    )}
+                    {rating != null && (
+                      <span>
+                        Team Rating: {rating}
+                        {outlook && (
+                          <span className="simOutlookTag"> {outlook}</span>
+                        )}
+                      </span>
+                    )}
+                  </div>
+                )
               })()}
             </div>
             <div className="hubMeta right">
@@ -72,16 +99,11 @@ export function SimScreen(props: {
             }
           </p>
 
-          <div className="row" style={{ justifyContent: 'flex-start', gap: 12 }}>
+          <div className="simActions">
             <button 
               className="btn" 
               onClick={onSimWeek}
               disabled={['TOURNAMENT_READY','POSTSEASON','CONF_TOURNAMENT'].includes(activeSave.world.phase) || isSimulating}
-              style={
-                (['TOURNAMENT_READY','POSTSEASON','CONF_TOURNAMENT'].includes(activeSave.world.phase) || isSimulating) 
-                  ? { opacity: 0.5, cursor: 'not-allowed' } 
-                  : {}
-              }
             >
               {activeSave.world.phase === 'TOURNAMENT_READY' 
                 ? 'Tournament Ready' 
@@ -94,21 +116,40 @@ export function SimScreen(props: {
             </button>
           </div>
 
-          <div style={{ height: 12 }} />
+          <div className="simSpacer" />
 
           <h3 className="cardTitle">Recent Games</h3>
           {recentGames.length === 0 ? (
             <p className="cardText muted">No games simmed yet.</p>
           ) : (
-            <div className="list">
-              {recentGames.map(g => (
-                <button key={g.gameId} className="listRow" onClick={() => onOpenGame(g.gameId)}>
-                  <div className="listRowTitle">
-                    {formatGameDayShort(g.day, activeSave.world.seasonYear)}: {teamName(g.awayTeamId)} @ {teamName(g.homeTeamId)}
-                  </div>
-                  <div className="listRowSub">Final: {g.result?.awayScore}–{g.result?.homeScore}</div>
-                </button>
-              ))}
+            <div className="simGamesGrid">
+              {recentGames.map(g => {
+                const userTeamId = activeSave?.league.userTeamId
+                const isHome = g.homeTeamId === userTeamId
+                const isAway = g.awayTeamId === userTeamId
+                const userScore = isHome ? g.result?.homeScore : g.result?.awayScore
+                const oppScore = isHome ? g.result?.awayScore : g.result?.homeScore
+                const won = userScore && oppScore && userScore > oppScore
+                
+                return (
+                  <button key={g.gameId} className={`simGameCard ${won ? 'simGameWin' : 'simGameLoss'}`} onClick={() => onOpenGame(g.gameId)}>
+                    <div className="simGameDate">
+                      {formatGameDayShort(g.day, activeSave.world.seasonYear)}
+                    </div>
+                    <div className="simGameMatchup">
+                      {teamName(g.awayTeamId)} @ {teamName(g.homeTeamId)}
+                    </div>
+                    <div className="simGameScore">
+                      Final: {g.result?.awayScore}–{g.result?.homeScore}
+                    </div>
+                    {(isHome || isAway) && (
+                      <div className={`simGameResult ${won ? 'win' : 'loss'}`}>
+                        {won ? 'W' : 'L'}
+                      </div>
+                    )}
+                  </button>
+                )
+              })}
             </div>
           )}
         </>

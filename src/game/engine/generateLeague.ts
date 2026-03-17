@@ -15,6 +15,7 @@ import type {
 } from "../types/dynasty";
 import { pickArchetypeForPosition, ARCHETYPE_OFFSETS } from "./ratings/archetypes";
 import { computeOverall } from "./ratings/overall";
+
 import { DYNASTY_SAVE_VERSION } from "../types/dynasty";
 
 type Rng = { state: number };
@@ -164,8 +165,8 @@ function overallTargetForPlayer(rng: Rng, prestige: number, tier: TalentTier, cl
   switch (classYear) {
     case "FR":
       // Freshmen penalty: -10 to -8 base (major reduction)
-      // Generational talent exception: 0.3% chance for elite programs to reduce penalty
-      isGenerationalFreshman = prestige >= 85 && tier === "STAR" && rand01(rng) < 0.003;
+      // Generational talent exception: 0.02% chance (~1 in 5000) for elite programs to reduce penalty
+      isGenerationalFreshman = prestige >= 90 && tier === "STAR" && rand01(rng) < 0.0002;
       classYearAdjustment = isGenerationalFreshman ? -5 + randInt(rng, 0, 2) : -10 + randInt(rng, 0, 2);
       break;
     case "SO":
@@ -185,16 +186,43 @@ function overallTargetForPlayer(rng: Rng, prestige: number, tier: TalentTier, cl
   const noise = jitter(rng, 5);
   const raw = mean + classYearAdjustment + noise;
 
-  // Tail boost for elite players (rare, and even rarer for underclassmen)
-  const tailBoost =
-    prestige >= 85 && rand01(rng) < 0.015
-      ? randInt(rng, 4, 10)
-      : prestige >= 75 && rand01(rng) < 0.006
-        ? randInt(rng, 2, 6)
-        : 0;
+  // Tail boost for elite players (creates ~45-136 players at 90+ across NCAA)
+  // Very aggressive boosts for top programs to hit 1-3% elite player target
+  let tailBoost = 0;
+  if (prestige >= 90 && (classYear === "SR" || classYear === "JR") && (tier === "STAR" || tier === "STARTER")) {
+    // Top 7 elite programs, SR/JR stars+starters: 75% chance for major boost
+    if (rand01(rng) < 0.75) {
+      tailBoost = randInt(rng, 9, 19);
+    }
+  } else if (prestige >= 85 && (classYear === "SR" || classYear === "JR") && (tier === "STAR" || tier === "STARTER")) {
+    // Elite programs (85-89 prestige), SR/JR stars+starters: 55% chance
+    if (rand01(rng) < 0.55) {
+      tailBoost = randInt(rng, 7, 16);
+    }
+  } else if (prestige >= 80 && classYear === "SR" && (tier === "STAR" || tier === "STARTER")) {
+    // Good programs (80-84), SR stars+starters: 40% chance
+    if (rand01(rng) < 0.40) {
+      tailBoost = randInt(rng, 6, 14);
+    }
+  } else if (prestige >= 75 && classYear === "SR" && tier === "STAR") {
+    // Decent programs, SR stars only: 25% chance
+    if (rand01(rng) < 0.25) {
+      tailBoost = randInt(rng, 5, 12);
+    }
+  } else if (prestige >= 70 && classYear === "SR" && tier === "STAR") {
+    // Mid-tier programs, SR stars: 15% chance
+    if (rand01(rng) < 0.15) {
+      tailBoost = randInt(rng, 4, 10);
+    }
+  } else if (prestige >= 85 && rand01(rng) < 0.015) {
+    // General elite boost
+    tailBoost = randInt(rng, 4, 10);
+  } else if (prestige >= 75 && rand01(rng) < 0.006) {
+    tailBoost = randInt(rng, 2, 6);
+  }
 
   // Cap non-generational freshmen at 88 to prevent too many 90+ freshmen
-  // Generational freshmen can reach 90+ but it's extremely rare
+  // Generational freshmen can reach 95+ but it's extremely rare
   const capped = classYear === "FR" && !isGenerationalFreshman
     ? Math.min(raw + tailBoost, 88) // Regular freshmen capped at 88
     : raw + tailBoost;
@@ -541,12 +569,17 @@ export function generateLeagueAndRosters(dynasty: Dynasty): Dynasty {
 
       const tier = pickTierForSlot(rng, prestige, i);
       const overallTarget = overallTargetForPlayer(rng, prestige, tier, classYear);
+      
+      // Determine if player is generational talent (extremely rare)
+      // Target: 0-5 generational per entire NCAA (~0.01-0.1% of 4524 players)
+      // Generational = extremely rare (2 max league-wide), only elite programs with exceptional recruits
+      const isGenerational = overallTarget >= 92 && prestige >= 90 && rand01(rng) < 0.0004; // ~0.04% chance = ~2 players
 
       const archetype = pickArchetypeForPosition(rng, pos);
       const playerId = makeId("p", rng);
 
       const identity = genPlayerIdentity(rng, pos, classYear, archetype, t.city, t.state);
-      const ratings = genRatings(rng, pos, archetype, overallTarget);
+      const ratings = genRatings(rng, pos, archetype, overallTarget, isGenerational);
 
       const p: PlayerState = {
         playerId,
@@ -556,6 +589,7 @@ export function generateLeagueAndRosters(dynasty: Dynasty): Dynasty {
           potential: Math.round(clamp(overallTarget + randInt(rng, -5, 10), 35, 99)),
           workEthic: randInt(rng, 35, 95),
           durability: randInt(rng, 40, 95),
+          isGenerational,
         },
         team: {
           teamId,

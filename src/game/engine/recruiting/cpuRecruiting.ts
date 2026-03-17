@@ -131,6 +131,7 @@ function randInt(rng: Rng, min: number, max: number): number {
  * - Teams fill their boards based on position needs
  * - CPU allocates hours strategically (focus on high-interest, high-star recruits)
  * - CPU offers scholarships to top targets
+ * - Sleeper recruits can randomly spike in interest mid-season
  * 
  * Called weekly during the season.
  */
@@ -139,6 +140,12 @@ export function processCPURecruiting(dynasty: Dynasty): Dynasty {
   if (!recruitingState) return dynasty
 
   let updated = dynasty
+  
+  // === SLEEPER DISCOVERY PHASE (NEW) ===
+  // 10-15% of sleeper recruits randomly have "breakout" events mid-season
+  // This simulates summer camp performances, growth spurts, viral highlights
+  // Interest spikes suddenly for multiple schools
+  updated = processSleperBreakouts(updated)
 
   // Process each CPU team
   for (const teamId of Object.keys(dynasty.league.teamsById)) {
@@ -149,6 +156,75 @@ export function processCPURecruiting(dynasty: Dynasty): Dynasty {
   }
 
   return updated
+}
+
+/**
+ * Process sleeper breakouts - hidden gems suddenly become hot prospects.
+ * Simulates summer performances, injury recoveries, growth spurts.
+ */
+function processSleperBreakouts(dynasty: Dynasty): Dynasty {
+  const recruitingState = dynasty.recruiting
+  if (!recruitingState) return dynasty
+  
+  const rng: Rng = { state: hashSeed(dynasty.rng.seed, `sleeper_check_${dynasty.world.day}`) >>> 0 }
+  
+  // Only during preseason and early season (first 30 days)
+  // Simulates summer evaluation period and early season performances
+  if (dynasty.world.day > 30) return dynasty
+  
+  let updatedRecruitPool = { ...recruitingState.recruitPool }
+  let hasChanges = false
+  
+  // Check all sleeper recruits for potential breakout
+  for (const [recruitId, recruit] of Object.entries(recruitingState.recruitPool)) {
+    // Skip if not a sleeper or already broken out
+    if (!recruit.isSleeper || recruit.hasHadBreakout) continue
+    
+    // 12% chance per week for breakout (cumulative over ~8 weeks = most sleepers break out)
+    if (rand01(rng) < 0.12) {
+      // BREAKOUT! Interest spikes for multiple schools
+      const updatedInterest = { ...recruit.interestByTeamId }
+      
+      const allTeamIds = Object.keys(dynasty.league.teamsById)
+      let interestBoosts = 0
+      
+      // Randomly boost interest for 5-10 schools
+      const teamsToBoost = randInt(rng, 5, 10)
+      
+      for (let i = 0; i < teamsToBoost; i++) {
+        // Pick random team
+        const teamId = allTeamIds[randInt(rng, 0, allTeamIds.length - 1)]
+        const team = TEAMS.find(t => t.id === teamId)
+        if (!team) continue
+        
+        // Add or boost interest significantly (+15 to +25 points)
+        const currentInterest = updatedInterest[teamId] ?? 0
+        const boost = randInt(rng, 15, 25)
+        updatedInterest[teamId] = Math.min(40, currentInterest + boost)
+        
+        interestBoosts++
+      }
+      
+      // Mark as broken out
+      updatedRecruitPool[recruitId] = {
+        ...recruit,
+        interestByTeamId: updatedInterest,
+        hasHadBreakout: true,
+      }
+      
+      hasChanges = true
+    }
+  }
+  
+  if (!hasChanges) return dynasty
+  
+  return {
+    ...dynasty,
+    recruiting: {
+      ...recruitingState,
+      recruitPool: updatedRecruitPool,
+    },
+  }
 }
 
 function processTeamRecruiting(dynasty: Dynasty, teamId: ID): Dynasty {
@@ -566,11 +642,12 @@ function offerCPUScholarships(
       break // No scholarships available, stop offering
     }
 
-    // CPU offers to recruits with decent progress or high interest
-    // Higher prestige teams offer earlier (lower progress threshold)
-    const progressThreshold = prestige >= 75 ? 20 : prestige >= 55 ? 30 : 40
+    // CPU offers to recruits with strong progress on recruiting
+    // Raised thresholds to slow down offer pace
+    // Higher prestige teams still offer earlier, but threshold is higher overall
+    const progressThreshold = prestige >= 75 ? 45 : prestige >= 55 ? 55 : 65
 
-    if (progress >= progressThreshold || rand01(rng) < 0.3) {
+    if (progress >= progressThreshold || rand01(rng) < 0.15) {
       const result = offerScholarship(updated, teamId, recruitId)
       if (result) {
         updated = result

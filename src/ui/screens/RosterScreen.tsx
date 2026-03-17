@@ -10,6 +10,7 @@ export function RosterScreen(props: {
   activeSave: Dynasty | null
   activeRosterPlayers: PlayerState[]
   setScreen: (s: Screen) => void
+  setActiveSave?: (d: Dynasty) => Promise<void> | void
   onEditPlayer?: (playerId: ID, firstName: string, lastName: string) => Promise<void>
 }) {
   const { activeSave, activeRosterPlayers, setScreen, onEditPlayer } = props
@@ -40,7 +41,7 @@ export function RosterScreen(props: {
                 const totalGames = wins + losses
                 if (totalGames > 0) {
                   return (
-                    <div className="hubMeta" style={{ marginTop: 4, fontWeight: 600 }}>
+                    <div className="simRecordMeta">
                       Record: {wins}-{losses}
                     </div>
                   )
@@ -55,52 +56,40 @@ export function RosterScreen(props: {
             </div>
           </div>
 
-          <div className="list">
+          <div className="rosterPlayerGrid">
             {activeRosterPlayers.map(p => (
               <div
-  key={p.playerId}
-  className="listRow"
-  style={{ cursor: 'pointer' }}
-  onClick={() =>
-    setExpandedPlayerId(expandedPlayerId === p.playerId ? null : p.playerId)
-  }
->
-
-                <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', width: '100%' }}>
-                  <div style={{ flex: 1 }}>
-                    <div className="listRowTitle" style={{ fontSize: '16px', marginBottom: 4 }}>
+                key={p.playerId}
+                className="rosterPlayerCard"
+                onClick={() =>
+                  setExpandedPlayerId(expandedPlayerId === p.playerId ? null : p.playerId)
+                }
+              >
+                <div className="rosterPlayerHeader">
+                  <div className="rosterPlayerInfo">
+                    <div className="rosterPlayerName">
                       {p.identity.firstName} {p.identity.lastName}
                     </div>
-                    <div style={{ display: 'flex', gap: 12, alignItems: 'center', flexWrap: 'wrap' }}>
-                      <span className="secondaryStat" style={{ fontSize: '16px', color: 'var(--primary)' }}>
+                    <div className="rosterPlayerStats">
+                      <span className="rosterOvr">
                         {p.ratings.overall} OVR
                       </span>
                       <span className="tertiaryStat">{p.identity.position}</span>
                       <span className="tertiaryStat">{p.identity.classYear}</span>
                       <span className="tertiaryStat">{fmtHeight(p.identity.heightIn)} • {p.identity.weightLb} lb</span>
                       {p.awards && p.awards.length > 0 && (
-                        <span className="tertiaryStat" style={{ color: '#ffd700', fontWeight: 600 }}>
+                        <span className="rosterAwardsBadge">
                           🏆 {p.awards.reduce((sum, a) => sum + a.awards.length, 0)} Award{p.awards.reduce((sum, a) => sum + a.awards.length, 0) !== 1 ? 's' : ''}
                         </span>
                       )}
                     </div>
                   </div>
-                  <div style={{ display: 'flex', gap: 8, alignItems: 'center' }}>
+                  <div className="rosterPlayerActions">
                     <button
-                      className="btn secondary"
+                      className="rosterEditBtn"
                       onClick={(e) => {
                         e.stopPropagation()
                         setEditingPlayerId(p.playerId)
-                      }}
-                      style={{ 
-                        padding: '6px 12px', 
-                        fontSize: '12px',
-                        backgroundColor: 'rgba(76, 175, 80, 0.2)',
-                        border: '1px solid rgba(76, 175, 80, 0.5)',
-                        color: '#4caf50',
-                        fontWeight: 600,
-                        borderRadius: '4px',
-                        cursor: 'pointer'
                       }}
                     >
                       Edit
@@ -108,18 +97,18 @@ export function RosterScreen(props: {
                   </div>
                 </div>
                 {expandedPlayerId === p.playerId && (
-                  <div className="statReveal" style={{ marginTop: 16, paddingTop: 16, borderTop: '1px solid var(--border)' }}>
+                  <div className="rosterStatsReveal">
                     {/* Awards */}
                     {p.awards && p.awards.length > 0 && (
-                      <div className="statGroup" style={{ marginBottom: 12 }}>
+                      <div className="rosterAwardsSection">
                         <div className="statGroupTitle">Career Awards & Honors</div>
                         {p.awards.map((yearAwards, idx) => (
-                          <div key={idx} style={{ marginBottom: 8 }}>
-                            <div style={{ fontSize: '0.9em', color: 'var(--text-muted)', marginBottom: 4 }}>
+                          <div key={idx} className="rosterAwardYear">
+                            <div className="rosterAwardSeasonLabel">
                               Season {yearAwards.seasonYear}
                             </div>
                             {yearAwards.awards.map((award, aIdx) => (
-                              <div key={aIdx} style={{ fontSize: '0.95em', color: '#ffd700', marginLeft: 8 }}>
+                              <div key={aIdx} className="rosterAwardItem">
                                 🏆 {getAwardName(award)}
                               </div>
                             ))}
@@ -128,7 +117,7 @@ export function RosterScreen(props: {
                       </div>
                     )}
                     {/* Offense */}
-                    <div className="statGroup" style={{ marginBottom: 12 }}>
+                    <div className="rosterStatGroup">
                       <div className="statGroupTitle">Offense</div>
                       <div className="ratingsGrid">
                         {(['shooting2', 'shooting3', 'freeThrow', 'finishing', 'ballHandling', 'passing'] as const).map((key) => {
@@ -144,7 +133,7 @@ export function RosterScreen(props: {
                       </div>
                     </div>
                     {/* Defense */}
-                    <div className="statGroup" style={{ marginBottom: 12 }}>
+                    <div className="rosterStatGroup">
                       <div className="statGroupTitle">Defense</div>
                       <div className="ratingsGrid">
                         {(['perimeterDefense', 'rimDefense', 'steal', 'block'] as const).map((key) => {
@@ -160,7 +149,7 @@ export function RosterScreen(props: {
                       </div>
                     </div>
                     {/* Physical */}
-                    <div className="statGroup">
+                    <div className="rosterStatGroup">
                       <div className="statGroupTitle">Physical</div>
                       <div className="ratingsGrid">
                         {(['athleticism', 'strength', 'stamina'] as const).map((key) => {
@@ -195,6 +184,8 @@ export function RosterScreen(props: {
           }}
         />
       )}
+
+
     </section>
   )
 }

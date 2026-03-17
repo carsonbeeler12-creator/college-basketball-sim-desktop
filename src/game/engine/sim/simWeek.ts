@@ -237,137 +237,83 @@ export function simWeek(dynasty: Dynasty): { dynasty: Dynasty; newGameId: ID; ev
     withCPURecruiting = updateProgressForBoard(withCPURecruiting, userTeamId)
   }
 
-  // Simulate games for all CPU teams (one game per team per week)
-  // This ensures maximum gameplay activity each sim week
+  // Simulate scheduled games for all CPU teams on this game day
   let cpuSimulatedDynasty = withCPURecruiting
-  const allTeamIds = Object.keys(cpuSimulatedDynasty.league.teamsById ?? {}) as ID[]
-  const cpuTeamIds = allTeamIds.filter(tid => tid !== userTeamId)
-  
-  events.push(`📊 Starting CPU game simulation with ${cpuTeamIds.length} teams`)
-  
-  // Track which teams already played this week to avoid duplicates
-  const teamsPlayedThisWeek = new Set<ID>([userTeamId])
-  const cpuGamesCount: number[] = []
-  
-  // Generate one game per CPU team (pair them off)
-  for (let i = 0; i < cpuTeamIds.length; i++) {
-    const cpuTeamId = cpuTeamIds[i]
-    
-    // Skip if this team already played
-    if (teamsPlayedThisWeek.has(cpuTeamId)) continue
-    
-    // Pick an opponent that hasn't played yet
-    let opponentTeamId: ID | null = null
-    for (let j = i + 1; j < cpuTeamIds.length; j++) {
-      const potentialOpponent = cpuTeamIds[j]
-      if (!teamsPlayedThisWeek.has(potentialOpponent)) {
-        opponentTeamId = potentialOpponent
-        break
-      }
-    }
-    
-    // If no opponent found among remaining teams, try to find any unplayed team
-    if (!opponentTeamId) {
-      for (let j = 0; j < i; j++) {
-        const potentialOpponent = cpuTeamIds[j]
-        if (!teamsPlayedThisWeek.has(potentialOpponent)) {
-          opponentTeamId = potentialOpponent
-          break
+  const schedule = cpuSimulatedDynasty.league.schedule
+  if (schedule) {
+    const gamesOnDay = schedule.gamesByDay[gameDay] ?? []
+    for (const scheduled of gamesOnDay) {
+      // Skip the user's game (already simulated above)
+      if (scheduled.gameId === gameId) continue
+
+      const homeId = scheduled.homeTeamId as ID
+      const awayId = scheduled.awayTeamId as ID
+
+      try {
+        const { dynasty: cpuGameResult } = simulateGame({
+          dynasty: cpuSimulatedDynasty,
+          gameId: scheduled.gameId,
+          seasonYear: cpuSimulatedDynasty.world.seasonYear,
+          day: scheduled.day,
+          homeTeamId: homeId,
+          awayTeamId: awayId,
+        })
+
+        const cpuGame = cpuGameResult.league.gamesById?.[scheduled.gameId]
+        if (!cpuGame || !cpuGame.result) {
+          console.error(`Scheduled CPU game ${scheduled.gameId} was not properly created`)
+          continue
         }
-      }
-    }
-    
-    // If still no opponent, this team doesn't play this week
-    if (!opponentTeamId) continue
-    
-    // Alternate home/away based on RNG
-    const homeAwayRng = hashSeed(cpuSimulatedDynasty.rng.seed, `homeaway_${cpuTeamId}_${cpuSimulatedDynasty.world.day}`)
-    const isHome = homeAwayRng % 2 === 0
-    const homeTeamId = isHome ? cpuTeamId : opponentTeamId
-    const awayTeamId = isHome ? opponentTeamId : cpuTeamId
-    
-    // Generate deterministic game ID
-    const gameIdRng = hashSeed(cpuSimulatedDynasty.rng.seed, `gameid_cpu_${homeTeamId}_${awayTeamId}_${cpuSimulatedDynasty.world.day}`)
-    const gameIdSuffix = (gameIdRng % 0x1000000).toString(16).padStart(6, '0')
-    const gameId = `cpu_game_${cpuSimulatedDynasty.world.day}_${gameIdSuffix}` as ID
-    
-    try {
-      // Simulate CPU game
-      const { dynasty: cpuGameResult } = simulateGame({
-        dynasty: cpuSimulatedDynasty,
-        gameId,
-        seasonYear: cpuSimulatedDynasty.world.seasonYear,
-        day: cpuSimulatedDynasty.world.day,
-        homeTeamId,
-        awayTeamId,
-      })
-      
-      // Get the game that was just simulated
-      const cpuGame = cpuGameResult.league.gamesById?.[gameId]
-      if (!cpuGame || !cpuGame.result) {
-        console.error(`CPU game ${gameId} was not properly created`)
-        continue
-      }
-      
-      // Apply season stats (includes rating updates)
-      let cpuUpdated = applyFinalGameToSeasonStats(cpuGameResult, cpuGame)
-      
-      // Manually update team records (like we do for user team games)
-      // Use the updated versions from applyFinalGameToSeasonStats to preserve ratings
-      const homeTeamRec = cpuUpdated.league.teamsById[homeTeamId]
-      const awayTeamRec = cpuUpdated.league.teamsById[awayTeamId]
-      
-      if (homeTeamRec && awayTeamRec) {
-        const homeScore = cpuGame.result.homeScore
-        const awayScore = cpuGame.result.awayScore
-        const homeWon = homeScore > awayScore
-        
-        cpuUpdated = {
-          ...cpuUpdated,
-          league: {
-            ...cpuUpdated.league,
-            teamsById: {
-              ...cpuUpdated.league.teamsById,
-              [homeTeamId]: {
-                ...homeTeamRec,
-                season: {
-                  ...homeTeamRec.season,
-                  wins: homeWon ? homeTeamRec.season.wins + 1 : homeTeamRec.season.wins,
-                  losses: homeWon ? homeTeamRec.season.losses : homeTeamRec.season.losses + 1,
-                  confWins: homeTeamRec.season.confWins,
-                  confLosses: homeTeamRec.season.confLosses,
+
+        let cpuUpdated = applyFinalGameToSeasonStats(cpuGameResult, cpuGame)
+
+        const homeTeamRec = cpuUpdated.league.teamsById[homeId]
+        const awayTeamRec = cpuUpdated.league.teamsById[awayId]
+
+        if (homeTeamRec && awayTeamRec) {
+          const homeScoreCpu = cpuGame.result.homeScore
+          const awayScoreCpu = cpuGame.result.awayScore
+          const homeWonCpu = homeScoreCpu > awayScoreCpu
+          const isConf = scheduled.isConferenceGame
+
+          cpuUpdated = {
+            ...cpuUpdated,
+            league: {
+              ...cpuUpdated.league,
+              teamsById: {
+                ...cpuUpdated.league.teamsById,
+                [homeId]: {
+                  ...homeTeamRec,
+                  season: {
+                    ...homeTeamRec.season,
+                    wins: homeWonCpu ? homeTeamRec.season.wins + 1 : homeTeamRec.season.wins,
+                    losses: homeWonCpu ? homeTeamRec.season.losses : homeTeamRec.season.losses + 1,
+                    confWins: isConf && homeWonCpu ? homeTeamRec.season.confWins + 1 : homeTeamRec.season.confWins,
+                    confLosses: isConf && !homeWonCpu ? homeTeamRec.season.confLosses + 1 : homeTeamRec.season.confLosses,
+                  },
                 },
-              },
-              [awayTeamId]: {
-                ...awayTeamRec,
-                season: {
-                  ...awayTeamRec.season,
-                  wins: !homeWon ? awayTeamRec.season.wins + 1 : awayTeamRec.season.wins,
-                  losses: !homeWon ? awayTeamRec.season.losses : awayTeamRec.season.losses + 1,
-                  confWins: awayTeamRec.season.confWins,
-                  confLosses: awayTeamRec.season.confLosses,
+                [awayId]: {
+                  ...awayTeamRec,
+                  season: {
+                    ...awayTeamRec.season,
+                    wins: !homeWonCpu ? awayTeamRec.season.wins + 1 : awayTeamRec.season.wins,
+                    losses: !homeWonCpu ? awayTeamRec.season.losses : awayTeamRec.season.losses + 1,
+                    confWins: isConf && !homeWonCpu ? awayTeamRec.season.confWins + 1 : awayTeamRec.season.confWins,
+                    confLosses: isConf && homeWonCpu ? awayTeamRec.season.confLosses + 1 : awayTeamRec.season.confLosses,
+                  },
                 },
               },
             },
-          },
+          }
         }
+
+        cpuSimulatedDynasty = cpuUpdated
+      } catch (err) {
+        console.error(`Error simulating scheduled CPU game ${scheduled.gameId}:`, err)
+        events.push(`⚠️ Error simulating scheduled game`)
       }
-      
-      // Update dynasty with game result
-      cpuSimulatedDynasty = cpuUpdated
-      cpuGamesCount.push(1)
-      
-      // Mark both teams as having played this week
-      teamsPlayedThisWeek.add(homeTeamId)
-      teamsPlayedThisWeek.add(awayTeamId)
-    } catch (err) {
-      console.error(`Error simulating CPU game between ${homeTeamId} and ${awayTeamId}:`, err)
-      events.push(`⚠️ Error simulating game between teams`)
     }
   }
-  
-  // Log CPU games count for debugging
-  events.push(`⚙️ Simulated ${cpuGamesCount.length} CPU games this week`)
 
   // Check if season should end and prepare for conference/National tournament (using updated dynasty with CPU games)
   let withTournamentAfterCPU = cpuSimulatedDynasty

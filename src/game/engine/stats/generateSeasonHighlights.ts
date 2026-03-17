@@ -105,6 +105,95 @@ export function generateSeasonHighlights(dynasty: Dynasty): SeasonHighlight[] {
     }
   }
 
+  // === INDIVIDUAL PERFORMANCE HIGHLIGHTS ===
+  // Find best single-game performance for each team
+  const bestPerformancesByTeam = new Map<ID, {
+    playerId: ID;
+    gameId: ID;
+    points: number;
+    rebounds: number;
+    assists: number;
+    score: number;
+  }>();
+
+  // Scan all games for best performances
+  const allGames = Object.values(dynasty.league.gamesById).filter(g => g.status === 'FINAL' && g.result?.boxScore);
+  
+  for (const game of allGames) {
+    const boxScore = game.result!.boxScore!;
+    const allPlayerLines = [...boxScore.playerLinesByTeam.home, ...boxScore.playerLinesByTeam.away];
+    
+    for (const line of allPlayerLines) {
+      const player = playersById[line.playerId];
+      if (!player || line.minutes < 15) continue; // Only rotation players
+      
+      const teamId = player.team.teamId;
+      
+      // Calculate performance score (weighted combination)
+      // Prioritize points but reward well-rounded games
+      const performanceScore = 
+        line.points * 1.0 + 
+        line.assists * 1.5 + 
+        line.rebounds * 1.2 + 
+        line.steals * 2.0 + 
+        line.blocks * 2.0 -
+        line.turnovers * 1.0;
+      
+      const current = bestPerformancesByTeam.get(teamId);
+      if (!current || performanceScore > current.score) {
+        bestPerformancesByTeam.set(teamId, {
+          playerId: line.playerId,
+          gameId: game.gameId,
+          points: line.points,
+          rebounds: line.rebounds,
+          assists: line.assists,
+          score: performanceScore,
+        });
+      }
+    }
+  }
+
+  // Create highlights for exceptional performances
+  for (const [teamId, perf] of bestPerformancesByTeam.entries()) {
+    const player = playersById[perf.playerId];
+    const team = TEAMS.find(t => t.id === teamId);
+    if (!player || !team) continue;
+
+    // Only highlight truly exceptional games (35+ points OR 15+ assists OR 18+ rebounds OR triple-double)
+    const isTripleDouble = 
+      [perf.points >= 10 ? 1 : 0, perf.rebounds >= 10 ? 1 : 0, perf.assists >= 10 ? 1 : 0].filter(x => x).length >= 3;
+    
+    const isExceptional = perf.points >= 35 || perf.assists >= 15 || perf.rebounds >= 18 || isTripleDouble;
+    
+    if (isExceptional) {
+      const statLine = `${perf.points} PTS, ${perf.rebounds} REB, ${perf.assists} AST`;
+      let description = '';
+      
+      if (isTripleDouble) {
+        description = `Epic triple-double performance in ${team.name}'s best individual game of the season.`;
+      } else if (perf.points >= 40) {
+        description = `Explosive ${perf.points}-point eruption in a legendary individual performance.`;
+      } else if (perf.points >= 35) {
+        description = `Dominant scoring display in ${team.name}'s highest-scoring individual game.`;
+      } else if (perf.assists >= 15) {
+        description = `Record-setting ${perf.assists}-assist masterclass running the offense.`;
+      } else if (perf.rebounds >= 18) {
+        description = `Dominated the glass with ${perf.rebounds} rebounds in a monster performance.`;
+      }
+      
+      highlights.push({
+        type: 'PERFORMANCE',
+        teamId,
+        playerId: perf.playerId,
+        gameId: perf.gameId,
+        statLine,
+        title: `${player.identity.firstName} ${player.identity.lastName}: ${statLine}`,
+        description,
+        importance: perf.points >= 40 || isTripleDouble ? 'HIGH' : 'MEDIUM',
+      });
+    }
+  }
+
   // === PRESTIGE HIGHLIGHTS ===
   for (const teamId of Object.keys(teamsById)) {
     const teamState = teamsById[teamId]

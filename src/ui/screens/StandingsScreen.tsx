@@ -243,6 +243,18 @@ export function StandingsScreen(props: {
     return (wins / total).toFixed(3)
   }
 
+  const getTournamentOutlook = (rating: number | undefined, wins: number, losses: number): string | null => {
+    if (rating == null) return null
+    // Safeguards for elite records: they should never be "Bubble"
+    if (wins >= 30 && losses <= 1) return 'Lock'
+    if (wins >= 28 && losses <= 2) return 'Strong'
+
+    if (rating >= 78) return 'Lock'
+    if (rating >= 68) return 'Strong'
+    if (rating >= 58) return 'Bubble'
+    return 'Longshot'
+  }
+
   return (
     <section className="card wide">
       <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: 20 }}>
@@ -397,6 +409,7 @@ export function StandingsScreen(props: {
               const rpg = teamData.stats.games > 0 ? teamData.stats.rebounds / teamData.stats.games : 0
               const apg = teamData.stats.games > 0 ? teamData.stats.assists / teamData.stats.games : 0
               const teamRating = teamData.teamState?.season?.teamRating ?? 50
+              const outlook = getTournamentOutlook(teamData.teamState?.season?.teamRating, wins, losses)
 
               return (
                 <div 
@@ -433,7 +446,14 @@ export function StandingsScreen(props: {
                       <div style={{ fontSize: '16px', fontWeight: 600, color: 'var(--primary)' }}>
                         {teamRating}
                       </div>
-                      <div style={{ fontSize: '12px', color: 'var(--muted)' }}>Rating</div>
+                      <div style={{ fontSize: '12px', color: 'var(--muted)', display: 'flex', flexDirection: 'column', alignItems: 'flex-end', gap: 2 }}>
+                        <span>Rating</span>
+                        {outlook && (
+                          <span className={`standingsOutlookTag standingsOutlook-${outlook.toLowerCase()}`}>
+                            {outlook}
+                          </span>
+                        )}
+                      </div>
                     </div>
                   </div>
                 </div>
@@ -598,55 +618,39 @@ export function StandingsScreen(props: {
 
       {/* Season Highlights Section - shown at end of season */}
       {activeSave.league.seasonHighlights && activeSave.league.seasonHighlights.length > 0 && (
-        <div style={{ marginTop: 32, paddingTop: 24, borderTop: '2px solid var(--border)' }}>
-          <h3 className="cardTitle" style={{ marginBottom: 16 }}>📰 Season Highlights</h3>
-          <div style={{ display: 'grid', gap: 12 }}>
+        <div className="seasonHighlightsSection">
+          <h3 className="cardTitle">📰 Season Highlights</h3>
+          <div className="seasonHighlightsGrid">
             {activeSave.league.seasonHighlights.map((highlight, idx) => {
-              // Get team/player info if available
               const team = highlight.teamId ? TEAMS.find(t => t.id === highlight.teamId) : null
-
-              // Color based on importance
-              const borderColor = 
-                highlight.importance === 'HIGH' ? '#ffd700' : 
-                highlight.importance === 'MEDIUM' ? '#4caf50' : 
+              const borderColor =
+                highlight.importance === 'HIGH' ? '#ffd700' :
+                highlight.importance === 'MEDIUM' ? '#4caf50' :
                 'var(--border)'
-
-              // Icon based on type
-              const icon = 
+              const icon =
                 highlight.type === 'AWARD' ? '🏆' :
                 highlight.type === 'TOURNAMENT' ? '🏀' :
                 highlight.type === 'PRESTIGE' ? '⭐' :
                 highlight.type === 'MILESTONE' ? '🎯' :
                 '📢'
+              const isClickable = !!(highlight.teamId && onTeamClick)
 
               return (
-                <div 
+                <div
                   key={idx}
-                  style={{
-                    padding: '12px 16px',
-                    borderLeft: `4px solid ${borderColor}`,
-                    backgroundColor: 'var(--bg-secondary)',
-                    borderRadius: '4px',
-                    cursor: highlight.teamId && onTeamClick ? 'pointer' : 'default',
-                  }}
+                  className={`highlightCard ${isClickable ? 'clickable' : ''}`}
+                  style={{ borderLeftColor: borderColor }}
                   onClick={() => highlight.teamId && onTeamClick && onTeamClick(highlight.teamId)}
                 >
-                  <div style={{ display: 'flex', gap: 12, alignItems: 'flex-start' }}>
-                    <div style={{ fontSize: '24px', lineHeight: 1 }}>{icon}</div>
-                    <div style={{ flex: 1 }}>
-                      <div style={{ 
-                        fontSize: '16px', 
-                        fontWeight: 600, 
-                        marginBottom: 4,
-                        color: highlight.importance === 'HIGH' ? '#ffd700' : 'var(--text)'
-                      }}>
+                  <div className="highlightCardInner">
+                    <div className="highlightCardIcon">{icon}</div>
+                    <div className="highlightCardContent">
+                      <div className={`highlightCardTitle ${highlight.importance === 'HIGH' ? 'high' : ''}`}>
                         {highlight.title}
                       </div>
-                      <div style={{ fontSize: '14px', color: 'var(--text-muted)' }}>
-                        {highlight.description}
-                      </div>
+                      <div className="highlightCardDesc">{highlight.description}</div>
                       {team && (
-                        <div style={{ fontSize: '12px', color: 'var(--text-muted)', marginTop: 4 }}>
+                        <div className="highlightCardMeta">
                           {team.city}, {team.state}
                         </div>
                       )}

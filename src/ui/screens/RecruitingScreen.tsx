@@ -285,37 +285,37 @@ export function RecruitingScreen(props: {
   }
 
   return (
-    <section className="card wide" style={{ display: 'flex', flexDirection: 'column', height: 'calc(100vh - 120px)' }}>
-      <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: 16 }}>
-        <h2 className="cardTitle" style={{ margin: 0 }}>Recruiting</h2>
-        <div style={{ display: 'flex', gap: 12, alignItems: 'center', flexWrap: 'wrap' }}>
-          <div style={{ display: 'flex', gap: 16, alignItems: 'center', fontSize: '14px', color: 'var(--muted)' }}>
-            <div>
-              Weekly Budget: <strong style={{ color: 'var(--text)' }}>{hourBudget} hours</strong>
+    <section className="card wide recruitingContainer">
+      <div className="recruitingHeader">
+        <h2 className="recruitingTitle">Recruiting</h2>
+        <div className="recruitingHeaderActions">
+          <div className="recruitingMetrics">
+            <div className="recruitingMetricItem">
+              Weekly Budget: <strong className="recruitingMetricValue">{hourBudget} hours</strong>
             </div>
-            <div>
-              Recruiting: <strong style={{ color: totalAllocated > hourBudget ? '#ff9800' : 'var(--text)' }}>
+            <div className="recruitingMetricItem">
+              Recruiting: <strong className={totalAllocated > hourBudget ? 'recruitingMetricValue warn' : 'recruitingMetricValue'}>
                 {totalAllocated}h
               </strong>
             </div>
             {scoutingHours > 0 && (
-              <div>
-                Scouting: <strong style={{ color: 'var(--muted)' }}>
+              <div className="recruitingMetricItem">
+                Scouting: <strong className="recruitingMetricValue muted">
                   {scoutingHours}h
                 </strong>
               </div>
             )}
-            <div>
-              Remaining: <strong style={{ color: remainingHours < 50 ? '#ff9800' : 'var(--primary)' }}>
+            <div className="recruitingMetricItem">
+              Remaining: <strong className={remainingHours < 50 ? 'recruitingMetricValue warn' : 'recruitingMetricValue primary'}>
                 {remainingHours} hours
               </strong>
             </div>
-            <div style={{ paddingLeft: 16, borderLeft: '1px solid var(--border)' }}>
-              Scholarships: <strong style={{ color: scholarships.estimatedAvailable === 0 ? '#ff9800' : 'var(--text)' }}>
+            <div className="recruitingScholarships">
+              Scholarships: <strong className={scholarships.estimatedAvailable === 0 ? 'recruitingMetricValue warn' : 'recruitingMetricValue'}>
                 {scholarships.estimatedAvailable}/{scholarships.total}
               </strong>
               {' '}
-              <span style={{ fontSize: '12px', color: 'var(--muted)' }}>
+              <span className="recruitingScholarshipsSub">
                 ({offeredCount} offered, {scholarships.committed} committed)
                 {scholarships.leaving.total > 0 && (
                   <> • {scholarships.leaving.total} leaving ({scholarships.leaving.graduating} grad{scholarships.leaving.likelyDraft > 0 ? `, ~${scholarships.leaving.likelyDraft} likely draft` : ''})</>
@@ -329,36 +329,25 @@ export function RecruitingScreen(props: {
         </div>
       </div>
 
-      <div style={{ display: 'flex', gap: 16, flex: 1, minHeight: 0 }}>
+      <div className="recruitingMainContent">
         {/* Left Panel - Recruit List */}
-        <div style={{ 
-          width: '380px', 
-          minWidth: '380px',
-          border: '1px solid var(--border)', 
-          borderRadius: '12px',
-          backgroundColor: 'rgba(255,255,255,0.03)',
-          display: 'flex',
-          flexDirection: 'column',
-          overflow: 'hidden'
-        }}>
+        <div className="recruitingLeftPanel">
           {/* Filters */}
-          <div style={{ padding: 16, borderBottom: '1px solid var(--border)', flexShrink: 0 }}>
-            <div style={{ marginBottom: 12 }}>
+          <div className="recruitingFilters">
+            <div className="recruitingFilterGroup">
               <input 
                 type="text"
-                className="input" 
+                className="input recruitingSearchInput" 
                 placeholder="Search by name or hometown..."
                 value={searchTerm}
                 onChange={e => setSearchTerm(e.target.value)}
-                style={{ width: '100%', marginBottom: 12 }}
               />
             </div>
-            <div style={{ marginBottom: 12 }}>
+            <div className="recruitingFilterGroup">
               <select 
-                className="input" 
+                className="input recruitingFilterSelect" 
                 value={positionFilter}
                 onChange={e => setPositionFilter(e.target.value)}
-                style={{ width: '100%', marginBottom: 0 }}
               >
                 <option value="ALL">All Positions</option>
                 {POSITIONS.map(pos => (
@@ -367,10 +356,9 @@ export function RecruitingScreen(props: {
               </select>
             </div>
             <select 
-              className="input" 
+              className="input recruitingFilterSelect" 
               value={starFilter}
               onChange={e => setStarFilter(e.target.value)}
-              style={{ width: '100%', marginBottom: 12 }}
             >
               <option value="ALL">All Stars</option>
               {[5, 4, 3, 2, 1].map(stars => (
@@ -378,10 +366,9 @@ export function RecruitingScreen(props: {
               ))}
             </select>
             <select 
-              className="input" 
+              className="input recruitingFilterSelect" 
               value={fitFilter}
               onChange={e => setFitFilter(e.target.value)}
-              style={{ width: '100%' }}
             >
               <option value="ALL">All Scheme Fits</option>
               <option value="GOOD">✓ Good Fit</option>
@@ -391,7 +378,7 @@ export function RecruitingScreen(props: {
           </div>
 
           {/* Recruit List */}
-          <div style={{ flex: 1, overflowY: 'auto', padding: 12 }}>
+          <div className="recruitingRecruitList">
             {/* Committed Recruits Section */}
             {filteredCommittedRecruits.length > 0 && (
               <>

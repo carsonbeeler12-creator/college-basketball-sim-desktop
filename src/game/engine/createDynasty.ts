@@ -2,7 +2,6 @@
 import { generateLeagueAndRosters } from "./generateLeague"
 import { generateSchedule } from "./schedule/generateSchedule"
 import { generateRecruitPool } from "./recruiting/generateRecruitPool"
-import { processCPURecruiting } from "./recruiting/cpuRecruiting"
 import { DYNASTY_SAVE_VERSION, type Dynasty, type ID, type CoachScheme } from "../types/dynasty"
 
 type CreateDynastyArgs = {
@@ -129,11 +128,13 @@ export function createDynasty(args: CreateDynastyArgs): Dynasty {
     },
   }
 
-  // Initialize CPU recruiting boards (populate them with recruits)
-  // This happens during preseason - CPU teams start with partially filled boards
-  const withCPUInitialized = processCPURecruiting(withRecruiting)
+  // NOTE:
+  // CPU recruiting board initialization is intentionally DEFERRED.
+  // Running `processCPURecruiting()` here can be very expensive (loops every team + many recruits),
+  // and it blocks dynasty creation (UI can appear frozen / time out).
+  // CPU boards will naturally populate as the season advances (weekly recruiting processing).
 
   // Hard guard so we never silently pass a broken object to the save layer.
-  if (!withCPUInitialized.dynastyId) throw new Error("createDynasty(): dynastyId missing after generation.")
-  return withCPUInitialized
+  if (!withRecruiting.dynastyId) throw new Error("createDynasty(): dynastyId missing after generation.")
+  return withRecruiting
 }

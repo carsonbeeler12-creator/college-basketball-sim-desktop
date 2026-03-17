@@ -137,17 +137,15 @@ function App() {
           )}
 
           {dynastyCtl.isSimulating && dynastyCtl.simProgress && (
-            <div className="simProgress" style={{ marginLeft: '1rem', padding: '0.5rem 1rem', background: 'rgba(76, 175, 80, 0.1)', borderRadius: '4px' }}>
-              <div style={{ fontSize: '0.875rem', color: '#4caf50' }}>
+            <div className="simProgress">
+              <div className="simProgressText">
                 Simulating: {dynastyCtl.simProgress.completed} / {dynastyCtl.simProgress.total} games
               </div>
-              <div style={{ marginTop: '0.25rem', height: '4px', background: 'rgba(255,255,255,0.1)', borderRadius: '2px', overflow: 'hidden' }}>
-                <div style={{ 
-                  height: '100%', 
-                  width: `${(dynastyCtl.simProgress.completed / dynastyCtl.simProgress.total * 100)}%`, 
-                  background: '#4caf50',
-                  transition: 'width 0.3s ease'
-                }} />
+              <div className="simProgressBarTrack">
+                <div
+                  className="simProgressBarFill"
+                  style={{ width: `${(dynastyCtl.simProgress.completed / dynastyCtl.simProgress.total) * 100}%` }}
+                />
               </div>
             </div>
           )}
@@ -202,6 +200,7 @@ function App() {
             activeSave={activeSave}
             activeRosterPlayers={activeRoster}
             setScreen={setScreen}
+            setActiveSave={setActiveSave}
             onEditPlayer={dynastyCtl.editPlayerName}
           />
         )}

@@ -27,18 +27,55 @@ export function SimResultsScreen(props: {
         <p className="cardText muted">No games simmed yet.</p>
       ) : (
         <>
-          <div className="row" style={{ justifyContent: 'space-between' }}>
+          <div className="row" style={{ justifyContent: 'space-between', alignItems: 'flex-start' }}>
             <button className="btn secondary" onClick={() => setScreen('sim')}>
               Back
             </button>
-            <button 
-              className="btn" 
-              onClick={onSimWeek}
-              disabled={isSimulating}
-              style={isSimulating ? { opacity: 0.5, cursor: 'not-allowed' } : {}}
-            >
-              {isSimulating ? 'Simulating...' : 'Sim Week'}
-            </button>
+            <div style={{ display: 'flex', flexDirection: 'column', gap: 6, alignItems: 'flex-end' }}>
+              {(() => {
+                const teamId = activeSave.league.userTeamId
+                const teamState = activeSave.league.teamsById?.[teamId]
+                const wins = teamState?.season?.wins ?? 0
+                const losses = teamState?.season?.losses ?? 0
+                const rating = teamState?.season?.teamRating
+                const totalGames = wins + losses
+
+                if (totalGames === 0 && rating == null) return null
+
+                const outlook = (() => {
+                  if (rating == null) return null
+                  if (rating >= 80) return 'Tournament lock'
+                  if (rating >= 70) return 'Strong position'
+                  if (rating >= 60) return 'On the bubble'
+                  return 'Longshot'
+                })()
+
+                return (
+                  <div className="simRecordMeta">
+                    {totalGames > 0 && (
+                      <span>
+                        Record: {wins}-{losses}
+                      </span>
+                    )}
+                    {rating != null && <span className="simMetaDivider">•</span>}
+                    {rating != null && (
+                      <span>
+                        Team Rating: {rating}
+                        {outlook && <span className="simOutlookTag"> {outlook}</span>}
+                      </span>
+                    )}
+                  </div>
+                )
+              })()}
+              <button 
+                className="btn" 
+                onClick={onSimWeek}
+                disabled={isSimulating}
+                style={isSimulating ? { opacity: 0.5, cursor: 'not-allowed' } : {}}
+              >
+                {isSimulating ? 'Simulating...' : 'Sim Week'}
+              </button>
+            </div>
           </div>
 
           <div style={{ height: 12 }} />

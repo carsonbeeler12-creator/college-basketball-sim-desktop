@@ -13,7 +13,7 @@ function clampInt(n: number, lo: number, hi: number) {
 
 function playerLabel(save: Dynasty, pid: ID) {
   const p = save.playersById?.[pid]
-  if (!p) return pid
+  if (!p) return `[Player Not Found: ${pid}]`
   return `${p.identity.firstName} ${p.identity.lastName} — ${p.identity.position} — OVR ${p.ratings.overall}`
 }
 
@@ -103,8 +103,8 @@ export function RotationScreen(props: {
         </div>
       </div>
 
-      <div className="row" style={{ gap: 12, justifyContent: 'flex-start', marginBottom: 12 }}>
-        <div className="field" style={{ maxWidth: 280 }}>
+      <div className="rotationSettings">
+        <div className="rotationField">
           <div className="fieldLabel">Rotation style</div>
           <select
             className="input"
@@ -117,9 +117,9 @@ export function RotationScreen(props: {
           </select>
         </div>
 
-        <div className="field" style={{ maxWidth: 320 }}>
+        <div className="rotationField">
           <div className="fieldLabel">Manual targets</div>
-          <label className="cardText" style={{ display: 'flex', gap: 10, alignItems: 'center' }}>
+          <label className="rotationManualLabel">
             <input
               type="checkbox"
               checked={useManualTargets}
@@ -133,12 +133,12 @@ export function RotationScreen(props: {
           <div className="cardText muted">Manual minutes are locked; auto fills the rest to 200.</div>
         </div>
 
-        <div className="field" style={{ maxWidth: 320 }}>
+        <div className="rotationField">
           <div className="fieldLabel">Preview total</div>
           <div className="cardText muted">
             {minutesPreview ? Object.values(minutesPreview).reduce((a, b) => a + b, 0) : 0} minutes
           </div>
-          <button className="btn secondary" onClick={resetManualMinutesToAuto} style={{ marginTop: 8 }}>
+          <button className="btn secondary rotationResetBtn" onClick={resetManualMinutesToAuto}>
             Reset all to Auto
           </button>
         </div>
@@ -151,8 +151,8 @@ export function RotationScreen(props: {
           {POSITIONS.map(pos => {
             const list = dc[pos] ?? []
             return (
-              <div key={pos} style={{ marginBottom: 14 }}>
-                <div className="cardText" style={{ fontWeight: 700, marginBottom: 6 }}>
+              <div key={pos} className="rotationPositionGroup">
+                <div className="rotationPositionLabel">
                   {pos}
                 </div>
 
@@ -163,10 +163,10 @@ export function RotationScreen(props: {
                     const showValue = draft !== undefined ? draft : String(stored)
 
                     return (
-                      <div key={pid} className="listRow" style={{ cursor: 'default' }}>
+                      <div key={pid} className="listRow rotationPlayerRow">
                         <div className="listRowTitle">{idx + 1}. {playerLabel(activeSave, pid)}</div>
 
-                        <div className="listRowSub" style={{ display: 'flex', gap: 8, alignItems: 'center' }}>
+                        <div className="rotationPlayerControls">
                           <button className="btn secondary" onClick={() => moveDepthChart(pid, pos, -1)} disabled={idx === 0}>
                             Up
                           </button>
@@ -178,13 +178,12 @@ export function RotationScreen(props: {
                             Down
                           </button>
 
-                          <div style={{ marginLeft: 12 }}>
-                            <span className="cardText muted" style={{ marginRight: 8 }}>
+                          <div className="rotationMinutesInput">
+                            <span className="rotationMinutesLabel">
                               Minutes:
                             </span>
                             <input
-                              className="input"
-                              style={{ width: 80, display: 'inline-block' }}
+                              className="input rotationMinutesField"
                               type="text"
                               inputMode="numeric"
                               pattern="[0-9]*"
@@ -242,7 +241,7 @@ export function RotationScreen(props: {
                 .filter(x => x.p)
                 .sort((a, b) => b.min - a.min)
                 .map(x => (
-                  <div key={x.pid} className="listRow" style={{ cursor: 'default' }}>
+                  <div key={x.pid} className="listRow rotationPreviewRow">
                     <div className="listRowTitle">
                       {x.p.identity.firstName} {x.p.identity.lastName} — {x.p.identity.position} — OVR {x.p.ratings.overall}
                     </div>
