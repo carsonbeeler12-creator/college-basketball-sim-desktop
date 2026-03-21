@@ -46,7 +46,7 @@ jobs:
 
       - name: Build macOS DMG
         run: |
-          npm run build:mac -- --publish never
+          npm run build:mac -- --publish never -c.mac.identity=null
 
       - name: Install butler
         run: |
