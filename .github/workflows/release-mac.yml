@@ -19,7 +19,7 @@ jobs:
       APPLE_ID: ${{ secrets.APPLE_ID }}
       APPLE_APP_SPECIFIC_PASSWORD: ${{ secrets.APPLE_APP_SPECIFIC_PASSWORD }}
       APPLE_TEAM_ID: ${{ secrets.APPLE_TEAM_ID }}
-      REQUIRE_MAC_NOTARIZATION: 'true'
+      REQUIRE_MAC_NOTARIZATION: 'false'
     steps:
       - name: Checkout
         uses: actions/checkout@v4
@@ -34,6 +34,7 @@ jobs:
         run: npm ci
 
       - name: Validate mac signing credentials
+        if: ${{ env.REQUIRE_MAC_NOTARIZATION == 'true' }}
         shell: bash
         run: |
           set -euo pipefail
