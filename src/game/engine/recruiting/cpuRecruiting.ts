@@ -134,6 +134,9 @@ function randInt(rng: Rng, min: number, max: number): number {
  * - Sleeper recruits can randomly spike in interest mid-season
  * 
  * Called weekly during the season.
+ *
+ * Order: (1) sleeper breakouts, (2) all CPU boards/hours/offers, (3) user progress,
+ * (4) CPU progress — so the human wins same-week ties vs CPUs and isn’t jumped on commits.
  */
 export function processCPURecruiting(dynasty: Dynasty): Dynasty {
   const recruitingState = dynasty.recruiting
@@ -147,12 +150,19 @@ export function processCPURecruiting(dynasty: Dynasty): Dynasty {
   // Interest spikes suddenly for multiple schools
   updated = processSleperBreakouts(updated)
 
-  // Process each CPU team
+  // Phase 1 — CPU boards, hours, offers (no progress yet)
   for (const teamId of Object.keys(dynasty.league.teamsById)) {
-    // Skip user team (they manage their own)
     if (teamId === dynasty.league.userTeamId) continue
+    updated = processTeamRecruitingAllocations(updated, teamId)
+  }
 
-    updated = processTeamRecruiting(updated, teamId)
+  const userTeamId = updated.league.userTeamId
+  // Phase 2 — user recruiting progress FIRST (fair tie-break vs CPUs)
+  updated = updateProgressForBoard(updated, userTeamId)
+  // Phase 3 — CPU progress after user (can't steal commits user closed this week)
+  for (const teamId of Object.keys(updated.league.teamsById)) {
+    if (teamId === userTeamId) continue
+    updated = updateProgressForBoard(updated, teamId)
   }
 
   return updated
@@ -227,7 +237,8 @@ function processSleperBreakouts(dynasty: Dynasty): Dynasty {
   }
 }
 
-function processTeamRecruiting(dynasty: Dynasty, teamId: ID): Dynasty {
+/** CPU board + hours + offers only; progress runs in processCPURecruiting phase 2/3. */
+function processTeamRecruitingAllocations(dynasty: Dynasty, teamId: ID): Dynasty {
   const recruitingState = dynasty.recruiting
   if (!recruitingState) return dynasty
 
@@ -242,20 +253,13 @@ function processTeamRecruiting(dynasty: Dynasty, teamId: ID): Dynasty {
   const hourBudget = calculateHourBudget(dynasty, teamId)
   const rng: Rng = { state: hashSeed(dynasty.rng.seed, `cpu_recruit_${teamId}_${dynasty.world.day}`) >>> 0 }
 
-  // 1. Manage board size (add recruits if board is not full)
   let updated = dynasty
   if (board.recruitIds.length < 20) {
     updated = addRecruitsToCPUBoard(updated, teamId, prestige, rng)
   }
 
-  // 2. Allocate hours (CPU strategically allocates based on interest and star rating)
   updated = allocateCPUHours(updated, teamId, hourBudget, prestige, rng)
-
-  // 3. Offer scholarships (CPU offers to top targets)
   updated = offerCPUScholarships(updated, teamId, prestige, rng)
-
-  // 4. Update progress
-  updated = updateProgressForBoard(updated, teamId)
 
   return updated
 }

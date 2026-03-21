@@ -1,8 +1,8 @@
 import { useMemo, useState } from 'react'
-import { TEAMS } from '../../game/defaultData'
 import type { Dynasty, ID, Position, RotationStyle } from '../../game/types/dynasty'
 import type { Screen } from '../../game/types'
 import { getUserTeamState } from '../hooks/useRotationController'
+import { teamName } from '../utils/format'
 
 const POSITIONS: Position[] = ['PG', 'SG', 'SF', 'PF', 'C']
 
@@ -15,10 +15,6 @@ function playerLabel(save: Dynasty, pid: ID) {
   const p = save.playersById?.[pid]
   if (!p) return `[Player Not Found: ${pid}]`
   return `${p.identity.firstName} ${p.identity.lastName} — ${p.identity.position} — OVR ${p.ratings.overall}`
-}
-
-function teamName(teamId: string) {
-  return TEAMS.find(t => t.id === teamId)?.name ?? teamId
 }
 
 export function RotationScreen(props: {
@@ -91,7 +87,7 @@ export function RotationScreen(props: {
 
       <div className="hubHeader">
         <div>
-          <div className="hubTeam">{activeTeamName ?? teamName(activeTeamId)}</div>
+          <div className="hubTeam">{activeTeamName ?? teamName(activeTeamId, activeSave)}</div>
           <div className="hubMeta">
             Coach {activeSave.coach.name} • Season {activeSave.world.seasonYear}
           </div>

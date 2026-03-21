@@ -100,14 +100,19 @@ export function generateRecruitPool(dynasty: Dynasty, seasonYear: number): Recor
   }
   
   // Assign national recruiting ranks (1-100) to top recruits
-  // Sort by: generational status (first), then star rating, then overall rating
+  // Sort by star tier, then a score that de-clumps gems/busts (raw overall over-ranks gems)
   const allRecruits = Object.values(pool)
+  const rankSortScore = (r: Recruit): number => {
+    const o = r.ratings.overall ?? 0
+    if (r.gemBustStatus === 'GEM') return o - 6
+    if (r.gemBustStatus === 'BUST') return o + 5
+    return o
+  }
   allRecruits.sort((a, b) => {
-    // Generational talents always rank highest
     if (a.isGenerational && !b.isGenerational) return -1
     if (!a.isGenerational && b.isGenerational) return 1
     if (b.starRating !== a.starRating) return b.starRating - a.starRating
-    return (b.ratings.overall ?? 0) - (a.ratings.overall ?? 0)
+    return rankSortScore(b) - rankSortScore(a)
   })
   
   // Assign ranks 1-100 to top recruits
@@ -146,8 +151,8 @@ function generateRecruit(
     // Bust: significantly lower overall (they're not as good as their star rating suggests)
     overallTarget = Math.max(overallTarget - randInt(rng, 5, 10), 1)
   } else if (gemBustStatus === 'GEM') {
-    // Gem: higher overall (they're better than their star rating suggests)
-    overallTarget = Math.min(overallTarget + randInt(rng, 3, 7), 99)
+    // Gem: modest boost (large boost + rank-by-overall made #55–65 almost all gems)
+    overallTarget = Math.min(overallTarget + randInt(rng, 2, 5), 99)
   }
   
   // Generational talents are truly special - boost their overall significantly
@@ -249,19 +254,19 @@ function determineGemBustStatus(rng: Rng, starRating: 1 | 2 | 3 | 4 | 5): GemBus
   
   // Gems are rarer than busts, especially for high stars
   const gemChances: Record<number, number> = {
-    5: 0.05, // 5% for 5★
-    4: 0.08, // 8% for 4★
-    3: 0.10, // 10% for 3★
-    2: 0.06, // 6% for 2★
-    1: 0.03, // 3% for 1★
+    5: 0.05,
+    4: 0.07,
+    3: 0.08,
+    2: 0.06,
+    1: 0.03,
   }
   
   const bustChances: Record<number, number> = {
-    5: 0.12, // 12% for 5★ (busts hurt more at high ratings)
-    4: 0.15, // 15% for 4★
-    3: 0.18, // 18% for 3★
-    2: 0.12, // 12% for 2★
-    1: 0.08, // 8% for 1★
+    5: 0.12,
+    4: 0.14,
+    3: 0.16,
+    2: 0.12,
+    1: 0.08,
   }
   
   if (roll < gemChances[starRating]) return 'GEM'

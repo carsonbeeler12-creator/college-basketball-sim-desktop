@@ -4,7 +4,7 @@ import { getEffectivePrestige } from '../../game/engine/development/applyPrestig
 import type { Dynasty, CoachScheme, ID } from '../../game/types/dynasty'
 import type { Screen } from '../../game/types'
 import { TEAMS } from '../../game/defaultData'
-import { formatGameDayShort } from '../utils/format'
+import { formatGameDayShort, teamName } from '../utils/format'
 import { getSchemeName, SCHEME_PROFILES } from '../../game/engine/schemes/schemeDefinitions'
 import { EditTeamModal } from '../components/EditTeamModal'
 import { useState } from 'react'
@@ -36,7 +36,9 @@ export function DynastyHubScreen(props: {
           {/* Compact header: team, record, season, prestige, coach in one strip */}
           <div className="hubCompactHeader">
             <div className="hubCompactTeam">
-              <h1 className="hubCompactTeamName">{activeTeam.name}</h1>
+              <h1 className="hubCompactTeamName">
+                {activeSave.league.teamsById[activeTeam.id]?.name ?? activeTeam.name}
+              </h1>
               <button
                 className="hubEditTeamBtn hubEditTeamBtnSmall"
                 onClick={() => setEditingTeamId(activeTeam.id)}
@@ -84,8 +86,7 @@ export function DynastyHubScreen(props: {
 
           {/* Next game - slim bar */}
           {upcomingGame && (() => {
-            const opponentTeam = TEAMS.find(t => t.id === upcomingGame.opponent)
-            const opponentName = opponentTeam?.name ?? 'Unknown'
+            const opponentName = teamName(upcomingGame.opponent, activeSave)
             const location = upcomingGame.isHome ? 'vs' : '@'
             return (
               <div className="hubNextGameBar">
@@ -191,7 +192,9 @@ export function DynastyHubScreen(props: {
                     Season {activeSave.world.seasonYear}
                   </div>
                   <div className="modalTeamName">
-                    {TEAMS.find(t => t.id === activeSave.league.userTeamId)?.name || 'Your Team'}
+                    {activeSave.league.teamsById[activeSave.league.userTeamId]?.name
+                      || TEAMS.find(t => t.id === activeSave.league.userTeamId)?.name
+                      || 'Your Team'}
                   </div>
 
                   {/* Season Record */}

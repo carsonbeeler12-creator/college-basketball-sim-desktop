@@ -30,7 +30,9 @@ export function RosterScreen(props: {
         <>
           <div className="hubHeader">
             <div>
-              <div className="hubTeam">{activeTeam.name}</div>
+              <div className="hubTeam">
+                {activeSave.league.teamsById[activeTeam.id]?.name ?? activeTeam.name}
+              </div>
               <div className="hubMeta">
                 Coach {activeSave.coach.name} • Season {activeSave.world.seasonYear}
               </div>

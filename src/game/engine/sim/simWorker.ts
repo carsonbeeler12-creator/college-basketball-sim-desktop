@@ -149,18 +149,44 @@ function precomputeTeamData(
     })
   }
 
-  // Team-level ratings (average of top players)
+  // Team-level ratings: split offense vs defense from top-5 skill (blend with overall for stability)
   const topPlayers = players.slice(0, 5)
-  const avgOverall = topPlayers.length > 0 
-    ? topPlayers.reduce((sum, p) => sum + p.overall, 0) / topPlayers.length 
+  const avgOverall = topPlayers.length > 0
+    ? topPlayers.reduce((sum, p) => sum + p.overall, 0) / topPlayers.length
     : 50
-  
+
+  const top5State = availablePlayers.slice(0, 5)
+  let offAcc = 0
+  let defAcc = 0
+  for (const p of top5State) {
+    const r = p.ratings
+    offAcc +=
+      ((r.shooting2 ?? 50) +
+        (r.shooting3 ?? 50) +
+        (r.passing ?? 50) +
+        (r.ballHandling ?? 50) +
+        (r.finishing ?? 50)) /
+      5
+    defAcc +=
+      ((r.perimeterDefense ?? 50) +
+        (r.rimDefense ?? 50) +
+        (r.steal ?? 50) +
+        (r.block ?? 50)) /
+      4
+  }
+  const nTop = Math.max(1, top5State.length)
+  const rawOff = offAcc / nTop
+  const rawDef = defAcc / nTop
+  const blend = 0.32
+  const offensiveRating = clamp(Math.round(avgOverall * blend + rawOff * (1 - blend)), 38, 97)
+  const defensiveRating = clamp(Math.round(avgOverall * blend + rawDef * (1 - blend)), 38, 97)
+
   return {
     teamId,
     playerIds: players.map(p => p.playerId),
     pace: team.meta?.pace ?? 70,
-    offensiveRating: avgOverall,
-    defensiveRating: avgOverall,
+    offensiveRating,
+    defensiveRating,
     threeRate: 0.37 + randN01(rng) * 0.05,
     ftRate: 0.27,
     reboundRate: 0.50,
@@ -201,9 +227,9 @@ function simulateGameMacro(
   const awayOffStrength = awayData.offensiveRating
   const awayDefStrength = awayData.defensiveRating
 
-  const pppNoise = randN01(rng) * (chaosMult > 1 ? 0.12 : 0.09)
-  const homePPP = clamp(0.98 + (homeOffStrength - awayDefStrength) * 0.006 + pppNoise, 0.75, 1.25)
-  const awayPPP = clamp(0.98 + (awayOffStrength - homeDefStrength) * 0.006 + pppNoise, 0.75, 1.25)
+  const pppNoise = randN01(rng) * (chaosMult > 1 ? 0.14 : 0.11)
+  const homePPP = clamp(0.98 + (homeOffStrength - awayDefStrength) * 0.0075 + pppNoise, 0.72, 1.28)
+  const awayPPP = clamp(0.98 + (awayOffStrength - homeDefStrength) * 0.0075 + pppNoise, 0.72, 1.28)
 
   const homePointsRaw = possessions * homePPP
   const awayPointsRaw = possessions * awayPPP

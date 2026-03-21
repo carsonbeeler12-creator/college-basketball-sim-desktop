@@ -1,4 +1,5 @@
 import { useState } from 'react'
+import { appVersionDisplay } from '../../appVersion'
 import { TEAMS } from '../../game/defaultData'
 import type { Screen } from '../../game/types'
 import type { DynastyIndexEntry } from '../../game/types/dynastyIndex'
@@ -24,8 +25,9 @@ export function HomeScreen(props: {
   setScreen: (s: Screen) => void
   loadSave: (id: string) => void
   deleteSave: (id: string) => Promise<void>
+  onLoad2026Bracket?: () => Promise<void>
 }) {
-  const { saves, setScreen, loadSave, deleteSave } = props
+  const { saves, setScreen, loadSave, deleteSave, onLoad2026Bracket } = props
   const [deleteConfirm, setDeleteConfirm] = useState<string | null>(null)
 
   return (
@@ -33,7 +35,7 @@ export function HomeScreen(props: {
       {/* Beta Banner */}
       <div className="betaBanner">
         <span className="betaBannerIcon">🚧</span>
-        <strong>BETA VERSION 0.9.8</strong>
+        <strong>BETA VERSION {appVersionDisplay()}</strong>
         <span className="betaBannerText">Help us improve! Report bugs and suggestions.</span>
       </div>
 
@@ -41,10 +43,17 @@ export function HomeScreen(props: {
       <section className="homeHero">
         <h1 className="homeTitle">College Basketball Dynasty</h1>
         <p className="homeSubtitle">Build your program. Recruit elite talent. Win championships.</p>
-        <button className="btn homeCtaBtn" onClick={() => setScreen('newDynasty')}>
-          <span className="homeCtaIcon">🏀</span>
-          Start New Dynasty
-        </button>
+        <div className="homeCtaRow">
+          <button className="btn homeCtaBtn" onClick={() => setScreen('newDynasty')}>
+            <span className="homeCtaIcon">🏀</span>
+            Start New Dynasty
+          </button>
+          {onLoad2026Bracket && (
+            <button className="btn secondary homeCtaBtn" onClick={onLoad2026Bracket}>
+              2026 Tournament
+            </button>
+          )}
+        </div>
       </section>
 
       {/* Dynasties Section */}

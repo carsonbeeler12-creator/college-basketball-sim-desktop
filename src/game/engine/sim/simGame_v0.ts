@@ -403,32 +403,31 @@ function calculateUpsetModifiers(
 ): { underdogVarianceMult: number; favoriteVarianceMult: number; isUpsetGame: boolean } {
   const strengthDiff = favoriteStrength - underdogStrength;
   
-  // Only apply upset logic if there's a meaningful difference (5+ points)
-  if (strengthDiff < 5) {
+  // Apply upset logic from 3+ OVR gap (was 5 — too many “safe” wins for favorites)
+  if (strengthDiff < 3) {
     return { underdogVarianceMult: 1.0, favoriteVarianceMult: 1.0, isUpsetGame: false };
   }
 
-  // Determine upset chance based on strength difference
-  // 5-9 point difference: ~6% chance
-  // 10-14 point difference: ~10% chance
-  // 15+ point difference: ~12% chance (rare but possible)
+  // Higher upset rates so undefeated seasons are uncommon (still favors better team)
   let upsetChance = 0;
   if (strengthDiff >= 15) {
-    upsetChance = 0.12;
+    upsetChance = 0.18;
   } else if (strengthDiff >= 10) {
-    upsetChance = 0.10;
-  } else if (strengthDiff >= 5) {
-    upsetChance = 0.06;
+    upsetChance = 0.14;
+  } else if (strengthDiff >= 6) {
+    upsetChance = 0.11;
+  } else {
+    upsetChance = 0.07;
   }
 
   const isUpsetGame = rand01(rng) < upsetChance;
 
   if (!isUpsetGame) {
-    // Normal game - slight variance boost for underdog still (makes games closer)
-    const normalVariance = 1.0 + clamp((strengthDiff - 5) / 100, 0, 0.08);
+    const d = Math.max(0, strengthDiff - 3);
+    const normalVariance = 1.0 + clamp(d / 95, 0, 0.1);
     return {
       underdogVarianceMult: normalVariance,
-      favoriteVarianceMult: 1.0 - clamp((strengthDiff - 5) / 200, 0, 0.03),
+      favoriteVarianceMult: 1.0 - clamp(d / 180, 0, 0.045),
       isUpsetGame: false,
     };
   }
@@ -562,14 +561,13 @@ function buildTeamLinesRegulation(args: {
   const top = gravs[0];
 
   const takeover =
-    top && isEliteScorerProfile(top.p, top.min) && rand01(rng) < 0.20; // ~20% for elite
+    top && isEliteScorerProfile(top.p, top.min) && rand01(rng) < 0.14; // toned down — fewer blowout steamrolls
   const hot =
-    top && isEliteScorerProfile(top.p, top.min) && rand01(rng) < 0.08; // ~8% for elite
+    top && isEliteScorerProfile(top.p, top.min) && rand01(rng) < 0.07;
   const historicNight =
-    top && isEliteScorerProfile(top.p, top.min) && rand01(rng) < 0.02; // ~2% for elite — increased for more legendary performances
+    top && isEliteScorerProfile(top.p, top.min) && rand01(rng) < 0.01;
 
-  // Takeover boosts usage share — historic nights get massive boost
-  const takeoverMult = historicNight ? 3.8 : takeover ? 1.90 : 1.0; // Further increased for legendary performances
+  const takeoverMult = historicNight ? 3.2 : takeover ? 1.75 : 1.0;
 
   // Allocate FGA by gravity (with takeover concentration)
   // Pass isTakeoverPlayer flag to exempt elite scorers from position dampening
@@ -762,7 +760,7 @@ function buildTeamLinesRegulation(args: {
     const arch = p.identity.archetype as Archetype;
     const shooterVar = arch === "SHOOTER" || arch === "STRETCH_BIG" ? 1.2 : 1.0;
     const varianceMult = args.varianceMultiplier ?? 1.0;
-    const form = randN01(rng) * 0.016 * shooterVar * varianceMult;
+    const form = randN01(rng) * 0.022 * shooterVar * varianceMult;
 
     // Hot night (rare tail): boosts alpha efficiency
     const hotBoost =

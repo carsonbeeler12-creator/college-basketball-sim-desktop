@@ -16,8 +16,80 @@ process.env.VITE_PUBLIC = VITE_DEV_SERVER_URL ? path.join(process.env.APP_ROOT, 
 
 let win: BrowserWindow | null = null
 
-// Configure auto-updater
-autoUpdater.checkForUpdatesAndNotify()
+type UpdaterState = "idle" | "checking" | "available" | "not-available" | "downloading" | "downloaded" | "error" | "disabled"
+type UpdaterStatus = {
+  state: UpdaterState
+  message: string
+  version?: string
+}
+
+let updaterStatus: UpdaterStatus = {
+  state: "idle",
+  message: "Update system is ready.",
+}
+
+function setUpdaterStatus(status: UpdaterStatus) {
+  updaterStatus = status
+  if (win && !win.isDestroyed()) {
+    win.webContents.send("updater:status", status)
+  }
+}
+
+function configureAutoUpdater() {
+  if (process.env.NODE_ENV === "development") {
+    setUpdaterStatus({
+      state: "disabled",
+      message: "Auto-update is disabled in development builds.",
+    })
+    return
+  }
+
+  autoUpdater.autoDownload = true
+  autoUpdater.autoInstallOnAppQuit = true
+
+  autoUpdater.on("checking-for-update", () => {
+    setUpdaterStatus({ state: "checking", message: "Checking for updates..." })
+  })
+
+  autoUpdater.on("update-available", info => {
+    setUpdaterStatus({
+      state: "available",
+      message: `Update found (${info.version}). Downloading...`,
+      version: info.version,
+    })
+  })
+
+  autoUpdater.on("update-not-available", () => {
+    setUpdaterStatus({ state: "not-available", message: "You are on the latest version." })
+  })
+
+  autoUpdater.on("download-progress", progress => {
+    const pct = Math.round(progress.percent)
+    setUpdaterStatus({
+      state: "downloading",
+      message: `Downloading update... ${pct}%`,
+    })
+  })
+
+  autoUpdater.on("update-downloaded", info => {
+    setUpdaterStatus({
+      state: "downloaded",
+      message: `Update ${info.version} is ready. Restart to install.`,
+      version: info.version,
+    })
+  })
+
+  autoUpdater.on("error", err => {
+    setUpdaterStatus({
+      state: "error",
+      message: `Update check failed: ${err.message}`,
+    })
+  })
+
+  void autoUpdater.checkForUpdatesAndNotify().catch(err => {
+    setUpdaterStatus({ state: "error", message: `Initial update check failed: ${String(err)}` })
+  })
+}
 
 function ensureDir(dir: string) {
   if (!fs.existsSync(dir)) fs.mkdirSync(dir, { recursive: true })
@@ -106,6 +178,7 @@ function createWindow() {
 
   win.webContents.on("did-finish-load", () => {
     win?.webContents.send("main-process-message", new Date().toLocaleString())
+    win?.webContents.send("updater:status", updaterStatus)
   })
 
   if (VITE_DEV_SERVER_URL) {
@@ -195,6 +268,38 @@ ipcMain.handle("dynasty:delete", async (_event, dynastyId: string) => {
   return { ok: false, error: "File not found" }
 })
 
+ipcMain.handle("updater:check", async () => {
+  if (process.env.NODE_ENV === "development") {
+    setUpdaterStatus({
+      state: "disabled",
+      message: "Auto-update is disabled in development builds.",
+    })
+    return { ok: false, reason: "disabled-in-dev" }
+  }
+
+  try {
+    await autoUpdater.checkForUpdates()
+    return { ok: true }
+  } catch (err) {
+    const message = err instanceof Error ? err.message : String(err)
+    setUpdaterStatus({ state: "error", message: `Manual update check failed: ${message}` })
+    return { ok: false, reason: message }
+  }
+})
+
+ipcMain.handle("updater:getStatus", async () => {
+  return updaterStatus
+})
+
+ipcMain.handle("updater:install", async () => {
+  if (updaterStatus.state !== "downloaded") {
+    return { ok: false, reason: "no-downloaded-update" }
+  }
+
+  autoUpdater.quitAndInstall()
+  return { ok: true }
+})
+
 /* -----------------------------
    App lifecycle
 ------------------------------ */
@@ -210,4 +315,7 @@ app.on("activate", () => {
   if (BrowserWindow.getAllWindows().length === 0) createWindow()
 })
 
-app.whenReady().then(createWindow)
+app.whenReady().then(() => {
+  createWindow()
+  configureAutoUpdater()
+})

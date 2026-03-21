@@ -1,16 +1,18 @@
 // src/game/engine/ratings/calculateTeamRating.ts
 
 import type { Dynasty, ID } from '../../types/dynasty'
+import { TEAMS } from '../../defaultData'
+import { getEffectivePrestige } from '../development/applyPrestigeAdjustments'
 
 /**
- * Calculate a realistic team rating (0-100) based on:
- * 1. Win-loss record (40% weight)
- * 2. Strength of Schedule (30% weight) - opponent average quality
- * 3. Strength of Victory (20% weight) - wins against quality opponents
- * 4. Net point differential (10% weight) - margin of victory
- * 
- * This mimics the NCAA RPI system but simplified for performance.
- * Rating updates throughout the season as more games are played.
+ * Team rating (0–100):
+ * 1. Win % — drives most of movement
+ * 2. SOS / SOV — use opponent **prestige** (not circular teamRating)
+ * 3. Point differential
+ * 4. Roster talent — top-8 average overall so elite teams aren’t stuck in the 50s
+ *
+ * Old version used opponent `teamRating` for SOS, which collapsed everyone into
+ * the same band and made “bubble” the default UI label.
  */
 export function calculateTeamRating(
   teamId: ID,
@@ -26,53 +28,80 @@ export function calculateTeamRating(
   const losses = teamState.season?.losses ?? 0
   const totalGames = wins + losses
 
-  // If no games played, return base rating (slightly above average)
+  const staticRow = TEAMS.find(t => t.id === teamId)
+  const prestigeStart = staticRow ? getEffectivePrestige(staticRow, teamState) : 50
+
+  // If no games played, blend prestige + roster so ratings aren’t meaningless
   if (totalGames === 0) {
-    return 55 // Slight benefit of the doubt
+    const rosterNorm = rosterIntrinsicNorm(teamId, dynasty)
+    const prestigeNorm = prestigeStart / 100
+    const blended = 0.55 * prestigeNorm + 0.45 * rosterNorm
+    return Math.max(0, Math.min(100, Math.round(30 + blended * 55)))
   }
 
-  // Component 1: Win percentage (40% weight)
+  // Component 1: Win percentage
   const winPct = wins / totalGames
   const winPctRating = 25 + winPct * 50 // Range: 25-75
 
-  // Component 2: Strength of Schedule (30% weight)
-  // Average opponent rating from all games played
-  const scheduleStrength = calculateScheduleStrength(teamId, dynasty)
+  // Component 2–3: SOS / SOV from opponent prestige (1–100 → 0–1), not teamRating
+  const scheduleStrength = calculateScheduleStrengthFromPrestige(teamId, dynasty)
   const sosRating = 25 + scheduleStrength * 50 // Range: 25-75
 
-  // Component 3: Strength of Victory (20% weight)
-  // Average opponent rating ONLY from wins
-  const strengthOfVictory = calculateStrengthOfVictory(teamId, dynasty)
+  const strengthOfVictory = calculateStrengthOfVictoryFromPrestige(teamId, dynasty)
   const sovRating = 25 + strengthOfVictory * 50 // Range: 25-75
 
-  // Component 4: Net Point Differential (10% weight)
+  // Component 4: Net point differential
   const pointDiff = calculatePointDifferential(teamId, dynasty)
-  // Normalize to -40...+40, then scale to 25-75 range
   const normalizedDiff = Math.max(-1, Math.min(1, pointDiff / 40))
   const ppdRating = 50 + normalizedDiff * 25 // Range: 25-75
 
-  // Combine all components
-  const rating =
-    winPctRating * 0.4 +
-    sosRating * 0.3 +
-    sovRating * 0.2 +
-    ppdRating * 0.1
+  // Component 5: Roster quality (stable spread across teams)
+  const rosterNorm = rosterIntrinsicNorm(teamId, dynasty)
+  const rosterRating = 25 + rosterNorm * 50
 
-  // Clamp to 0-100
+  const rating =
+    winPctRating * 0.34 +
+    sosRating * 0.22 +
+    sovRating * 0.16 +
+    ppdRating * 0.10 +
+    rosterRating * 0.18
+
   return Math.max(0, Math.min(100, Math.round(rating)))
 }
 
-/**
- * Calculate strength of schedule: average opponent rating across all games
- */
-function calculateScheduleStrength(teamId: ID, dynasty: Dynasty): number {
+/** 0–1: average of top 8 roster overalls, mapped to talent tier */
+function rosterIntrinsicNorm(teamId: ID, dynasty: Dynasty): number {
+  const team = dynasty.league.teamsById[teamId]
+  const ids = team?.roster?.playerIds ?? []
+  const ovs: number[] = []
+  for (const pid of ids) {
+    const o = dynasty.playersById[pid]?.ratings?.overall
+    if (typeof o === 'number') ovs.push(o)
+  }
+  if (ovs.length === 0) return 0.52
+  ovs.sort((a, b) => b - a)
+  const top = ovs.slice(0, 8)
+  const avg = top.reduce((a, b) => a + b, 0) / top.length
+  return Math.max(0, Math.min(1, (avg - 44) / 46))
+}
+
+function opponentPrestigeNorm(opponentId: ID, dynasty: Dynasty): number {
+  const state = dynasty.league.teamsById[opponentId]
+  const row = TEAMS.find(t => t.id === opponentId)
+  if (!row) return 0.5
+  const p = getEffectivePrestige(row, state)
+  return Math.max(0, Math.min(1, p / 100))
+}
+
+/** SOS: average opponent prestige (avoids circular teamRating) */
+function calculateScheduleStrengthFromPrestige(teamId: ID, dynasty: Dynasty): number {
   const teamsById = dynasty.league.teamsById
   const gamesById = dynasty.league.gamesById
   const teamState = teamsById[teamId]
 
   if (!teamState) return 0.5
 
-  let totalOpponentRating = 0
+  let sum = 0
   let gameCount = 0
 
   for (const gameId of Object.keys(gamesById)) {
@@ -88,31 +117,24 @@ function calculateScheduleStrength(teamId: ID, dynasty: Dynasty): number {
       continue
     }
 
-    const opponent = teamsById[opponentId]
-    if (!opponent) continue
-
-    // Get opponent's rating (recursive, but limited depth)
-    const opponentRating = opponent.season?.teamRating ?? 50
-    totalOpponentRating += opponentRating
+    if (!opponentId || !teamsById[opponentId]) continue
+    sum += opponentPrestigeNorm(opponentId, dynasty)
     gameCount += 1
   }
 
   if (gameCount === 0) return 0.5
-  const avgOpponentRating = totalOpponentRating / gameCount
-  return Math.max(0, Math.min(1, avgOpponentRating / 100)) // Normalize to 0-1
+  return sum / gameCount
 }
 
-/**
- * Calculate strength of victory: average opponent rating only from wins
- */
-function calculateStrengthOfVictory(teamId: ID, dynasty: Dynasty): number {
+/** SOV: average opponent prestige on wins only */
+function calculateStrengthOfVictoryFromPrestige(teamId: ID, dynasty: Dynasty): number {
   const teamsById = dynasty.league.teamsById
   const gamesById = dynasty.league.gamesById
   const teamState = teamsById[teamId]
 
   if (!teamState) return 0.5
 
-  let totalWinOpponentRating = 0
+  let sum = 0
   let winCount = 0
 
   for (const gameId of Object.keys(gamesById)) {
@@ -135,19 +157,13 @@ function calculateStrengthOfVictory(teamId: ID, dynasty: Dynasty): number {
       continue
     }
 
-    if (!isWin || !opponentId) continue
-
-    const opponent = teamsById[opponentId]
-    if (!opponent) continue
-
-    const opponentRating = opponent.season?.teamRating ?? 50
-    totalWinOpponentRating += opponentRating
+    if (!isWin || !opponentId || !teamsById[opponentId]) continue
+    sum += opponentPrestigeNorm(opponentId, dynasty)
     winCount += 1
   }
 
   if (winCount === 0) return 0.5
-  const avgWinOpponentRating = totalWinOpponentRating / winCount
-  return Math.max(0, Math.min(1, avgWinOpponentRating / 100)) // Normalize to 0-1
+  return sum / winCount
 }
 
 /**

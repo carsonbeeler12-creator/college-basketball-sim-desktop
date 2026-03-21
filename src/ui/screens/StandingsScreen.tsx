@@ -3,6 +3,11 @@ import type { Dynasty, ID } from '../../game/types/dynasty'
 import type { Screen } from '../../game/types'
 import { TEAMS } from '../../game/defaultData'
 import { CONFERENCES } from '../../game/data/conferences'
+import {
+  getTournamentOutlookLabel,
+  getTournamentOutlookStyleTier,
+} from '../../game/utils/tournamentOutlook'
+import { teamName as resolveTeamName } from '../utils/format'
 
 import type { TeamSeasonTotals, SeasonTotals } from '../../game/engine/stats/seasonStats'
 
@@ -108,12 +113,11 @@ export function StandingsScreen(props: {
         fouls: 0,
       }
 
-      // Find team name
-      let teamName = 'Unknown'
+      // Find team display name (dynasty rename-aware)
+      let playerTeamLabel = 'Unknown'
       for (const [tid, teamState] of Object.entries(teamsById)) {
         if (teamState?.roster?.playerIds?.includes(playerId as ID)) {
-          const team = TEAMS.find(t => t.id === tid)
-          teamName = team?.name ?? tid
+          playerTeamLabel = resolveTeamName(tid as ID, activeSave)
           break
         }
       }
@@ -122,12 +126,12 @@ export function StandingsScreen(props: {
         playerId: playerId as ID,
         player,
         stats: stats as SeasonTotals,
-        teamName,
+        teamName: playerTeamLabel,
       })
     }
 
     return players
-  }, [activeSave.playersById, seasonStats, teamsById])
+  }, [activeSave, activeSave.playersById, seasonStats, teamsById])
 
   // Group teams by conference
   const teamsByConference = useMemo(() => {
@@ -243,18 +247,6 @@ export function StandingsScreen(props: {
     return (wins / total).toFixed(3)
   }
 
-  const getTournamentOutlook = (rating: number | undefined, wins: number, losses: number): string | null => {
-    if (rating == null) return null
-    // Safeguards for elite records: they should never be "Bubble"
-    if (wins >= 30 && losses <= 1) return 'Lock'
-    if (wins >= 28 && losses <= 2) return 'Strong'
-
-    if (rating >= 78) return 'Lock'
-    if (rating >= 68) return 'Strong'
-    if (rating >= 58) return 'Bubble'
-    return 'Longshot'
-  }
-
   return (
     <section className="card wide">
       <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: 20 }}>
@@ -354,7 +346,7 @@ export function StandingsScreen(props: {
                                   {idx + 1}
                                 </div>
                                 <div>
-                                  <div className="listRowTitle">{teamData.team.name}</div>
+                                  <div className="listRowTitle">{resolveTeamName(teamData.teamId, activeSave)}</div>
                                   <div className="listRowSub">
                                     Conf: {confWins}-{confLosses} • Overall: {overallWins}-{overallLosses} • 
                                     {' '}{formatStat(ppg)} PPG / {formatStat(papg)} PAPG
@@ -409,7 +401,8 @@ export function StandingsScreen(props: {
               const rpg = teamData.stats.games > 0 ? teamData.stats.rebounds / teamData.stats.games : 0
               const apg = teamData.stats.games > 0 ? teamData.stats.assists / teamData.stats.games : 0
               const teamRating = teamData.teamState?.season?.teamRating ?? 50
-              const outlook = getTournamentOutlook(teamData.teamState?.season?.teamRating, wins, losses)
+              const outlook = getTournamentOutlookLabel(wins, losses, teamData.teamState?.season?.teamRating)
+              const outlookTier = outlook ? getTournamentOutlookStyleTier(outlook) : null
 
               return (
                 <div 
@@ -435,7 +428,7 @@ export function StandingsScreen(props: {
                         {idx + 1}
                       </div>
                       <div>
-                        <div className="listRowTitle">{teamData.team.name}</div>
+                        <div className="listRowTitle">{resolveTeamName(teamData.teamId, activeSave)}</div>
                         <div className="listRowSub">
                           {wins}-{losses} ({winPct}) • {formatStat(ppg)} PPG / {formatStat(papg)} PAPG • 
                           {' '}{formatStat(rpg)} RPG • {formatStat(apg)} APG
@@ -448,8 +441,8 @@ export function StandingsScreen(props: {
                       </div>
                       <div style={{ fontSize: '12px', color: 'var(--muted)', display: 'flex', flexDirection: 'column', alignItems: 'flex-end', gap: 2 }}>
                         <span>Rating</span>
-                        {outlook && (
-                          <span className={`standingsOutlookTag standingsOutlook-${outlook.toLowerCase()}`}>
+                        {outlook && outlookTier && (
+                          <span className={`standingsOutlookTag standingsOutlook-${outlookTier}`}>
                             {outlook}
                           </span>
                         )}

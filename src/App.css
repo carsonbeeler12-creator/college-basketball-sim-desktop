@@ -135,11 +135,54 @@ body {
   margin-top: 2px;
 }
 
+.brandVersion {
+  font-weight: 600;
+  color: var(--muted);
+  opacity: 0.92;
+  letter-spacing: 0.02em;
+}
+
 .topBarRight {
   display: flex;
   align-items: center;
   gap: var(--space-3);
 }
+
+/* Inject modal (film mode) - remove when SHOW_INJECT_BUTTON=false */
+.injectModalOverlay {
+  position: fixed;
+  inset: 0;
+  background: rgba(0, 0, 0, 0.7);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  z-index: 9999;
+}
+.injectModal {
+  background: var(--panel);
+  border: 2px solid var(--border);
+  border-radius: var(--radius-lg);
+  padding: var(--space-6);
+  min-width: 420px;
+  max-width: 90vw;
+}
+.injectModalTitle { margin: 0 0 var(--space-2); font-size: var(--text-lg); }
+.injectModalHint { color: var(--muted); font-size: var(--text-sm); margin: 0 0 var(--space-4); }
+.injectModalTextarea {
+  width: 100%;
+  font-family: ui-monospace, monospace;
+  font-size: 12px;
+  background: rgba(0,0,0,0.3);
+  border: 1px solid var(--border);
+  border-radius: var(--radius-md);
+  padding: var(--space-3);
+  color: var(--text);
+  resize: vertical;
+  margin-bottom: var(--space-4);
+}
+.injectModalError { color: #f44336; font-size: var(--text-sm); margin-bottom: var(--space-3); }
+.injectModalActions { display: flex; gap: var(--space-3); }
+.injectFileLabel { cursor: pointer; margin: 0; }
 
 /* Sim progress indicator in top bar */
 .simProgress {
@@ -190,10 +233,18 @@ body {
 .content {
   padding: var(--space-6);
   display: flex;
-  justify-content: center;
-  align-items: flex-start;
+  flex-direction: column;
+  align-items: center;
+  justify-content: flex-start;
   min-height: calc(100vh - 80px);
   width: 100%;
+  box-sizing: border-box;
+}
+
+/* Center screen roots on wide viewports (avoids everything hugging the left edge) */
+.content > * {
+  width: 100%;
+  max-width: min(1280px, 100%);
   box-sizing: border-box;
 }
 
@@ -274,6 +325,12 @@ body {
   margin-right: auto;
 }
 
+.homeCtaRow {
+  display: flex;
+  gap: var(--space-4);
+  flex-wrap: wrap;
+  justify-content: center;
+}
 .homeCtaBtn {
   font-size: var(--text-base);
   padding: var(--space-4) var(--space-8);
@@ -285,6 +342,87 @@ body {
 
 .homeCtaIcon {
   font-size: 1.25rem;
+}
+
+.updateCard {
+  border: 1px solid var(--border);
+  border-radius: var(--radius-xl);
+  background: linear-gradient(135deg, rgba(255, 140, 0, 0.08) 0%, rgba(255, 140, 0, 0.03) 100%);
+  padding: var(--space-5);
+}
+
+.updateCardHeader {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: var(--space-3);
+}
+
+.updateCardTitle {
+  margin: 0;
+  font-size: var(--text-lg);
+  font-weight: 700;
+}
+
+.updateStatusPill {
+  border-radius: 999px;
+  font-size: 11px;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.4px;
+  padding: 4px 10px;
+  border: 1px solid transparent;
+}
+
+.updateStatusPill.is-checking,
+.updateStatusPill.is-downloading {
+  background: rgba(52, 152, 219, 0.15);
+  border-color: rgba(52, 152, 219, 0.35);
+  color: #9bd3ff;
+}
+
+.updateStatusPill.is-available,
+.updateStatusPill.is-downloaded {
+  background: rgba(46, 204, 113, 0.15);
+  border-color: rgba(46, 204, 113, 0.35);
+  color: #9af3be;
+}
+
+.updateStatusPill.is-error {
+  background: rgba(231, 76, 60, 0.15);
+  border-color: rgba(231, 76, 60, 0.35);
+  color: #ffb2ab;
+}
+
+.updateStatusPill.is-disabled {
+  background: rgba(149, 165, 166, 0.18);
+  border-color: rgba(149, 165, 166, 0.35);
+  color: #d0d7d8;
+}
+
+.updateStatusPill.is-idle,
+.updateStatusPill.is-not-available {
+  background: rgba(255, 255, 255, 0.08);
+  border-color: rgba(255, 255, 255, 0.2);
+  color: var(--muted);
+}
+
+.updateCardText {
+  margin: var(--space-3) 0 var(--space-2);
+  color: var(--text);
+}
+
+.updateCardHint {
+  margin: 0;
+  color: var(--muted);
+  font-size: var(--text-sm);
+}
+
+.updateCardActions {
+  margin-top: var(--space-4);
+  display: flex;
+  gap: var(--space-3);
+  flex-wrap: wrap;
 }
 
 /* Dynasties Section - clear separation from hero */

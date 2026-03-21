@@ -1,5 +1,6 @@
 import { useState } from 'react'
 import type { Dynasty, ID } from '../../game/types/dynasty'
+import { TEAMS } from '../../game/defaultData'
 
 export function EditTeamModal(props: {
   dynasty: Dynasty
@@ -22,7 +23,8 @@ export function EditTeamModal(props: {
   }
 
   const handleReset = () => {
-    setTeamName(teamState.name)
+    const canonical = TEAMS.find(t => t.id === teamId)?.name ?? teamState.name
+    setTeamName(canonical)
   }
 
   return (

@@ -1,0 +1,4112 @@
+{
+  "saveVersion": 3,
+  "dynastyId": "2026-bracket-1774016396293",
+  "createdAtISO": "2026-03-20T14:19:56.293Z",
+  "lastSavedAtISO": "2026-03-20T14:19:56.293Z",
+  "rng": {
+    "seed": 20260315,
+    "state": 20260315
+  },
+  "world": {
+    "seasonYear": 2026,
+    "phase": "POSTSEASON",
+    "day": 150
+  },
+  "coach": {
+    "coachId": "film-mode",
+    "name": "Film Mode",
+    "scheme": "BALANCED",
+    "careerStats": {
+      "seasonsCoached": 1,
+      "totalWins": 0,
+      "totalLosses": 0,
+      "averagePrestige": 0,
+      "currentPrestigeTier": "MID_TIER",
+      "yearsAtCurrentSchool": 1
+    },
+    "meta": {}
+  },
+  "league": {
+    "userTeamId": "durme",
+    "teamsById": {
+      "durme": {
+        "teamId": "durme",
+        "name": "Durham Metropolitan Demons",
+        "meta": {},
+        "roster": {
+          "playerIds": [],
+          "redshirtedPlayerIds": []
+        },
+        "season": {
+          "wins": 20,
+          "losses": 10,
+          "confWins": 12,
+          "confLosses": 6
+        },
+        "rotation": {
+          "minutesTargetByPlayerId": {},
+          "depthChart": {
+            "PG": [],
+            "SG": [],
+            "SF": [],
+            "PF": [],
+            "C": []
+          },
+          "settings": {
+            "style": "NORMAL",
+            "rotationSizeTarget": 8.5,
+            "benchFactor": 0.5,
+            "blowoutBenchFactor": 0.3
+          }
+        }
+      },
+      "tucun": {
+        "teamId": "tucun",
+        "name": "Tucson University Cougars",
+        "meta": {},
+        "roster": {
+          "playerIds": [],
+          "redshirtedPlayerIds": []
+        },
+        "season": {
+          "wins": 20,
+          "losses": 10,
+          "confWins": 12,
+          "confLosses": 6
+        },
+        "rotation": {
+          "minutesTargetByPlayerId": {},
+          "depthChart": {
+            "PG": [],
+            "SG": [],
+            "SF": [],
+            "PF": [],
+            "C": []
+          },
+          "settings": {
+            "style": "NORMAL",
+            "rotationSizeTarget": 8.5,
+            "benchFactor": 0.5,
+            "blowoutBenchFactor": 0.3
+          }
+        }
+      },
+      "wasun": {
+        "teamId": "wasun",
+        "name": "Washtenaw University Wolves",
+        "meta": {},
+        "roster": {
+          "playerIds": [],
+          "redshirtedPlayerIds": []
+        },
+        "season": {
+          "wins": 20,
+          "losses": 10,
+          "confWins": 12,
+          "confLosses": 6
+        },
+        "rotation": {
+          "minutesTargetByPlayerId": {},
+          "depthChart": {
+            "PG": [],
+            "SG": [],
+            "SF": [],
+            "PF": [],
+            "C": []
+          },
+          "settings": {
+            "style": "NORMAL",
+            "rotationSizeTarget": 8.5,
+            "benchFactor": 0.5,
+            "blowoutBenchFactor": 0.3
+          }
+        }
+      },
+      "gaico": {
+        "teamId": "gaico",
+        "name": "Gainesville College Swampers",
+        "meta": {},
+        "roster": {
+          "playerIds": [],
+          "redshirtedPlayerIds": []
+        },
+        "season": {
+          "wins": 20,
+          "losses": 10,
+          "confWins": 12,
+          "confLosses": 6
+        },
+        "rotation": {
+          "minutesTargetByPlayerId": {},
+          "depthChart": {
+            "PG": [],
+            "SG": [],
+            "SF": [],
+            "PF": [],
+            "C": []
+          },
+          "settings": {
+            "style": "NORMAL",
+            "rotationSizeTarget": 8.5,
+            "benchFactor": 0.5,
+            "blowoutBenchFactor": 0.3
+          }
+        }
+      },
+      "houst": {
+        "teamId": "houst",
+        "name": "Houston State Wildcats",
+        "meta": {},
+        "roster": {
+          "playerIds": [],
+          "redshirtedPlayerIds": []
+        },
+        "season": {
+          "wins": 20,
+          "losses": 10,
+          "confWins": 12,
+          "confLosses": 6
+        },
+        "rotation": {
+          "minutesTargetByPlayerId": {},
+          "depthChart": {
+            "PG": [],
+            "SG": [],
+            "SF": [],
+            "PF": [],
+            "C": []
+          },
+          "settings": {
+            "style": "NORMAL",
+            "rotationSizeTarget": 8.5,
+            "benchFactor": 0.5,
+            "blowoutBenchFactor": 0.3
+          }
+        }
+      },
+      "stoin": {
+        "teamId": "stoin",
+        "name": "Storrs Institute Dogs",
+        "meta": {},
+        "roster": {
+          "playerIds": [],
+          "redshirtedPlayerIds": []
+        },
+        "season": {
+          "wins": 20,
+          "losses": 10,
+          "confWins": 12,
+          "confLosses": 6
+        },
+        "rotation": {
+          "minutesTargetByPlayerId": {},
+          "depthChart": {
+            "PG": [],
+            "SG": [],
+            "SF": [],
+            "PF": [],
+            "C": []
+          },
+          "settings": {
+            "style": "NORMAL",
+            "rotationSizeTarget": 8.5,
+            "benchFactor": 0.5,
+            "blowoutBenchFactor": 0.3
+          }
+        }
+      },
+      "amete": {
+        "teamId": "amete",
+        "name": "Ames Tech Tornadoes",
+        "meta": {},
+        "roster": {
+          "playerIds": [],
+          "redshirtedPlayerIds": []
+        },
+        "season": {
+          "wins": 20,
+          "losses": 10,
+          "confWins": 12,
+          "confLosses": 6
+        },
+        "rotation": {
+          "minutesTargetByPlayerId": {},
+          "depthChart": {
+            "PG": [],
+            "SG": [],
+            "SF": [],
+            "PF": [],
+            "C": []
+          },
+          "settings": {
+            "style": "NORMAL",
+            "rotationSizeTarget": 8.5,
+            "benchFactor": 0.5,
+            "blowoutBenchFactor": 0.3
+          }
+        }
+      },
+      "lafte": {
+        "teamId": "lafte",
+        "name": "West Lafayette Tech Engineers",
+        "meta": {},
+        "roster": {
+          "playerIds": [],
+          "redshirtedPlayerIds": []
+        },
+        "season": {
+          "wins": 20,
+          "losses": 10,
+          "confWins": 12,
+          "confLosses": 6
+        },
+        "rotation": {
+          "minutesTargetByPlayerId": {},
+          "depthChart": {
+            "PG": [],
+            "SG": [],
+            "SF": [],
+            "PF": [],
+            "C": []
+          },
+          "settings": {
+            "style": "NORMAL",
+            "rotationSizeTarget": 8.5,
+            "benchFactor": 0.5,
+            "blowoutBenchFactor": 0.3
+          }
+        }
+      },
+      "ingst": {
+        "teamId": "ingst",
+        "name": "Ingham State Warriors",
+        "meta": {},
+        "roster": {
+          "playerIds": [],
+          "redshirtedPlayerIds": []
+        },
+        "season": {
+          "wins": 20,
+          "losses": 10,
+          "confWins": 12,
+          "confLosses": 6
+        },
+        "rotation": {
+          "minutesTargetByPlayerId": {},
+          "depthChart": {
+            "PG": [],
+            "SG": [],
+            "SF": [],
+            "PF": [],
+            "C": []
+          },
+          "settings": {
+            "style": "NORMAL",
+            "rotationSizeTarget": 8.5,
+            "benchFactor": 0.5,
+            "blowoutBenchFactor": 0.3
+          }
+        }
+      },
+      "chaco1": {
+        "teamId": "chaco1",
+        "name": "Champaign College Panthers",
+        "meta": {},
+        "roster": {
+          "playerIds": [],
+          "redshirtedPlayerIds": []
+        },
+        "season": {
+          "wins": 20,
+          "losses": 10,
+          "confWins": 12,
+          "confLosses": 6
+        },
+        "rotation": {
+          "minutesTargetByPlayerId": {},
+          "depthChart": {
+            "PG": [],
+            "SG": [],
+            "SF": [],
+            "PF": [],
+            "C": []
+          },
+          "settings": {
+            "style": "NORMAL",
+            "rotationSizeTarget": 8.5,
+            "benchFactor": 0.5,
+            "blowoutBenchFactor": 0.3
+          }
+        }
+      },
+      "spoun": {
+        "teamId": "spoun",
+        "name": "Spokane University Dogs",
+        "meta": {},
+        "roster": {
+          "playerIds": [],
+          "redshirtedPlayerIds": []
+        },
+        "season": {
+          "wins": 20,
+          "losses": 10,
+          "confWins": 12,
+          "confLosses": 6
+        },
+        "rotation": {
+          "minutesTargetByPlayerId": {},
+          "depthChart": {
+            "PG": [],
+            "SG": [],
+            "SF": [],
+            "PF": [],
+            "C": []
+          },
+          "settings": {
+            "style": "NORMAL",
+            "rotationSizeTarget": 8.5,
+            "benchFactor": 0.5,
+            "blowoutBenchFactor": 0.3
+          }
+        }
+      },
+      "chaco": {
+        "teamId": "chaco",
+        "name": "Charlottesville College Cavs",
+        "meta": {},
+        "roster": {
+          "playerIds": [],
+          "redshirtedPlayerIds": []
+        },
+        "season": {
+          "wins": 20,
+          "losses": 10,
+          "confWins": 12,
+          "confLosses": 6
+        },
+        "rotation": {
+          "minutesTargetByPlayerId": {},
+          "depthChart": {
+            "PG": [],
+            "SG": [],
+            "SF": [],
+            "PF": [],
+            "C": []
+          },
+          "settings": {
+            "style": "NORMAL",
+            "rotationSizeTarget": 8.5,
+            "benchFactor": 0.5,
+            "blowoutBenchFactor": 0.3
+          }
+        }
+      },
+      "linin": {
+        "teamId": "linin",
+        "name": "Lincoln Institute Lions",
+        "meta": {},
+        "roster": {
+          "playerIds": [],
+          "redshirtedPlayerIds": []
+        },
+        "season": {
+          "wins": 20,
+          "losses": 10,
+          "confWins": 12,
+          "confLosses": 6
+        },
+        "rotation": {
+          "minutesTargetByPlayerId": {},
+          "depthChart": {
+            "PG": [],
+            "SG": [],
+            "SF": [],
+            "PF": [],
+            "C": []
+          },
+          "settings": {
+            "style": "NORMAL",
+            "rotationSizeTarget": 8.5,
+            "benchFactor": 0.5,
+            "blowoutBenchFactor": 0.3
+          }
+        }
+      },
+      "tusco": {
+        "teamId": "tusco",
+        "name": "Tuscaloosa College Crimson",
+        "meta": {},
+        "roster": {
+          "playerIds": [],
+          "redshirtedPlayerIds": []
+        },
+        "season": {
+          "wins": 20,
+          "losses": 10,
+          "confWins": 12,
+          "confLosses": 6
+        },
+        "rotation": {
+          "minutesTargetByPlayerId": {},
+          "depthChart": {
+            "PG": [],
+            "SG": [],
+            "SF": [],
+            "PF": [],
+            "C": []
+          },
+          "settings": {
+            "style": "NORMAL",
+            "rotationSizeTarget": 8.5,
+            "benchFactor": 0.5,
+            "blowoutBenchFactor": 0.3
+          }
+        }
+      },
+      "lawun": {
+        "teamId": "lawun",
+        "name": "Lawrence University Hawks",
+        "meta": {},
+        "roster": {
+          "playerIds": [],
+          "redshirtedPlayerIds": []
+        },
+        "season": {
+          "wins": 20,
+          "losses": 10,
+          "confWins": 12,
+          "confLosses": 6
+        },
+        "rotation": {
+          "minutesTargetByPlayerId": {},
+          "depthChart": {
+            "PG": [],
+            "SG": [],
+            "SF": [],
+            "PF": [],
+            "C": []
+          },
+          "settings": {
+            "style": "NORMAL",
+            "rotationSizeTarget": 8.5,
+            "benchFactor": 0.5,
+            "blowoutBenchFactor": 0.3
+          }
+        }
+      },
+      "fayco": {
+        "teamId": "fayco",
+        "name": "Fayetteville College Hogs",
+        "meta": {},
+        "roster": {
+          "playerIds": [],
+          "redshirtedPlayerIds": []
+        },
+        "season": {
+          "wins": 20,
+          "losses": 10,
+          "confWins": 12,
+          "confLosses": 6
+        },
+        "rotation": {
+          "minutesTargetByPlayerId": {},
+          "depthChart": {
+            "PG": [],
+            "SG": [],
+            "SF": [],
+            "PF": [],
+            "C": []
+          },
+          "settings": {
+            "style": "NORMAL",
+            "rotationSizeTarget": 8.5,
+            "benchFactor": 0.5,
+            "blowoutBenchFactor": 0.3
+          }
+        }
+      },
+      "naste": {
+        "teamId": "naste",
+        "name": "Nashville Tech Admirals",
+        "meta": {},
+        "roster": {
+          "playerIds": [],
+          "redshirtedPlayerIds": []
+        },
+        "season": {
+          "wins": 20,
+          "losses": 10,
+          "confWins": 12,
+          "confLosses": 6
+        },
+        "rotation": {
+          "minutesTargetByPlayerId": {},
+          "depthChart": {
+            "PG": [],
+            "SG": [],
+            "SF": [],
+            "PF": [],
+            "C": []
+          },
+          "settings": {
+            "style": "NORMAL",
+            "rotationSizeTarget": 8.5,
+            "benchFactor": 0.5,
+            "blowoutBenchFactor": 0.3
+          }
+        }
+      },
+      "quete": {
+        "teamId": "quete",
+        "name": "Queens Tech Storm",
+        "meta": {},
+        "roster": {
+          "playerIds": [],
+          "redshirtedPlayerIds": []
+        },
+        "season": {
+          "wins": 20,
+          "losses": 10,
+          "confWins": 12,
+          "confLosses": 6
+        },
+        "rotation": {
+          "minutesTargetByPlayerId": {},
+          "depthChart": {
+            "PG": [],
+            "SG": [],
+            "SF": [],
+            "PF": [],
+            "C": []
+          },
+          "settings": {
+            "style": "NORMAL",
+            "rotationSizeTarget": 8.5,
+            "benchFactor": 0.5,
+            "blowoutBenchFactor": 0.3
+          }
+        }
+      },
+      "lubin": {
+        "teamId": "lubin",
+        "name": "Lubbock Institute Raiders",
+        "meta": {},
+        "roster": {
+          "playerIds": [],
+          "redshirtedPlayerIds": []
+        },
+        "season": {
+          "wins": 20,
+          "losses": 10,
+          "confWins": 12,
+          "confLosses": 6
+        },
+        "rotation": {
+          "minutesTargetByPlayerId": {},
+          "depthChart": {
+            "PG": [],
+            "SG": [],
+            "SF": [],
+            "PF": [],
+            "C": []
+          },
+          "settings": {
+            "style": "NORMAL",
+            "rotationSizeTarget": 8.5,
+            "benchFactor": 0.5,
+            "blowoutBenchFactor": 0.3
+          }
+        }
+      },
+      "madun": {
+        "teamId": "madun",
+        "name": "Madison University Badgers",
+        "meta": {},
+        "roster": {
+          "playerIds": [],
+          "redshirtedPlayerIds": []
+        },
+        "season": {
+          "wins": 20,
+          "losses": 10,
+          "confWins": 12,
+          "confLosses": 6
+        },
+        "rotation": {
+          "minutesTargetByPlayerId": {},
+          "depthChart": {
+            "PG": [],
+            "SG": [],
+            "SF": [],
+            "PF": [],
+            "C": []
+          },
+          "settings": {
+            "style": "NORMAL",
+            "rotationSizeTarget": 8.5,
+            "benchFactor": 0.5,
+            "blowoutBenchFactor": 0.3
+          }
+        }
+      },
+      "knoun": {
+        "teamId": "knoun",
+        "name": "Knoxville University Vols",
+        "meta": {},
+        "roster": {
+          "playerIds": [],
+          "redshirtedPlayerIds": []
+        },
+        "season": {
+          "wins": 20,
+          "losses": 10,
+          "confWins": 12,
+          "confLosses": 6
+        },
+        "rotation": {
+          "minutesTargetByPlayerId": {},
+          "depthChart": {
+            "PG": [],
+            "SG": [],
+            "SF": [],
+            "PF": [],
+            "C": []
+          },
+          "settings": {
+            "style": "NORMAL",
+            "rotationSizeTarget": 8.5,
+            "benchFactor": 0.5,
+            "blowoutBenchFactor": 0.3
+          }
+        }
+      },
+      "carun": {
+        "teamId": "carun",
+        "name": "Carolina University Carolina Blue",
+        "meta": {},
+        "roster": {
+          "playerIds": [],
+          "redshirtedPlayerIds": []
+        },
+        "season": {
+          "wins": 20,
+          "losses": 10,
+          "confWins": 12,
+          "confLosses": 6
+        },
+        "rotation": {
+          "minutesTargetByPlayerId": {},
+          "depthChart": {
+            "PG": [],
+            "SG": [],
+            "SF": [],
+            "PF": [],
+            "C": []
+          },
+          "settings": {
+            "style": "NORMAL",
+            "rotationSizeTarget": 8.5,
+            "benchFactor": 0.5,
+            "blowoutBenchFactor": 0.3
+          }
+        }
+      },
+      "loume": {
+        "teamId": "loume",
+        "name": "Louisville Metropolitan Redbirds",
+        "meta": {},
+        "roster": {
+          "playerIds": [],
+          "redshirtedPlayerIds": []
+        },
+        "season": {
+          "wins": 20,
+          "losses": 10,
+          "confWins": 12,
+          "confLosses": 6
+        },
+        "rotation": {
+          "minutesTargetByPlayerId": {},
+          "depthChart": {
+            "PG": [],
+            "SG": [],
+            "SF": [],
+            "PF": [],
+            "C": []
+          },
+          "settings": {
+            "style": "NORMAL",
+            "rotationSizeTarget": 8.5,
+            "benchFactor": 0.5,
+            "blowoutBenchFactor": 0.3
+          }
+        }
+      },
+      "prost": {
+        "teamId": "prost",
+        "name": "Provo State Wildcats",
+        "meta": {},
+        "roster": {
+          "playerIds": [],
+          "redshirtedPlayerIds": []
+        },
+        "season": {
+          "wins": 20,
+          "losses": 10,
+          "confWins": 12,
+          "confLosses": 6
+        },
+        "rotation": {
+          "minutesTargetByPlayerId": {},
+          "depthChart": {
+            "PG": [],
+            "SG": [],
+            "SF": [],
+            "PF": [],
+            "C": []
+          },
+          "settings": {
+            "style": "NORMAL",
+            "rotationSizeTarget": 8.5,
+            "benchFactor": 0.5,
+            "blowoutBenchFactor": 0.3
+          }
+        }
+      },
+      "lexst": {
+        "teamId": "lexst",
+        "name": "Lexington State Cougars",
+        "meta": {},
+        "roster": {
+          "playerIds": [],
+          "redshirtedPlayerIds": []
+        },
+        "season": {
+          "wins": 20,
+          "losses": 10,
+          "confWins": 12,
+          "confLosses": 6
+        },
+        "rotation": {
+          "minutesTargetByPlayerId": {},
+          "depthChart": {
+            "PG": [],
+            "SG": [],
+            "SF": [],
+            "PF": [],
+            "C": []
+          },
+          "settings": {
+            "style": "NORMAL",
+            "rotationSizeTarget": 8.5,
+            "benchFactor": 0.5,
+            "blowoutBenchFactor": 0.3
+          }
+        }
+      },
+      "morin": {
+        "teamId": "morin",
+        "name": "Moraga Institute Highlanders",
+        "meta": {},
+        "roster": {
+          "playerIds": [],
+          "redshirtedPlayerIds": []
+        },
+        "season": {
+          "wins": 20,
+          "losses": 10,
+          "confWins": 12,
+          "confLosses": 6
+        },
+        "rotation": {
+          "minutesTargetByPlayerId": {},
+          "depthChart": {
+            "PG": [],
+            "SG": [],
+            "SF": [],
+            "PF": [],
+            "C": []
+          },
+          "settings": {
+            "style": "NORMAL",
+            "rotationSizeTarget": 8.5,
+            "benchFactor": 0.5,
+            "blowoutBenchFactor": 0.3
+          }
+        }
+      },
+      "corga": {
+        "teamId": "corga",
+        "name": "Coral Gables State Storm",
+        "meta": {},
+        "roster": {
+          "playerIds": [],
+          "redshirtedPlayerIds": []
+        },
+        "season": {
+          "wins": 20,
+          "losses": 10,
+          "confWins": 12,
+          "confLosses": 6
+        },
+        "rotation": {
+          "minutesTargetByPlayerId": {},
+          "depthChart": {
+            "PG": [],
+            "SG": [],
+            "SF": [],
+            "PF": [],
+            "C": []
+          },
+          "settings": {
+            "style": "NORMAL",
+            "rotationSizeTarget": 8.5,
+            "benchFactor": 0.5,
+            "blowoutBenchFactor": 0.3
+          }
+        }
+      },
+      "losan": {
+        "teamId": "losan",
+        "name": "Los Angeles Tech Bears",
+        "meta": {},
+        "roster": {
+          "playerIds": [],
+          "redshirtedPlayerIds": []
+        },
+        "season": {
+          "wins": 20,
+          "losses": 10,
+          "confWins": 12,
+          "confLosses": 6
+        },
+        "rotation": {
+          "minutesTargetByPlayerId": {},
+          "depthChart": {
+            "PG": [],
+            "SG": [],
+            "SF": [],
+            "PF": [],
+            "C": []
+          },
+          "settings": {
+            "style": "NORMAL",
+            "rotationSizeTarget": 8.5,
+            "benchFactor": 0.5,
+            "blowoutBenchFactor": 0.3
+          }
+        }
+      },
+      "cleme": {
+        "teamId": "cleme",
+        "name": "Clemson Metropolitan Panthers",
+        "meta": {},
+        "roster": {
+          "playerIds": [],
+          "redshirtedPlayerIds": []
+        },
+        "season": {
+          "wins": 20,
+          "losses": 10,
+          "confWins": 12,
+          "confLosses": 6
+        },
+        "rotation": {
+          "minutesTargetByPlayerId": {},
+          "depthChart": {
+            "PG": [],
+            "SG": [],
+            "SF": [],
+            "PF": [],
+            "C": []
+          },
+          "settings": {
+            "style": "NORMAL",
+            "rotationSizeTarget": 8.5,
+            "benchFactor": 0.5,
+            "blowoutBenchFactor": 0.3
+          }
+        }
+      },
+      "vilin": {
+        "teamId": "vilin",
+        "name": "Villanova Institute Cougars",
+        "meta": {},
+        "roster": {
+          "playerIds": [],
+          "redshirtedPlayerIds": []
+        },
+        "season": {
+          "wins": 20,
+          "losses": 10,
+          "confWins": 12,
+          "confLosses": 6
+        },
+        "rotation": {
+          "minutesTargetByPlayerId": {},
+          "depthChart": {
+            "PG": [],
+            "SG": [],
+            "SF": [],
+            "PF": [],
+            "C": []
+          },
+          "settings": {
+            "style": "NORMAL",
+            "rotationSizeTarget": 8.5,
+            "benchFactor": 0.5,
+            "blowoutBenchFactor": 0.3
+          }
+        }
+      },
+      "colte": {
+        "teamId": "colte",
+        "name": "Columbus Tech Bucks",
+        "meta": {},
+        "roster": {
+          "playerIds": [],
+          "redshirtedPlayerIds": []
+        },
+        "season": {
+          "wins": 20,
+          "losses": 10,
+          "confWins": 12,
+          "confLosses": 6
+        },
+        "rotation": {
+          "minutesTargetByPlayerId": {},
+          "depthChart": {
+            "PG": [],
+            "SG": [],
+            "SF": [],
+            "PF": [],
+            "C": []
+          },
+          "settings": {
+            "style": "NORMAL",
+            "rotationSizeTarget": 8.5,
+            "benchFactor": 0.5,
+            "blowoutBenchFactor": 0.3
+          }
+        }
+      },
+      "athin": {
+        "teamId": "athin",
+        "name": "Athens Institute Dogs",
+        "meta": {},
+        "roster": {
+          "playerIds": [],
+          "redshirtedPlayerIds": []
+        },
+        "season": {
+          "wins": 20,
+          "losses": 10,
+          "confWins": 12,
+          "confLosses": 6
+        },
+        "rotation": {
+          "minutesTargetByPlayerId": {},
+          "depthChart": {
+            "PG": [],
+            "SG": [],
+            "SF": [],
+            "PF": [],
+            "C": []
+          },
+          "settings": {
+            "style": "NORMAL",
+            "rotationSizeTarget": 8.5,
+            "benchFactor": 0.5,
+            "blowoutBenchFactor": 0.3
+          }
+        }
+      },
+      "logte": {
+        "teamId": "logte",
+        "name": "Logan Tech Farmers",
+        "meta": {},
+        "roster": {
+          "playerIds": [],
+          "redshirtedPlayerIds": []
+        },
+        "season": {
+          "wins": 20,
+          "losses": 10,
+          "confWins": 12,
+          "confLosses": 6
+        },
+        "rotation": {
+          "minutesTargetByPlayerId": {},
+          "depthChart": {
+            "PG": [],
+            "SG": [],
+            "SF": [],
+            "PF": [],
+            "C": []
+          },
+          "settings": {
+            "style": "NORMAL",
+            "rotationSizeTarget": 8.5,
+            "benchFactor": 0.5,
+            "blowoutBenchFactor": 0.3
+          }
+        }
+      },
+      "forwo": {
+        "teamId": "forwo",
+        "name": "Fort Worth Metropolitan Frogs",
+        "meta": {},
+        "roster": {
+          "playerIds": [],
+          "redshirtedPlayerIds": []
+        },
+        "season": {
+          "wins": 20,
+          "losses": 10,
+          "confWins": 12,
+          "confLosses": 6
+        },
+        "rotation": {
+          "minutesTargetByPlayerId": {},
+          "depthChart": {
+            "PG": [],
+            "SG": [],
+            "SF": [],
+            "PF": [],
+            "C": []
+          },
+          "settings": {
+            "style": "NORMAL",
+            "rotationSizeTarget": 8.5,
+            "benchFactor": 0.5,
+            "blowoutBenchFactor": 0.3
+          }
+        }
+      },
+      "stlo": {
+        "teamId": "stlo",
+        "name": "St. Louis Metropolitan Bears",
+        "meta": {},
+        "roster": {
+          "playerIds": [],
+          "redshirtedPlayerIds": []
+        },
+        "season": {
+          "wins": 20,
+          "losses": 10,
+          "confWins": 12,
+          "confLosses": 6
+        },
+        "rotation": {
+          "minutesTargetByPlayerId": {},
+          "depthChart": {
+            "PG": [],
+            "SG": [],
+            "SF": [],
+            "PF": [],
+            "C": []
+          },
+          "settings": {
+            "style": "NORMAL",
+            "rotationSizeTarget": 8.5,
+            "benchFactor": 0.5,
+            "blowoutBenchFactor": 0.3
+          }
+        }
+      },
+      "iowci": {
+        "teamId": "iowci",
+        "name": "Iowa City College Eagles",
+        "meta": {},
+        "roster": {
+          "playerIds": [],
+          "redshirtedPlayerIds": []
+        },
+        "season": {
+          "wins": 20,
+          "losses": 10,
+          "confWins": 12,
+          "confLosses": 6
+        },
+        "rotation": {
+          "minutesTargetByPlayerId": {},
+          "depthChart": {
+            "PG": [],
+            "SG": [],
+            "SF": [],
+            "PF": [],
+            "C": []
+          },
+          "settings": {
+            "style": "NORMAL",
+            "rotationSizeTarget": 8.5,
+            "benchFactor": 0.5,
+            "blowoutBenchFactor": 0.3
+          }
+        }
+      },
+      "sancl": {
+        "teamId": "sancl",
+        "name": "Santa Clara College Stallions",
+        "meta": {},
+        "roster": {
+          "playerIds": [],
+          "redshirtedPlayerIds": []
+        },
+        "season": {
+          "wins": 20,
+          "losses": 10,
+          "confWins": 12,
+          "confLosses": 6
+        },
+        "rotation": {
+          "minutesTargetByPlayerId": {},
+          "depthChart": {
+            "PG": [],
+            "SG": [],
+            "SF": [],
+            "PF": [],
+            "C": []
+          },
+          "settings": {
+            "style": "NORMAL",
+            "rotationSizeTarget": 8.5,
+            "benchFactor": 0.5,
+            "blowoutBenchFactor": 0.3
+          }
+        }
+      },
+      "orlme": {
+        "teamId": "orlme",
+        "name": "Orlando Metropolitan Swords",
+        "meta": {},
+        "roster": {
+          "playerIds": [],
+          "redshirtedPlayerIds": []
+        },
+        "season": {
+          "wins": 20,
+          "losses": 10,
+          "confWins": 12,
+          "confLosses": 6
+        },
+        "rotation": {
+          "minutesTargetByPlayerId": {},
+          "depthChart": {
+            "PG": [],
+            "SG": [],
+            "SF": [],
+            "PF": [],
+            "C": []
+          },
+          "settings": {
+            "style": "NORMAL",
+            "rotationSizeTarget": 8.5,
+            "benchFactor": 0.5,
+            "blowoutBenchFactor": 0.3
+          }
+        }
+      },
+      "colte1": {
+        "teamId": "colte1",
+        "name": "Columbia Tech Panthers",
+        "meta": {},
+        "roster": {
+          "playerIds": [],
+          "redshirtedPlayerIds": []
+        },
+        "season": {
+          "wins": 20,
+          "losses": 10,
+          "confWins": 12,
+          "confLosses": 6
+        },
+        "rotation": {
+          "minutesTargetByPlayerId": {},
+          "depthChart": {
+            "PG": [],
+            "SG": [],
+            "SF": [],
+            "PF": [],
+            "C": []
+          },
+          "settings": {
+            "style": "NORMAL",
+            "rotationSizeTarget": 8.5,
+            "benchFactor": 0.5,
+            "blowoutBenchFactor": 0.3
+          }
+        }
+      },
+      "brast": {
+        "teamId": "brast",
+        "name": "Brazos State Farmers",
+        "meta": {},
+        "roster": {
+          "playerIds": [],
+          "redshirtedPlayerIds": []
+        },
+        "season": {
+          "wins": 20,
+          "losses": 10,
+          "confWins": 12,
+          "confLosses": 6
+        },
+        "rotation": {
+          "minutesTargetByPlayerId": {},
+          "depthChart": {
+            "PG": [],
+            "SG": [],
+            "SF": [],
+            "PF": [],
+            "C": []
+          },
+          "settings": {
+            "style": "NORMAL",
+            "rotationSizeTarget": 8.5,
+            "benchFactor": 0.5,
+            "blowoutBenchFactor": 0.3
+          }
+        }
+      },
+      "ralin": {
+        "teamId": "ralin",
+        "name": "Raleigh Institute Panthers",
+        "meta": {},
+        "roster": {
+          "playerIds": [],
+          "redshirtedPlayerIds": []
+        },
+        "season": {
+          "wins": 20,
+          "losses": 10,
+          "confWins": 12,
+          "confLosses": 6
+        },
+        "rotation": {
+          "minutesTargetByPlayerId": {},
+          "depthChart": {
+            "PG": [],
+            "SG": [],
+            "SF": [],
+            "PF": [],
+            "C": []
+          },
+          "settings": {
+            "style": "NORMAL",
+            "rotationSizeTarget": 8.5,
+            "benchFactor": 0.5,
+            "blowoutBenchFactor": 0.3
+          }
+        }
+      },
+      "ausin": {
+        "teamId": "ausin",
+        "name": "Austin Institute Horns",
+        "meta": {},
+        "roster": {
+          "playerIds": [],
+          "redshirtedPlayerIds": []
+        },
+        "season": {
+          "wins": 20,
+          "losses": 10,
+          "confWins": 12,
+          "confLosses": 6
+        },
+        "rotation": {
+          "minutesTargetByPlayerId": {},
+          "depthChart": {
+            "PG": [],
+            "SG": [],
+            "SF": [],
+            "PF": [],
+            "C": []
+          },
+          "settings": {
+            "style": "NORMAL",
+            "rotationSizeTarget": 8.5,
+            "benchFactor": 0.5,
+            "blowoutBenchFactor": 0.3
+          }
+        }
+      },
+      "dalme": {
+        "teamId": "dalme",
+        "name": "Dallas Metropolitan Stallions",
+        "meta": {},
+        "roster": {
+          "playerIds": [],
+          "redshirtedPlayerIds": []
+        },
+        "season": {
+          "wins": 20,
+          "losses": 10,
+          "confWins": 12,
+          "confLosses": 6
+        },
+        "rotation": {
+          "minutesTargetByPlayerId": {},
+          "depthChart": {
+            "PG": [],
+            "SG": [],
+            "SF": [],
+            "PF": [],
+            "C": []
+          },
+          "settings": {
+            "style": "NORMAL",
+            "rotationSizeTarget": 8.5,
+            "benchFactor": 0.5,
+            "blowoutBenchFactor": 0.3
+          }
+        }
+      },
+      "oxfst1": {
+        "teamId": "oxfst1",
+        "name": "Oxford State Lions",
+        "meta": {},
+        "roster": {
+          "playerIds": [],
+          "redshirtedPlayerIds": []
+        },
+        "season": {
+          "wins": 20,
+          "losses": 10,
+          "confWins": 12,
+          "confLosses": 6
+        },
+        "rotation": {
+          "minutesTargetByPlayerId": {},
+          "depthChart": {
+            "PG": [],
+            "SG": [],
+            "SF": [],
+            "PF": [],
+            "C": []
+          },
+          "settings": {
+            "style": "NORMAL",
+            "rotationSizeTarget": 8.5,
+            "benchFactor": 0.5,
+            "blowoutBenchFactor": 0.3
+          }
+        }
+      },
+      "ricun": {
+        "teamId": "ricun",
+        "name": "Richmond University Sheep",
+        "meta": {},
+        "roster": {
+          "playerIds": [],
+          "redshirtedPlayerIds": []
+        },
+        "season": {
+          "wins": 20,
+          "losses": 10,
+          "confWins": 12,
+          "confLosses": 6
+        },
+        "rotation": {
+          "minutesTargetByPlayerId": {},
+          "depthChart": {
+            "PG": [],
+            "SG": [],
+            "SF": [],
+            "PF": [],
+            "C": []
+          },
+          "settings": {
+            "style": "NORMAL",
+            "rotationSizeTarget": 8.5,
+            "benchFactor": 0.5,
+            "blowoutBenchFactor": 0.3
+          }
+        }
+      },
+      "tamin": {
+        "teamId": "tamin",
+        "name": "Tampa Institute Horns",
+        "meta": {},
+        "roster": {
+          "playerIds": [],
+          "redshirtedPlayerIds": []
+        },
+        "season": {
+          "wins": 20,
+          "losses": 10,
+          "confWins": 12,
+          "confLosses": 6
+        },
+        "rotation": {
+          "minutesTargetByPlayerId": {},
+          "depthChart": {
+            "PG": [],
+            "SG": [],
+            "SF": [],
+            "PF": [],
+            "C": []
+          },
+          "settings": {
+            "style": "NORMAL",
+            "rotationSizeTarget": 8.5,
+            "benchFactor": 0.5,
+            "blowoutBenchFactor": 0.3
+          }
+        }
+      },
+      "lakch": {
+        "teamId": "lakch",
+        "name": "Lake Charles College Riders",
+        "meta": {},
+        "roster": {
+          "playerIds": [],
+          "redshirtedPlayerIds": []
+        },
+        "season": {
+          "wins": 20,
+          "losses": 10,
+          "confWins": 12,
+          "confLosses": 6
+        },
+        "rotation": {
+          "minutesTargetByPlayerId": {},
+          "depthChart": {
+            "PG": [],
+            "SG": [],
+            "SF": [],
+            "PF": [],
+            "C": []
+          },
+          "settings": {
+            "style": "NORMAL",
+            "rotationSizeTarget": 8.5,
+            "benchFactor": 0.5,
+            "blowoutBenchFactor": 0.3
+          }
+        }
+      },
+      "akrco": {
+        "teamId": "akrco",
+        "name": "Akron College Wolves",
+        "meta": {},
+        "roster": {
+          "playerIds": [],
+          "redshirtedPlayerIds": []
+        },
+        "season": {
+          "wins": 20,
+          "losses": 10,
+          "confWins": 12,
+          "confLosses": 6
+        },
+        "rotation": {
+          "minutesTargetByPlayerId": {},
+          "depthChart": {
+            "PG": [],
+            "SG": [],
+            "SF": [],
+            "PF": [],
+            "C": []
+          },
+          "settings": {
+            "style": "NORMAL",
+            "rotationSizeTarget": 8.5,
+            "benchFactor": 0.5,
+            "blowoutBenchFactor": 0.3
+          }
+        }
+      },
+      "cedfa": {
+        "teamId": "cedfa",
+        "name": "Cedar Falls University Wildcats",
+        "meta": {},
+        "roster": {
+          "playerIds": [],
+          "redshirtedPlayerIds": []
+        },
+        "season": {
+          "wins": 20,
+          "losses": 10,
+          "confWins": 12,
+          "confLosses": 6
+        },
+        "rotation": {
+          "minutesTargetByPlayerId": {},
+          "depthChart": {
+            "PG": [],
+            "SG": [],
+            "SF": [],
+            "PF": [],
+            "C": []
+          },
+          "settings": {
+            "style": "NORMAL",
+            "rotationSizeTarget": 8.5,
+            "benchFactor": 0.5,
+            "blowoutBenchFactor": 0.3
+          }
+        }
+      },
+      "higpo": {
+        "teamId": "higpo",
+        "name": "High Point College Wildcats",
+        "meta": {},
+        "roster": {
+          "playerIds": [],
+          "redshirtedPlayerIds": []
+        },
+        "season": {
+          "wins": 20,
+          "losses": 10,
+          "confWins": 12,
+          "confLosses": 6
+        },
+        "rotation": {
+          "minutesTargetByPlayerId": {},
+          "depthChart": {
+            "PG": [],
+            "SG": [],
+            "SF": [],
+            "PF": [],
+            "C": []
+          },
+          "settings": {
+            "style": "NORMAL",
+            "rotationSizeTarget": 8.5,
+            "benchFactor": 0.5,
+            "blowoutBenchFactor": 0.3
+          }
+        }
+      },
+      "rivst": {
+        "teamId": "rivst",
+        "name": "Riverside State Eagles",
+        "meta": {},
+        "roster": {
+          "playerIds": [],
+          "redshirtedPlayerIds": []
+        },
+        "season": {
+          "wins": 20,
+          "losses": 10,
+          "confWins": 12,
+          "confLosses": 6
+        },
+        "rotation": {
+          "minutesTargetByPlayerId": {},
+          "depthChart": {
+            "PG": [],
+            "SG": [],
+            "SF": [],
+            "PF": [],
+            "C": []
+          },
+          "settings": {
+            "style": "NORMAL",
+            "rotationSizeTarget": 8.5,
+            "benchFactor": 0.5,
+            "blowoutBenchFactor": 0.3
+          }
+        }
+      },
+      "stobr": {
+        "teamId": "stobr",
+        "name": "Stony Brook College Bears",
+        "meta": {},
+        "roster": {
+          "playerIds": [],
+          "redshirtedPlayerIds": []
+        },
+        "season": {
+          "wins": 20,
+          "losses": 10,
+          "confWins": 12,
+          "confLosses": 6
+        },
+        "rotation": {
+          "minutesTargetByPlayerId": {},
+          "depthChart": {
+            "PG": [],
+            "SG": [],
+            "SF": [],
+            "PF": [],
+            "C": []
+          },
+          "settings": {
+            "style": "NORMAL",
+            "rotationSizeTarget": 8.5,
+            "benchFactor": 0.5,
+            "blowoutBenchFactor": 0.3
+          }
+        }
+      },
+      "troco": {
+        "teamId": "troco",
+        "name": "Troy College Warriors",
+        "meta": {},
+        "roster": {
+          "playerIds": [],
+          "redshirtedPlayerIds": []
+        },
+        "season": {
+          "wins": 20,
+          "losses": 10,
+          "confWins": 12,
+          "confLosses": 6
+        },
+        "rotation": {
+          "minutesTargetByPlayerId": {},
+          "depthChart": {
+            "PG": [],
+            "SG": [],
+            "SF": [],
+            "PF": [],
+            "C": []
+          },
+          "settings": {
+            "style": "NORMAL",
+            "rotationSizeTarget": 8.5,
+            "benchFactor": 0.5,
+            "blowoutBenchFactor": 0.3
+          }
+        }
+      },
+      "honme": {
+        "teamId": "honme",
+        "name": "Honolulu Metropolitan Wildcats",
+        "meta": {},
+        "roster": {
+          "playerIds": [],
+          "redshirtedPlayerIds": []
+        },
+        "season": {
+          "wins": 20,
+          "losses": 10,
+          "confWins": 12,
+          "confLosses": 6
+        },
+        "rotation": {
+          "minutesTargetByPlayerId": {},
+          "depthChart": {
+            "PG": [],
+            "SG": [],
+            "SF": [],
+            "PF": [],
+            "C": []
+          },
+          "settings": {
+            "style": "NORMAL",
+            "rotationSizeTarget": 8.5,
+            "benchFactor": 0.5,
+            "blowoutBenchFactor": 0.3
+          }
+        }
+      },
+      "farte": {
+        "teamId": "farte",
+        "name": "Fargo Tech Tigers",
+        "meta": {},
+        "roster": {
+          "playerIds": [],
+          "redshirtedPlayerIds": []
+        },
+        "season": {
+          "wins": 20,
+          "losses": 10,
+          "confWins": 12,
+          "confLosses": 6
+        },
+        "rotation": {
+          "minutesTargetByPlayerId": {},
+          "depthChart": {
+            "PG": [],
+            "SG": [],
+            "SF": [],
+            "PF": [],
+            "C": []
+          },
+          "settings": {
+            "style": "NORMAL",
+            "rotationSizeTarget": 8.5,
+            "benchFactor": 0.5,
+            "blowoutBenchFactor": 0.3
+          }
+        }
+      },
+      "phime3": {
+        "teamId": "phime3",
+        "name": "Philadelphia Metropolitan Lions",
+        "meta": {},
+        "roster": {
+          "playerIds": [],
+          "redshirtedPlayerIds": []
+        },
+        "season": {
+          "wins": 20,
+          "losses": 10,
+          "confWins": 12,
+          "confLosses": 6
+        },
+        "rotation": {
+          "minutesTargetByPlayerId": {},
+          "depthChart": {
+            "PG": [],
+            "SG": [],
+            "SF": [],
+            "PF": [],
+            "C": []
+          },
+          "settings": {
+            "style": "NORMAL",
+            "rotationSizeTarget": 8.5,
+            "benchFactor": 0.5,
+            "blowoutBenchFactor": 0.3
+          }
+        }
+      },
+      "dayme1": {
+        "teamId": "dayme1",
+        "name": "Dayton Metropolitan Tigers",
+        "meta": {},
+        "roster": {
+          "playerIds": [],
+          "redshirtedPlayerIds": []
+        },
+        "season": {
+          "wins": 20,
+          "losses": 10,
+          "confWins": 12,
+          "confLosses": 6
+        },
+        "rotation": {
+          "minutesTargetByPlayerId": {},
+          "depthChart": {
+            "PG": [],
+            "SG": [],
+            "SF": [],
+            "PF": [],
+            "C": []
+          },
+          "settings": {
+            "style": "NORMAL",
+            "rotationSizeTarget": 8.5,
+            "benchFactor": 0.5,
+            "blowoutBenchFactor": 0.3
+          }
+        }
+      },
+      "kenin": {
+        "teamId": "kenin",
+        "name": "Kennesaw Institute Hooters",
+        "meta": {},
+        "roster": {
+          "playerIds": [],
+          "redshirtedPlayerIds": []
+        },
+        "season": {
+          "wins": 20,
+          "losses": 10,
+          "confWins": 12,
+          "confLosses": 6
+        },
+        "rotation": {
+          "minutesTargetByPlayerId": {},
+          "depthChart": {
+            "PG": [],
+            "SG": [],
+            "SF": [],
+            "PF": [],
+            "C": []
+          },
+          "settings": {
+            "style": "NORMAL",
+            "rotationSizeTarget": 8.5,
+            "benchFactor": 0.5,
+            "blowoutBenchFactor": 0.3
+          }
+        }
+      },
+      "naste1": {
+        "teamId": "naste1",
+        "name": "Nashville Tech Bears",
+        "meta": {},
+        "roster": {
+          "playerIds": [],
+          "redshirtedPlayerIds": []
+        },
+        "season": {
+          "wins": 20,
+          "losses": 10,
+          "confWins": 12,
+          "confLosses": 6
+        },
+        "rotation": {
+          "minutesTargetByPlayerId": {},
+          "depthChart": {
+            "PG": [],
+            "SG": [],
+            "SF": [],
+            "PF": [],
+            "C": []
+          },
+          "settings": {
+            "style": "NORMAL",
+            "rotationSizeTarget": 8.5,
+            "benchFactor": 0.5,
+            "blowoutBenchFactor": 0.3
+          }
+        }
+      },
+      "mosin": {
+        "teamId": "mosin",
+        "name": "Moscow Institute Bears",
+        "meta": {},
+        "roster": {
+          "playerIds": [],
+          "redshirtedPlayerIds": []
+        },
+        "season": {
+          "wins": 20,
+          "losses": 10,
+          "confWins": 12,
+          "confLosses": 6
+        },
+        "rotation": {
+          "minutesTargetByPlayerId": {},
+          "depthChart": {
+            "PG": [],
+            "SG": [],
+            "SF": [],
+            "PF": [],
+            "C": []
+          },
+          "settings": {
+            "style": "NORMAL",
+            "rotationSizeTarget": 8.5,
+            "benchFactor": 0.5,
+            "blowoutBenchFactor": 0.3
+          }
+        }
+      },
+      "spaco": {
+        "teamId": "spaco",
+        "name": "Spartanburg College Tigers",
+        "meta": {},
+        "roster": {
+          "playerIds": [],
+          "redshirtedPlayerIds": []
+        },
+        "season": {
+          "wins": 20,
+          "losses": 10,
+          "confWins": 12,
+          "confLosses": 6
+        },
+        "rotation": {
+          "minutesTargetByPlayerId": {},
+          "depthChart": {
+            "PG": [],
+            "SG": [],
+            "SF": [],
+            "PF": [],
+            "C": []
+          },
+          "settings": {
+            "style": "NORMAL",
+            "rotationSizeTarget": 8.5,
+            "benchFactor": 0.5,
+            "blowoutBenchFactor": 0.3
+          }
+        }
+      },
+      "chaco2": {
+        "teamId": "chaco2",
+        "name": "Charlotte College Wildcats",
+        "meta": {},
+        "roster": {
+          "playerIds": [],
+          "redshirtedPlayerIds": []
+        },
+        "season": {
+          "wins": 20,
+          "losses": 10,
+          "confWins": 12,
+          "confLosses": 6
+        },
+        "rotation": {
+          "minutesTargetByPlayerId": {},
+          "depthChart": {
+            "PG": [],
+            "SG": [],
+            "SF": [],
+            "PF": [],
+            "C": []
+          },
+          "settings": {
+            "style": "NORMAL",
+            "rotationSizeTarget": 8.5,
+            "benchFactor": 0.5,
+            "blowoutBenchFactor": 0.3
+          }
+        }
+      },
+      "loute": {
+        "teamId": "loute",
+        "name": "Loudonville Tech Panthers",
+        "meta": {},
+        "roster": {
+          "playerIds": [],
+          "redshirtedPlayerIds": []
+        },
+        "season": {
+          "wins": 20,
+          "losses": 10,
+          "confWins": 12,
+          "confLosses": 6
+        },
+        "rotation": {
+          "minutesTargetByPlayerId": {},
+          "depthChart": {
+            "PG": [],
+            "SG": [],
+            "SF": [],
+            "PF": [],
+            "C": []
+          },
+          "settings": {
+            "style": "NORMAL",
+            "rotationSizeTarget": 8.5,
+            "benchFactor": 0.5,
+            "blowoutBenchFactor": 0.3
+          }
+        }
+      },
+      "brome": {
+        "teamId": "brome",
+        "name": "Brooklyn Metropolitan Panthers",
+        "meta": {},
+        "roster": {
+          "playerIds": [],
+          "redshirtedPlayerIds": []
+        },
+        "season": {
+          "wins": 20,
+          "losses": 10,
+          "confWins": 12,
+          "confLosses": 6
+        },
+        "rotation": {
+          "minutesTargetByPlayerId": {},
+          "depthChart": {
+            "PG": [],
+            "SG": [],
+            "SF": [],
+            "PF": [],
+            "C": []
+          },
+          "settings": {
+            "style": "NORMAL",
+            "rotationSizeTarget": 8.5,
+            "benchFactor": 0.5,
+            "blowoutBenchFactor": 0.3
+          }
+        }
+      }
+    },
+    "gamesById": {},
+    "standingsBySeason": {},
+    "tournament": {
+      "seasonYear": 2026,
+      "selection": {
+        "seasonYear": 2026,
+        "autobids": [
+          {
+            "teamId": "durme",
+            "conferenceId": "acc"
+          },
+          {
+            "teamId": "tucun",
+            "conferenceId": "acc"
+          },
+          {
+            "teamId": "wasun",
+            "conferenceId": "acc"
+          },
+          {
+            "teamId": "gaico",
+            "conferenceId": "acc"
+          }
+        ],
+        "atLarge": [
+          "houst",
+          "stoin",
+          "amete",
+          "lafte",
+          "ingst",
+          "chaco1",
+          "spoun",
+          "chaco",
+          "linin",
+          "tusco",
+          "lawun",
+          "fayco",
+          "naste",
+          "quete",
+          "lubin",
+          "madun",
+          "knoun",
+          "carun",
+          "loume",
+          "prost",
+          "lexst",
+          "morin",
+          "corga",
+          "losan",
+          "cleme",
+          "vilin",
+          "colte",
+          "athin",
+          "logte",
+          "forwo",
+          "stlo",
+          "iowci",
+          "sancl",
+          "orlme",
+          "colte1",
+          "brast",
+          "ralin",
+          "ausin",
+          "dalme",
+          "oxfst1",
+          "ricun",
+          "tamin",
+          "lakch",
+          "akrco",
+          "cedfa",
+          "higpo",
+          "rivst",
+          "stobr",
+          "troco",
+          "honme",
+          "farte",
+          "phime3",
+          "dayme1",
+          "kenin",
+          "naste1",
+          "mosin",
+          "spaco",
+          "chaco2",
+          "loute",
+          "brome"
+        ],
+        "allTeams": [
+          {
+            "teamId": "durme",
+            "seed": 1,
+            "region": "East",
+            "isAutobid": true,
+            "resumeScore": 0.79,
+            "seedScore": 0.888
+          },
+          {
+            "teamId": "tucun",
+            "seed": 1,
+            "region": "West",
+            "isAutobid": true,
+            "resumeScore": 0.78,
+            "seedScore": 0.876
+          },
+          {
+            "teamId": "wasun",
+            "seed": 1,
+            "region": "South",
+            "isAutobid": true,
+            "resumeScore": 0.77,
+            "seedScore": 0.864
+          },
+          {
+            "teamId": "gaico",
+            "seed": 1,
+            "region": "Midwest",
+            "isAutobid": true,
+            "resumeScore": 0.76,
+            "seedScore": 0.852
+          },
+          {
+            "teamId": "houst",
+            "seed": 2,
+            "region": "Midwest",
+            "isAutobid": false,
+            "resumeScore": 0.75,
+            "seedScore": 0.8400000000000001
+          },
+          {
+            "teamId": "stoin",
+            "seed": 2,
+            "region": "South",
+            "isAutobid": false,
+            "resumeScore": 0.74,
+            "seedScore": 0.8280000000000001
+          },
+          {
+            "teamId": "amete",
+            "seed": 2,
+            "region": "West",
+            "isAutobid": false,
+            "resumeScore": 0.73,
+            "seedScore": 0.8160000000000001
+          },
+          {
+            "teamId": "lafte",
+            "seed": 2,
+            "region": "East",
+            "isAutobid": false,
+            "resumeScore": 0.7200000000000001,
+            "seedScore": 0.804
+          },
+          {
+            "teamId": "ingst",
+            "seed": 3,
+            "region": "East",
+            "isAutobid": false,
+            "resumeScore": 0.7100000000000001,
+            "seedScore": 0.792
+          },
+          {
+            "teamId": "chaco1",
+            "seed": 3,
+            "region": "West",
+            "isAutobid": false,
+            "resumeScore": 0.7000000000000001,
+            "seedScore": 0.78
+          },
+          {
+            "teamId": "spoun",
+            "seed": 3,
+            "region": "South",
+            "isAutobid": false,
+            "resumeScore": 0.6900000000000001,
+            "seedScore": 0.768
+          },
+          {
+            "teamId": "chaco",
+            "seed": 3,
+            "region": "Midwest",
+            "isAutobid": false,
+            "resumeScore": 0.68,
+            "seedScore": 0.756
+          },
+          {
+            "teamId": "linin",
+            "seed": 4,
+            "region": "Midwest",
+            "isAutobid": false,
+            "resumeScore": 0.67,
+            "seedScore": 0.744
+          },
+          {
+            "teamId": "tusco",
+            "seed": 4,
+            "region": "South",
+            "isAutobid": false,
+            "resumeScore": 0.66,
+            "seedScore": 0.732
+          },
+          {
+            "teamId": "lawun",
+            "seed": 4,
+            "region": "West",
+            "isAutobid": false,
+            "resumeScore": 0.65,
+            "seedScore": 0.72
+          },
+          {
+            "teamId": "fayco",
+            "seed": 4,
+            "region": "East",
+            "isAutobid": false,
+            "resumeScore": 0.64,
+            "seedScore": 0.708
+          },
+          {
+            "teamId": "naste",
+            "seed": 5,
+            "region": "East",
+            "isAutobid": false,
+            "resumeScore": 0.63,
+            "seedScore": 0.696
+          },
+          {
+            "teamId": "quete",
+            "seed": 5,
+            "region": "West",
+            "isAutobid": false,
+            "resumeScore": 0.6200000000000001,
+            "seedScore": 0.684
+          },
+          {
+            "teamId": "lubin",
+            "seed": 5,
+            "region": "South",
+            "isAutobid": false,
+            "resumeScore": 0.6100000000000001,
+            "seedScore": 0.672
+          },
+          {
+            "teamId": "madun",
+            "seed": 5,
+            "region": "Midwest",
+            "isAutobid": false,
+            "resumeScore": 0.6000000000000001,
+            "seedScore": 0.66
+          },
+          {
+            "teamId": "knoun",
+            "seed": 6,
+            "region": "Midwest",
+            "isAutobid": false,
+            "resumeScore": 0.5900000000000001,
+            "seedScore": 0.648
+          },
+          {
+            "teamId": "carun",
+            "seed": 6,
+            "region": "South",
+            "isAutobid": false,
+            "resumeScore": 0.5800000000000001,
+            "seedScore": 0.636
+          },
+          {
+            "teamId": "loume",
+            "seed": 6,
+            "region": "West",
+            "isAutobid": false,
+            "resumeScore": 0.5700000000000001,
+            "seedScore": 0.624
+          },
+          {
+            "teamId": "prost",
+            "seed": 6,
+            "region": "East",
+            "isAutobid": false,
+            "resumeScore": 0.56,
+            "seedScore": 0.612
+          },
+          {
+            "teamId": "lexst",
+            "seed": 7,
+            "region": "East",
+            "isAutobid": false,
+            "resumeScore": 0.55,
+            "seedScore": 0.6000000000000001
+          },
+          {
+            "teamId": "morin",
+            "seed": 7,
+            "region": "West",
+            "isAutobid": false,
+            "resumeScore": 0.54,
+            "seedScore": 0.5880000000000001
+          },
+          {
+            "teamId": "corga",
+            "seed": 7,
+            "region": "South",
+            "isAutobid": false,
+            "resumeScore": 0.53,
+            "seedScore": 0.5760000000000001
+          },
+          {
+            "teamId": "losan",
+            "seed": 7,
+            "region": "Midwest",
+            "isAutobid": false,
+            "resumeScore": 0.52,
+            "seedScore": 0.5640000000000001
+          },
+          {
+            "teamId": "cleme",
+            "seed": 8,
+            "region": "Midwest",
+            "isAutobid": false,
+            "resumeScore": 0.51,
+            "seedScore": 0.552
+          },
+          {
+            "teamId": "vilin",
+            "seed": 8,
+            "region": "South",
+            "isAutobid": false,
+            "resumeScore": 0.5,
+            "seedScore": 0.54
+          },
+          {
+            "teamId": "colte",
+            "seed": 8,
+            "region": "West",
+            "isAutobid": false,
+            "resumeScore": 0.49000000000000005,
+            "seedScore": 0.528
+          },
+          {
+            "teamId": "athin",
+            "seed": 8,
+            "region": "East",
+            "isAutobid": false,
+            "resumeScore": 0.48000000000000004,
+            "seedScore": 0.516
+          },
+          {
+            "teamId": "logte",
+            "seed": 9,
+            "region": "East",
+            "isAutobid": false,
+            "resumeScore": 0.47000000000000003,
+            "seedScore": 0.504
+          },
+          {
+            "teamId": "forwo",
+            "seed": 9,
+            "region": "West",
+            "isAutobid": false,
+            "resumeScore": 0.46,
+            "seedScore": 0.492
+          },
+          {
+            "teamId": "stlo",
+            "seed": 9,
+            "region": "South",
+            "isAutobid": false,
+            "resumeScore": 0.45,
+            "seedScore": 0.48000000000000004
+          },
+          {
+            "teamId": "iowci",
+            "seed": 9,
+            "region": "Midwest",
+            "isAutobid": false,
+            "resumeScore": 0.44000000000000006,
+            "seedScore": 0.468
+          },
+          {
+            "teamId": "sancl",
+            "seed": 10,
+            "region": "Midwest",
+            "isAutobid": false,
+            "resumeScore": 0.43000000000000005,
+            "seedScore": 0.456
+          },
+          {
+            "teamId": "orlme",
+            "seed": 10,
+            "region": "South",
+            "isAutobid": false,
+            "resumeScore": 0.42000000000000004,
+            "seedScore": 0.444
+          },
+          {
+            "teamId": "colte1",
+            "seed": 10,
+            "region": "West",
+            "isAutobid": false,
+            "resumeScore": 0.41000000000000003,
+            "seedScore": 0.432
+          },
+          {
+            "teamId": "brast",
+            "seed": 10,
+            "region": "East",
+            "isAutobid": false,
+            "resumeScore": 0.4,
+            "seedScore": 0.42000000000000004
+          },
+          {
+            "teamId": "ralin",
+            "seed": 11,
+            "region": "East",
+            "isAutobid": false,
+            "resumeScore": 0.39,
+            "seedScore": 0.40800000000000003
+          },
+          {
+            "teamId": "ausin",
+            "seed": 11,
+            "region": "West",
+            "isAutobid": false,
+            "resumeScore": 0.38000000000000006,
+            "seedScore": 0.396
+          },
+          {
+            "teamId": "dalme",
+            "seed": 11,
+            "region": "South",
+            "isAutobid": false,
+            "resumeScore": 0.37000000000000005,
+            "seedScore": 0.384
+          },
+          {
+            "teamId": "oxfst1",
+            "seed": 11,
+            "region": "Midwest",
+            "isAutobid": false,
+            "resumeScore": 0.36000000000000004,
+            "seedScore": 0.372
+          },
+          {
+            "teamId": "ricun",
+            "seed": 12,
+            "region": "Midwest",
+            "isAutobid": false,
+            "resumeScore": 0.35000000000000003,
+            "seedScore": 0.36
+          },
+          {
+            "teamId": "tamin",
+            "seed": 12,
+            "region": "South",
+            "isAutobid": false,
+            "resumeScore": 0.34,
+            "seedScore": 0.348
+          },
+          {
+            "teamId": "lakch",
+            "seed": 12,
+            "region": "West",
+            "isAutobid": false,
+            "resumeScore": 0.33,
+            "seedScore": 0.33599999999999997
+          },
+          {
+            "teamId": "akrco",
+            "seed": 12,
+            "region": "East",
+            "isAutobid": false,
+            "resumeScore": 0.32000000000000006,
+            "seedScore": 0.32399999999999995
+          },
+          {
+            "teamId": "cedfa",
+            "seed": 13,
+            "region": "East",
+            "isAutobid": false,
+            "resumeScore": 0.31000000000000005,
+            "seedScore": 0.31200000000000006
+          },
+          {
+            "teamId": "higpo",
+            "seed": 13,
+            "region": "West",
+            "isAutobid": false,
+            "resumeScore": 0.30000000000000004,
+            "seedScore": 0.30000000000000004
+          },
+          {
+            "teamId": "rivst",
+            "seed": 13,
+            "region": "South",
+            "isAutobid": false,
+            "resumeScore": 0.29000000000000004,
+            "seedScore": 0.28800000000000003
+          },
+          {
+            "teamId": "stobr",
+            "seed": 13,
+            "region": "Midwest",
+            "isAutobid": false,
+            "resumeScore": 0.28,
+            "seedScore": 0.276
+          },
+          {
+            "teamId": "troco",
+            "seed": 14,
+            "region": "Midwest",
+            "isAutobid": false,
+            "resumeScore": 0.27,
+            "seedScore": 0.264
+          },
+          {
+            "teamId": "honme",
+            "seed": 14,
+            "region": "South",
+            "isAutobid": false,
+            "resumeScore": 0.26,
+            "seedScore": 0.252
+          },
+          {
+            "teamId": "farte",
+            "seed": 14,
+            "region": "West",
+            "isAutobid": false,
+            "resumeScore": 0.25,
+            "seedScore": 0.24
+          },
+          {
+            "teamId": "phime3",
+            "seed": 14,
+            "region": "East",
+            "isAutobid": false,
+            "resumeScore": 0.24,
+            "seedScore": 0.22799999999999998
+          },
+          {
+            "teamId": "dayme1",
+            "seed": 15,
+            "region": "East",
+            "isAutobid": false,
+            "resumeScore": 0.22999999999999998,
+            "seedScore": 0.21599999999999997
+          },
+          {
+            "teamId": "kenin",
+            "seed": 15,
+            "region": "West",
+            "isAutobid": false,
+            "resumeScore": 0.22000000000000008,
+            "seedScore": 0.20399999999999996
+          },
+          {
+            "teamId": "naste1",
+            "seed": 15,
+            "region": "South",
+            "isAutobid": false,
+            "resumeScore": 0.21000000000000008,
+            "seedScore": 0.19200000000000006
+          },
+          {
+            "teamId": "mosin",
+            "seed": 15,
+            "region": "Midwest",
+            "isAutobid": false,
+            "resumeScore": 0.20000000000000007,
+            "seedScore": 0.18000000000000005
+          },
+          {
+            "teamId": "spaco",
+            "seed": 16,
+            "region": "Midwest",
+            "isAutobid": false,
+            "resumeScore": 0.19000000000000006,
+            "seedScore": 0.16800000000000004
+          },
+          {
+            "teamId": "chaco2",
+            "seed": 16,
+            "region": "South",
+            "isAutobid": false,
+            "resumeScore": 0.18000000000000005,
+            "seedScore": 0.15600000000000003
+          },
+          {
+            "teamId": "loute",
+            "seed": 16,
+            "region": "West",
+            "isAutobid": false,
+            "resumeScore": 0.17000000000000004,
+            "seedScore": 0.14400000000000002
+          },
+          {
+            "teamId": "brome",
+            "seed": 16,
+            "region": "East",
+            "isAutobid": false,
+            "resumeScore": 0.16000000000000003,
+            "seedScore": 0.132
+          }
+        ]
+      },
+      "games": [
+        {
+          "gameId": "tournament_2026_0",
+          "round": "Round of 64",
+          "region": "East",
+          "gameNumber": 0,
+          "team1Id": "durme",
+          "team2Id": "brome",
+          "winnerId": null,
+          "score1": null,
+          "score2": null,
+          "day": 150
+        },
+        {
+          "gameId": "tournament_2026_1",
+          "round": "Round of 64",
+          "region": "East",
+          "gameNumber": 1,
+          "team1Id": "athin",
+          "team2Id": "logte",
+          "winnerId": null,
+          "score1": null,
+          "score2": null,
+          "day": 150
+        },
+        {
+          "gameId": "tournament_2026_2",
+          "round": "Round of 64",
+          "region": "East",
+          "gameNumber": 2,
+          "team1Id": "naste",
+          "team2Id": "akrco",
+          "winnerId": null,
+          "score1": null,
+          "score2": null,
+          "day": 150
+        },
+        {
+          "gameId": "tournament_2026_3",
+          "round": "Round of 64",
+          "region": "East",
+          "gameNumber": 3,
+          "team1Id": "fayco",
+          "team2Id": "cedfa",
+          "winnerId": null,
+          "score1": null,
+          "score2": null,
+          "day": 150
+        },
+        {
+          "gameId": "tournament_2026_4",
+          "round": "Round of 64",
+          "region": "East",
+          "gameNumber": 4,
+          "team1Id": "prost",
+          "team2Id": "ralin",
+          "winnerId": null,
+          "score1": null,
+          "score2": null,
+          "day": 150
+        },
+        {
+          "gameId": "tournament_2026_5",
+          "round": "Round of 64",
+          "region": "East",
+          "gameNumber": 5,
+          "team1Id": "ingst",
+          "team2Id": "phime3",
+          "winnerId": null,
+          "score1": null,
+          "score2": null,
+          "day": 150
+        },
+        {
+          "gameId": "tournament_2026_6",
+          "round": "Round of 64",
+          "region": "East",
+          "gameNumber": 6,
+          "team1Id": "lexst",
+          "team2Id": "brast",
+          "winnerId": null,
+          "score1": null,
+          "score2": null,
+          "day": 150
+        },
+        {
+          "gameId": "tournament_2026_7",
+          "round": "Round of 64",
+          "region": "East",
+          "gameNumber": 7,
+          "team1Id": "lafte",
+          "team2Id": "dayme1",
+          "winnerId": null,
+          "score1": null,
+          "score2": null,
+          "day": 150
+        },
+        {
+          "gameId": "tournament_2026_8",
+          "round": "Round of 64",
+          "region": "West",
+          "gameNumber": 0,
+          "team1Id": "tucun",
+          "team2Id": "loute",
+          "winnerId": null,
+          "score1": null,
+          "score2": null,
+          "day": 151
+        },
+        {
+          "gameId": "tournament_2026_9",
+          "round": "Round of 64",
+          "region": "West",
+          "gameNumber": 1,
+          "team1Id": "colte",
+          "team2Id": "forwo",
+          "winnerId": null,
+          "score1": null,
+          "score2": null,
+          "day": 151
+        },
+        {
+          "gameId": "tournament_2026_10",
+          "round": "Round of 64",
+          "region": "West",
+          "gameNumber": 2,
+          "team1Id": "quete",
+          "team2Id": "lakch",
+          "winnerId": null,
+          "score1": null,
+          "score2": null,
+          "day": 151
+        },
+        {
+          "gameId": "tournament_2026_11",
+          "round": "Round of 64",
+          "region": "West",
+          "gameNumber": 3,
+          "team1Id": "lawun",
+          "team2Id": "higpo",
+          "winnerId": null,
+          "score1": null,
+          "score2": null,
+          "day": 151
+        },
+        {
+          "gameId": "tournament_2026_12",
+          "round": "Round of 64",
+          "region": "West",
+          "gameNumber": 4,
+          "team1Id": "loume",
+          "team2Id": "ausin",
+          "winnerId": null,
+          "score1": null,
+          "score2": null,
+          "day": 151
+        },
+        {
+          "gameId": "tournament_2026_13",
+          "round": "Round of 64",
+          "region": "West",
+          "gameNumber": 5,
+          "team1Id": "chaco1",
+          "team2Id": "farte",
+          "winnerId": null,
+          "score1": null,
+          "score2": null,
+          "day": 151
+        },
+        {
+          "gameId": "tournament_2026_14",
+          "round": "Round of 64",
+          "region": "West",
+          "gameNumber": 6,
+          "team1Id": "morin",
+          "team2Id": "colte1",
+          "winnerId": null,
+          "score1": null,
+          "score2": null,
+          "day": 151
+        },
+        {
+          "gameId": "tournament_2026_15",
+          "round": "Round of 64",
+          "region": "West",
+          "gameNumber": 7,
+          "team1Id": "amete",
+          "team2Id": "kenin",
+          "winnerId": null,
+          "score1": null,
+          "score2": null,
+          "day": 151
+        },
+        {
+          "gameId": "tournament_2026_16",
+          "round": "Round of 64",
+          "region": "South",
+          "gameNumber": 0,
+          "team1Id": "wasun",
+          "team2Id": "chaco2",
+          "winnerId": null,
+          "score1": null,
+          "score2": null,
+          "day": 152
+        },
+        {
+          "gameId": "tournament_2026_17",
+          "round": "Round of 64",
+          "region": "South",
+          "gameNumber": 1,
+          "team1Id": "vilin",
+          "team2Id": "stlo",
+          "winnerId": null,
+          "score1": null,
+          "score2": null,
+          "day": 152
+        },
+        {
+          "gameId": "tournament_2026_18",
+          "round": "Round of 64",
+          "region": "South",
+          "gameNumber": 2,
+          "team1Id": "lubin",
+          "team2Id": "tamin",
+          "winnerId": null,
+          "score1": null,
+          "score2": null,
+          "day": 152
+        },
+        {
+          "gameId": "tournament_2026_19",
+          "round": "Round of 64",
+          "region": "South",
+          "gameNumber": 3,
+          "team1Id": "tusco",
+          "team2Id": "rivst",
+          "winnerId": null,
+          "score1": null,
+          "score2": null,
+          "day": 152
+        },
+        {
+          "gameId": "tournament_2026_20",
+          "round": "Round of 64",
+          "region": "South",
+          "gameNumber": 4,
+          "team1Id": "carun",
+          "team2Id": "dalme",
+          "winnerId": null,
+          "score1": null,
+          "score2": null,
+          "day": 152
+        },
+        {
+          "gameId": "tournament_2026_21",
+          "round": "Round of 64",
+          "region": "South",
+          "gameNumber": 5,
+          "team1Id": "spoun",
+          "team2Id": "honme",
+          "winnerId": null,
+          "score1": null,
+          "score2": null,
+          "day": 152
+        },
+        {
+          "gameId": "tournament_2026_22",
+          "round": "Round of 64",
+          "region": "South",
+          "gameNumber": 6,
+          "team1Id": "corga",
+          "team2Id": "orlme",
+          "winnerId": null,
+          "score1": null,
+          "score2": null,
+          "day": 152
+        },
+        {
+          "gameId": "tournament_2026_23",
+          "round": "Round of 64",
+          "region": "South",
+          "gameNumber": 7,
+          "team1Id": "stoin",
+          "team2Id": "naste1",
+          "winnerId": null,
+          "score1": null,
+          "score2": null,
+          "day": 152
+        },
+        {
+          "gameId": "tournament_2026_24",
+          "round": "Round of 64",
+          "region": "Midwest",
+          "gameNumber": 0,
+          "team1Id": "gaico",
+          "team2Id": "spaco",
+          "winnerId": null,
+          "score1": null,
+          "score2": null,
+          "day": 153
+        },
+        {
+          "gameId": "tournament_2026_25",
+          "round": "Round of 64",
+          "region": "Midwest",
+          "gameNumber": 1,
+          "team1Id": "cleme",
+          "team2Id": "iowci",
+          "winnerId": null,
+          "score1": null,
+          "score2": null,
+          "day": 153
+        },
+        {
+          "gameId": "tournament_2026_26",
+          "round": "Round of 64",
+          "region": "Midwest",
+          "gameNumber": 2,
+          "team1Id": "madun",
+          "team2Id": "ricun",
+          "winnerId": null,
+          "score1": null,
+          "score2": null,
+          "day": 153
+        },
+        {
+          "gameId": "tournament_2026_27",
+          "round": "Round of 64",
+          "region": "Midwest",
+          "gameNumber": 3,
+          "team1Id": "linin",
+          "team2Id": "stobr",
+          "winnerId": null,
+          "score1": null,
+          "score2": null,
+          "day": 153
+        },
+        {
+          "gameId": "tournament_2026_28",
+          "round": "Round of 64",
+          "region": "Midwest",
+          "gameNumber": 4,
+          "team1Id": "knoun",
+          "team2Id": "oxfst1",
+          "winnerId": null,
+          "score1": null,
+          "score2": null,
+          "day": 153
+        },
+        {
+          "gameId": "tournament_2026_29",
+          "round": "Round of 64",
+          "region": "Midwest",
+          "gameNumber": 5,
+          "team1Id": "chaco",
+          "team2Id": "troco",
+          "winnerId": null,
+          "score1": null,
+          "score2": null,
+          "day": 153
+        },
+        {
+          "gameId": "tournament_2026_30",
+          "round": "Round of 64",
+          "region": "Midwest",
+          "gameNumber": 6,
+          "team1Id": "losan",
+          "team2Id": "sancl",
+          "winnerId": null,
+          "score1": null,
+          "score2": null,
+          "day": 153
+        },
+        {
+          "gameId": "tournament_2026_31",
+          "round": "Round of 64",
+          "region": "Midwest",
+          "gameNumber": 7,
+          "team1Id": "houst",
+          "team2Id": "mosin",
+          "winnerId": null,
+          "score1": null,
+          "score2": null,
+          "day": 153
+        },
+        {
+          "gameId": "tournament_2026_32",
+          "round": "Round of 32",
+          "region": "East",
+          "gameNumber": 0,
+          "team1Id": null,
+          "team2Id": null,
+          "winnerId": null,
+          "score1": null,
+          "score2": null,
+          "day": 154
+        },
+        {
+          "gameId": "tournament_2026_33",
+          "round": "Round of 32",
+          "region": "East",
+          "gameNumber": 1,
+          "team1Id": null,
+          "team2Id": null,
+          "winnerId": null,
+          "score1": null,
+          "score2": null,
+          "day": 154
+        },
+        {
+          "gameId": "tournament_2026_34",
+          "round": "Round of 32",
+          "region": "East",
+          "gameNumber": 2,
+          "team1Id": null,
+          "team2Id": null,
+          "winnerId": null,
+          "score1": null,
+          "score2": null,
+          "day": 154
+        },
+        {
+          "gameId": "tournament_2026_35",
+          "round": "Round of 32",
+          "region": "East",
+          "gameNumber": 3,
+          "team1Id": null,
+          "team2Id": null,
+          "winnerId": null,
+          "score1": null,
+          "score2": null,
+          "day": 154
+        },
+        {
+          "gameId": "tournament_2026_36",
+          "round": "Round of 32",
+          "region": "West",
+          "gameNumber": 0,
+          "team1Id": null,
+          "team2Id": null,
+          "winnerId": null,
+          "score1": null,
+          "score2": null,
+          "day": 155
+        },
+        {
+          "gameId": "tournament_2026_37",
+          "round": "Round of 32",
+          "region": "West",
+          "gameNumber": 1,
+          "team1Id": null,
+          "team2Id": null,
+          "winnerId": null,
+          "score1": null,
+          "score2": null,
+          "day": 155
+        },
+        {
+          "gameId": "tournament_2026_38",
+          "round": "Round of 32",
+          "region": "West",
+          "gameNumber": 2,
+          "team1Id": null,
+          "team2Id": null,
+          "winnerId": null,
+          "score1": null,
+          "score2": null,
+          "day": 155
+        },
+        {
+          "gameId": "tournament_2026_39",
+          "round": "Round of 32",
+          "region": "West",
+          "gameNumber": 3,
+          "team1Id": null,
+          "team2Id": null,
+          "winnerId": null,
+          "score1": null,
+          "score2": null,
+          "day": 155
+        },
+        {
+          "gameId": "tournament_2026_40",
+          "round": "Round of 32",
+          "region": "South",
+          "gameNumber": 0,
+          "team1Id": null,
+          "team2Id": null,
+          "winnerId": null,
+          "score1": null,
+          "score2": null,
+          "day": 156
+        },
+        {
+          "gameId": "tournament_2026_41",
+          "round": "Round of 32",
+          "region": "South",
+          "gameNumber": 1,
+          "team1Id": null,
+          "team2Id": null,
+          "winnerId": null,
+          "score1": null,
+          "score2": null,
+          "day": 156
+        },
+        {
+          "gameId": "tournament_2026_42",
+          "round": "Round of 32",
+          "region": "South",
+          "gameNumber": 2,
+          "team1Id": null,
+          "team2Id": null,
+          "winnerId": null,
+          "score1": null,
+          "score2": null,
+          "day": 156
+        },
+        {
+          "gameId": "tournament_2026_43",
+          "round": "Round of 32",
+          "region": "South",
+          "gameNumber": 3,
+          "team1Id": null,
+          "team2Id": null,
+          "winnerId": null,
+          "score1": null,
+          "score2": null,
+          "day": 156
+        },
+        {
+          "gameId": "tournament_2026_44",
+          "round": "Round of 32",
+          "region": "Midwest",
+          "gameNumber": 0,
+          "team1Id": null,
+          "team2Id": null,
+          "winnerId": null,
+          "score1": null,
+          "score2": null,
+          "day": 157
+        },
+        {
+          "gameId": "tournament_2026_45",
+          "round": "Round of 32",
+          "region": "Midwest",
+          "gameNumber": 1,
+          "team1Id": null,
+          "team2Id": null,
+          "winnerId": null,
+          "score1": null,
+          "score2": null,
+          "day": 157
+        },
+        {
+          "gameId": "tournament_2026_46",
+          "round": "Round of 32",
+          "region": "Midwest",
+          "gameNumber": 2,
+          "team1Id": null,
+          "team2Id": null,
+          "winnerId": null,
+          "score1": null,
+          "score2": null,
+          "day": 157
+        },
+        {
+          "gameId": "tournament_2026_47",
+          "round": "Round of 32",
+          "region": "Midwest",
+          "gameNumber": 3,
+          "team1Id": null,
+          "team2Id": null,
+          "winnerId": null,
+          "score1": null,
+          "score2": null,
+          "day": 157
+        },
+        {
+          "gameId": "tournament_2026_48",
+          "round": "Round of 16",
+          "region": "East",
+          "gameNumber": 0,
+          "team1Id": null,
+          "team2Id": null,
+          "winnerId": null,
+          "score1": null,
+          "score2": null,
+          "day": 158
+        },
+        {
+          "gameId": "tournament_2026_49",
+          "round": "Round of 16",
+          "region": "East",
+          "gameNumber": 1,
+          "team1Id": null,
+          "team2Id": null,
+          "winnerId": null,
+          "score1": null,
+          "score2": null,
+          "day": 158
+        },
+        {
+          "gameId": "tournament_2026_50",
+          "round": "Round of 16",
+          "region": "West",
+          "gameNumber": 0,
+          "team1Id": null,
+          "team2Id": null,
+          "winnerId": null,
+          "score1": null,
+          "score2": null,
+          "day": 159
+        },
+        {
+          "gameId": "tournament_2026_51",
+          "round": "Round of 16",
+          "region": "West",
+          "gameNumber": 1,
+          "team1Id": null,
+          "team2Id": null,
+          "winnerId": null,
+          "score1": null,
+          "score2": null,
+          "day": 159
+        },
+        {
+          "gameId": "tournament_2026_52",
+          "round": "Round of 16",
+          "region": "South",
+          "gameNumber": 0,
+          "team1Id": null,
+          "team2Id": null,
+          "winnerId": null,
+          "score1": null,
+          "score2": null,
+          "day": 160
+        },
+        {
+          "gameId": "tournament_2026_53",
+          "round": "Round of 16",
+          "region": "South",
+          "gameNumber": 1,
+          "team1Id": null,
+          "team2Id": null,
+          "winnerId": null,
+          "score1": null,
+          "score2": null,
+          "day": 160
+        },
+        {
+          "gameId": "tournament_2026_54",
+          "round": "Round of 16",
+          "region": "Midwest",
+          "gameNumber": 0,
+          "team1Id": null,
+          "team2Id": null,
+          "winnerId": null,
+          "score1": null,
+          "score2": null,
+          "day": 161
+        },
+        {
+          "gameId": "tournament_2026_55",
+          "round": "Round of 16",
+          "region": "Midwest",
+          "gameNumber": 1,
+          "team1Id": null,
+          "team2Id": null,
+          "winnerId": null,
+          "score1": null,
+          "score2": null,
+          "day": 161
+        },
+        {
+          "gameId": "tournament_2026_56",
+          "round": "Quarter-Finals",
+          "region": "East",
+          "gameNumber": 0,
+          "team1Id": null,
+          "team2Id": null,
+          "winnerId": null,
+          "score1": null,
+          "score2": null,
+          "day": 162
+        },
+        {
+          "gameId": "tournament_2026_57",
+          "round": "Quarter-Finals",
+          "region": "West",
+          "gameNumber": 0,
+          "team1Id": null,
+          "team2Id": null,
+          "winnerId": null,
+          "score1": null,
+          "score2": null,
+          "day": 163
+        },
+        {
+          "gameId": "tournament_2026_58",
+          "round": "Quarter-Finals",
+          "region": "South",
+          "gameNumber": 0,
+          "team1Id": null,
+          "team2Id": null,
+          "winnerId": null,
+          "score1": null,
+          "score2": null,
+          "day": 164
+        },
+        {
+          "gameId": "tournament_2026_59",
+          "round": "Quarter-Finals",
+          "region": "Midwest",
+          "gameNumber": 0,
+          "team1Id": null,
+          "team2Id": null,
+          "winnerId": null,
+          "score1": null,
+          "score2": null,
+          "day": 165
+        },
+        {
+          "gameId": "tournament_2026_60",
+          "round": "Semi-Finals",
+          "gameNumber": 0,
+          "team1Id": null,
+          "team2Id": null,
+          "winnerId": null,
+          "score1": null,
+          "score2": null,
+          "day": 164
+        },
+        {
+          "gameId": "tournament_2026_61",
+          "round": "Semi-Finals",
+          "gameNumber": 1,
+          "team1Id": null,
+          "team2Id": null,
+          "winnerId": null,
+          "score1": null,
+          "score2": null,
+          "day": 165
+        },
+        {
+          "gameId": "tournament_2026_62",
+          "round": "Championship",
+          "gameNumber": 0,
+          "team1Id": null,
+          "team2Id": null,
+          "winnerId": null,
+          "score1": null,
+          "score2": null,
+          "day": 166
+        }
+      ],
+      "regions": {
+        "East": [
+          {
+            "gameId": "tournament_2026_0",
+            "round": "Round of 64",
+            "region": "East",
+            "gameNumber": 0,
+            "team1Id": "durme",
+            "team2Id": "brome",
+            "winnerId": null,
+            "score1": null,
+            "score2": null,
+            "day": 150
+          },
+          {
+            "gameId": "tournament_2026_1",
+            "round": "Round of 64",
+            "region": "East",
+            "gameNumber": 1,
+            "team1Id": "athin",
+            "team2Id": "logte",
+            "winnerId": null,
+            "score1": null,
+            "score2": null,
+            "day": 150
+          },
+          {
+            "gameId": "tournament_2026_2",
+            "round": "Round of 64",
+            "region": "East",
+            "gameNumber": 2,
+            "team1Id": "naste",
+            "team2Id": "akrco",
+            "winnerId": null,
+            "score1": null,
+            "score2": null,
+            "day": 150
+          },
+          {
+            "gameId": "tournament_2026_3",
+            "round": "Round of 64",
+            "region": "East",
+            "gameNumber": 3,
+            "team1Id": "fayco",
+            "team2Id": "cedfa",
+            "winnerId": null,
+            "score1": null,
+            "score2": null,
+            "day": 150
+          },
+          {
+            "gameId": "tournament_2026_4",
+            "round": "Round of 64",
+            "region": "East",
+            "gameNumber": 4,
+            "team1Id": "prost",
+            "team2Id": "ralin",
+            "winnerId": null,
+            "score1": null,
+            "score2": null,
+            "day": 150
+          },
+          {
+            "gameId": "tournament_2026_5",
+            "round": "Round of 64",
+            "region": "East",
+            "gameNumber": 5,
+            "team1Id": "ingst",
+            "team2Id": "phime3",
+            "winnerId": null,
+            "score1": null,
+            "score2": null,
+            "day": 150
+          },
+          {
+            "gameId": "tournament_2026_6",
+            "round": "Round of 64",
+            "region": "East",
+            "gameNumber": 6,
+            "team1Id": "lexst",
+            "team2Id": "brast",
+            "winnerId": null,
+            "score1": null,
+            "score2": null,
+            "day": 150
+          },
+          {
+            "gameId": "tournament_2026_7",
+            "round": "Round of 64",
+            "region": "East",
+            "gameNumber": 7,
+            "team1Id": "lafte",
+            "team2Id": "dayme1",
+            "winnerId": null,
+            "score1": null,
+            "score2": null,
+            "day": 150
+          },
+          {
+            "gameId": "tournament_2026_32",
+            "round": "Round of 32",
+            "region": "East",
+            "gameNumber": 0,
+            "team1Id": null,
+            "team2Id": null,
+            "winnerId": null,
+            "score1": null,
+            "score2": null,
+            "day": 154
+          },
+          {
+            "gameId": "tournament_2026_33",
+            "round": "Round of 32",
+            "region": "East",
+            "gameNumber": 1,
+            "team1Id": null,
+            "team2Id": null,
+            "winnerId": null,
+            "score1": null,
+            "score2": null,
+            "day": 154
+          },
+          {
+            "gameId": "tournament_2026_34",
+            "round": "Round of 32",
+            "region": "East",
+            "gameNumber": 2,
+            "team1Id": null,
+            "team2Id": null,
+            "winnerId": null,
+            "score1": null,
+            "score2": null,
+            "day": 154
+          },
+          {
+            "gameId": "tournament_2026_35",
+            "round": "Round of 32",
+            "region": "East",
+            "gameNumber": 3,
+            "team1Id": null,
+            "team2Id": null,
+            "winnerId": null,
+            "score1": null,
+            "score2": null,
+            "day": 154
+          },
+          {
+            "gameId": "tournament_2026_48",
+            "round": "Round of 16",
+            "region": "East",
+            "gameNumber": 0,
+            "team1Id": null,
+            "team2Id": null,
+            "winnerId": null,
+            "score1": null,
+            "score2": null,
+            "day": 158
+          },
+          {
+            "gameId": "tournament_2026_49",
+            "round": "Round of 16",
+            "region": "East",
+            "gameNumber": 1,
+            "team1Id": null,
+            "team2Id": null,
+            "winnerId": null,
+            "score1": null,
+            "score2": null,
+            "day": 158
+          },
+          {
+            "gameId": "tournament_2026_56",
+            "round": "Quarter-Finals",
+            "region": "East",
+            "gameNumber": 0,
+            "team1Id": null,
+            "team2Id": null,
+            "winnerId": null,
+            "score1": null,
+            "score2": null,
+            "day": 162
+          }
+        ],
+        "West": [
+          {
+            "gameId": "tournament_2026_8",
+            "round": "Round of 64",
+            "region": "West",
+            "gameNumber": 0,
+            "team1Id": "tucun",
+            "team2Id": "loute",
+            "winnerId": null,
+            "score1": null,
+            "score2": null,
+            "day": 151
+          },
+          {
+            "gameId": "tournament_2026_9",
+            "round": "Round of 64",
+            "region": "West",
+            "gameNumber": 1,
+            "team1Id": "colte",
+            "team2Id": "forwo",
+            "winnerId": null,
+            "score1": null,
+            "score2": null,
+            "day": 151
+          },
+          {
+            "gameId": "tournament_2026_10",
+            "round": "Round of 64",
+            "region": "West",
+            "gameNumber": 2,
+            "team1Id": "quete",
+            "team2Id": "lakch",
+            "winnerId": null,
+            "score1": null,
+            "score2": null,
+            "day": 151
+          },
+          {
+            "gameId": "tournament_2026_11",
+            "round": "Round of 64",
+            "region": "West",
+            "gameNumber": 3,
+            "team1Id": "lawun",
+            "team2Id": "higpo",
+            "winnerId": null,
+            "score1": null,
+            "score2": null,
+            "day": 151
+          },
+          {
+            "gameId": "tournament_2026_12",
+            "round": "Round of 64",
+            "region": "West",
+            "gameNumber": 4,
+            "team1Id": "loume",
+            "team2Id": "ausin",
+            "winnerId": null,
+            "score1": null,
+            "score2": null,
+            "day": 151
+          },
+          {
+            "gameId": "tournament_2026_13",
+            "round": "Round of 64",
+            "region": "West",
+            "gameNumber": 5,
+            "team1Id": "chaco1",
+            "team2Id": "farte",
+            "winnerId": null,
+            "score1": null,
+            "score2": null,
+            "day": 151
+          },
+          {
+            "gameId": "tournament_2026_14",
+            "round": "Round of 64",
+            "region": "West",
+            "gameNumber": 6,
+            "team1Id": "morin",
+            "team2Id": "colte1",
+            "winnerId": null,
+            "score1": null,
+            "score2": null,
+            "day": 151
+          },
+          {
+            "gameId": "tournament_2026_15",
+            "round": "Round of 64",
+            "region": "West",
+            "gameNumber": 7,
+            "team1Id": "amete",
+            "team2Id": "kenin",
+            "winnerId": null,
+            "score1": null,
+            "score2": null,
+            "day": 151
+          },
+          {
+            "gameId": "tournament_2026_36",
+            "round": "Round of 32",
+            "region": "West",
+            "gameNumber": 0,
+            "team1Id": null,
+            "team2Id": null,
+            "winnerId": null,
+            "score1": null,
+            "score2": null,
+            "day": 155
+          },
+          {
+            "gameId": "tournament_2026_37",
+            "round": "Round of 32",
+            "region": "West",
+            "gameNumber": 1,
+            "team1Id": null,
+            "team2Id": null,
+            "winnerId": null,
+            "score1": null,
+            "score2": null,
+            "day": 155
+          },
+          {
+            "gameId": "tournament_2026_38",
+            "round": "Round of 32",
+            "region": "West",
+            "gameNumber": 2,
+            "team1Id": null,
+            "team2Id": null,
+            "winnerId": null,
+            "score1": null,
+            "score2": null,
+            "day": 155
+          },
+          {
+            "gameId": "tournament_2026_39",
+            "round": "Round of 32",
+            "region": "West",
+            "gameNumber": 3,
+            "team1Id": null,
+            "team2Id": null,
+            "winnerId": null,
+            "score1": null,
+            "score2": null,
+            "day": 155
+          },
+          {
+            "gameId": "tournament_2026_50",
+            "round": "Round of 16",
+            "region": "West",
+            "gameNumber": 0,
+            "team1Id": null,
+            "team2Id": null,
+            "winnerId": null,
+            "score1": null,
+            "score2": null,
+            "day": 159
+          },
+          {
+            "gameId": "tournament_2026_51",
+            "round": "Round of 16",
+            "region": "West",
+            "gameNumber": 1,
+            "team1Id": null,
+            "team2Id": null,
+            "winnerId": null,
+            "score1": null,
+            "score2": null,
+            "day": 159
+          },
+          {
+            "gameId": "tournament_2026_57",
+            "round": "Quarter-Finals",
+            "region": "West",
+            "gameNumber": 0,
+            "team1Id": null,
+            "team2Id": null,
+            "winnerId": null,
+            "score1": null,
+            "score2": null,
+            "day": 163
+          }
+        ],
+        "South": [
+          {
+            "gameId": "tournament_2026_16",
+            "round": "Round of 64",
+            "region": "South",
+            "gameNumber": 0,
+            "team1Id": "wasun",
+            "team2Id": "chaco2",
+            "winnerId": null,
+            "score1": null,
+            "score2": null,
+            "day": 152
+          },
+          {
+            "gameId": "tournament_2026_17",
+            "round": "Round of 64",
+            "region": "South",
+            "gameNumber": 1,
+            "team1Id": "vilin",
+            "team2Id": "stlo",
+            "winnerId": null,
+            "score1": null,
+            "score2": null,
+            "day": 152
+          },
+          {
+            "gameId": "tournament_2026_18",
+            "round": "Round of 64",
+            "region": "South",
+            "gameNumber": 2,
+            "team1Id": "lubin",
+            "team2Id": "tamin",
+            "winnerId": null,
+            "score1": null,
+            "score2": null,
+            "day": 152
+          },
+          {
+            "gameId": "tournament_2026_19",
+            "round": "Round of 64",
+            "region": "South",
+            "gameNumber": 3,
+            "team1Id": "tusco",
+            "team2Id": "rivst",
+            "winnerId": null,
+            "score1": null,
+            "score2": null,
+            "day": 152
+          },
+          {
+            "gameId": "tournament_2026_20",
+            "round": "Round of 64",
+            "region": "South",
+            "gameNumber": 4,
+            "team1Id": "carun",
+            "team2Id": "dalme",
+            "winnerId": null,
+            "score1": null,
+            "score2": null,
+            "day": 152
+          },
+          {
+            "gameId": "tournament_2026_21",
+            "round": "Round of 64",
+            "region": "South",
+            "gameNumber": 5,
+            "team1Id": "spoun",
+            "team2Id": "honme",
+            "winnerId": null,
+            "score1": null,
+            "score2": null,
+            "day": 152
+          },
+          {
+            "gameId": "tournament_2026_22",
+            "round": "Round of 64",
+            "region": "South",
+            "gameNumber": 6,
+            "team1Id": "corga",
+            "team2Id": "orlme",
+            "winnerId": null,
+            "score1": null,
+            "score2": null,
+            "day": 152
+          },
+          {
+            "gameId": "tournament_2026_23",
+            "round": "Round of 64",
+            "region": "South",
+            "gameNumber": 7,
+            "team1Id": "stoin",
+            "team2Id": "naste1",
+            "winnerId": null,
+            "score1": null,
+            "score2": null,
+            "day": 152
+          },
+          {
+            "gameId": "tournament_2026_40",
+            "round": "Round of 32",
+            "region": "South",
+            "gameNumber": 0,
+            "team1Id": null,
+            "team2Id": null,
+            "winnerId": null,
+            "score1": null,
+            "score2": null,
+            "day": 156
+          },
+          {
+            "gameId": "tournament_2026_41",
+            "round": "Round of 32",
+            "region": "South",
+            "gameNumber": 1,
+            "team1Id": null,
+            "team2Id": null,
+            "winnerId": null,
+            "score1": null,
+            "score2": null,
+            "day": 156
+          },
+          {
+            "gameId": "tournament_2026_42",
+            "round": "Round of 32",
+            "region": "South",
+            "gameNumber": 2,
+            "team1Id": null,
+            "team2Id": null,
+            "winnerId": null,
+            "score1": null,
+            "score2": null,
+            "day": 156
+          },
+          {
+            "gameId": "tournament_2026_43",
+            "round": "Round of 32",
+            "region": "South",
+            "gameNumber": 3,
+            "team1Id": null,
+            "team2Id": null,
+            "winnerId": null,
+            "score1": null,
+            "score2": null,
+            "day": 156
+          },
+          {
+            "gameId": "tournament_2026_52",
+            "round": "Round of 16",
+            "region": "South",
+            "gameNumber": 0,
+            "team1Id": null,
+            "team2Id": null,
+            "winnerId": null,
+            "score1": null,
+            "score2": null,
+            "day": 160
+          },
+          {
+            "gameId": "tournament_2026_53",
+            "round": "Round of 16",
+            "region": "South",
+            "gameNumber": 1,
+            "team1Id": null,
+            "team2Id": null,
+            "winnerId": null,
+            "score1": null,
+            "score2": null,
+            "day": 160
+          },
+          {
+            "gameId": "tournament_2026_58",
+            "round": "Quarter-Finals",
+            "region": "South",
+            "gameNumber": 0,
+            "team1Id": null,
+            "team2Id": null,
+            "winnerId": null,
+            "score1": null,
+            "score2": null,
+            "day": 164
+          }
+        ],
+        "Midwest": [
+          {
+            "gameId": "tournament_2026_24",
+            "round": "Round of 64",
+            "region": "Midwest",
+            "gameNumber": 0,
+            "team1Id": "gaico",
+            "team2Id": "spaco",
+            "winnerId": null,
+            "score1": null,
+            "score2": null,
+            "day": 153
+          },
+          {
+            "gameId": "tournament_2026_25",
+            "round": "Round of 64",
+            "region": "Midwest",
+            "gameNumber": 1,
+            "team1Id": "cleme",
+            "team2Id": "iowci",
+            "winnerId": null,
+            "score1": null,
+            "score2": null,
+            "day": 153
+          },
+          {
+            "gameId": "tournament_2026_26",
+            "round": "Round of 64",
+            "region": "Midwest",
+            "gameNumber": 2,
+            "team1Id": "madun",
+            "team2Id": "ricun",
+            "winnerId": null,
+            "score1": null,
+            "score2": null,
+            "day": 153
+          },
+          {
+            "gameId": "tournament_2026_27",
+            "round": "Round of 64",
+            "region": "Midwest",
+            "gameNumber": 3,
+            "team1Id": "linin",
+            "team2Id": "stobr",
+            "winnerId": null,
+            "score1": null,
+            "score2": null,
+            "day": 153
+          },
+          {
+            "gameId": "tournament_2026_28",
+            "round": "Round of 64",
+            "region": "Midwest",
+            "gameNumber": 4,
+            "team1Id": "knoun",
+            "team2Id": "oxfst1",
+            "winnerId": null,
+            "score1": null,
+            "score2": null,
+            "day": 153
+          },
+          {
+            "gameId": "tournament_2026_29",
+            "round": "Round of 64",
+            "region": "Midwest",
+            "gameNumber": 5,
+            "team1Id": "chaco",
+            "team2Id": "troco",
+            "winnerId": null,
+            "score1": null,
+            "score2": null,
+            "day": 153
+          },
+          {
+            "gameId": "tournament_2026_30",
+            "round": "Round of 64",
+            "region": "Midwest",
+            "gameNumber": 6,
+            "team1Id": "losan",
+            "team2Id": "sancl",
+            "winnerId": null,
+            "score1": null,
+            "score2": null,
+            "day": 153
+          },
+          {
+            "gameId": "tournament_2026_31",
+            "round": "Round of 64",
+            "region": "Midwest",
+            "gameNumber": 7,
+            "team1Id": "houst",
+            "team2Id": "mosin",
+            "winnerId": null,
+            "score1": null,
+            "score2": null,
+            "day": 153
+          },
+          {
+            "gameId": "tournament_2026_44",
+            "round": "Round of 32",
+            "region": "Midwest",
+            "gameNumber": 0,
+            "team1Id": null,
+            "team2Id": null,
+            "winnerId": null,
+            "score1": null,
+            "score2": null,
+            "day": 157
+          },
+          {
+            "gameId": "tournament_2026_45",
+            "round": "Round of 32",
+            "region": "Midwest",
+            "gameNumber": 1,
+            "team1Id": null,
+            "team2Id": null,
+            "winnerId": null,
+            "score1": null,
+            "score2": null,
+            "day": 157
+          },
+          {
+            "gameId": "tournament_2026_46",
+            "round": "Round of 32",
+            "region": "Midwest",
+            "gameNumber": 2,
+            "team1Id": null,
+            "team2Id": null,
+            "winnerId": null,
+            "score1": null,
+            "score2": null,
+            "day": 157
+          },
+          {
+            "gameId": "tournament_2026_47",
+            "round": "Round of 32",
+            "region": "Midwest",
+            "gameNumber": 3,
+            "team1Id": null,
+            "team2Id": null,
+            "winnerId": null,
+            "score1": null,
+            "score2": null,
+            "day": 157
+          },
+          {
+            "gameId": "tournament_2026_54",
+            "round": "Round of 16",
+            "region": "Midwest",
+            "gameNumber": 0,
+            "team1Id": null,
+            "team2Id": null,
+            "winnerId": null,
+            "score1": null,
+            "score2": null,
+            "day": 161
+          },
+          {
+            "gameId": "tournament_2026_55",
+            "round": "Round of 16",
+            "region": "Midwest",
+            "gameNumber": 1,
+            "team1Id": null,
+            "team2Id": null,
+            "winnerId": null,
+            "score1": null,
+            "score2": null,
+            "day": 161
+          },
+          {
+            "gameId": "tournament_2026_59",
+            "round": "Quarter-Finals",
+            "region": "Midwest",
+            "gameNumber": 0,
+            "team1Id": null,
+            "team2Id": null,
+            "winnerId": null,
+            "score1": null,
+            "score2": null,
+            "day": 165
+          }
+        ]
+      }
+    }
+  },
+  "recruiting": {
+    "seasonYear": 2026,
+    "recruitPool": {},
+    "boardsByTeamId": {},
+    "competitionByRecruitId": {}
+  },
+  "playersById": {}
+}

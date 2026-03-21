@@ -6,6 +6,32 @@ v0.9.7-beta build is ready. Three deployment methods available:
 
 ---
 
+## Customer Update Experience (Recommended)
+
+To make updates seamless for players, use this setup every release:
+
+1. Push builds to the same itch channel via butler (`windows`, `linux`, `mac`)
+2. Publish matching GitHub release artifacts (used by in-app updater)
+3. Ship installer builds for desktop users (avoid ZIP-only messaging)
+
+### Copy for your itch page
+
+```text
+Automatic updates are available when you install through the itch app.
+If you download a ZIP manually from the web page, you'll need to download future updates manually.
+```
+
+### Copy for release notes
+
+```text
+Update note:
+- itch app installs: update automatically
+- in-app updater (installer builds): check from Home -> App Updates
+- manual ZIP installs: re-download the latest version from itch
+```
+
+---
+
 ## Method 1: Web UI Upload (Easiest - No Installation)
 
 **Best for:** One-time uploads, quick releases

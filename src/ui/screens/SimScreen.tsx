@@ -1,11 +1,7 @@
-import { TEAMS } from '../../game/defaultData'
-import { formatGameDayShort } from '../utils/format'
+import { getTournamentOutlookLabel } from '../../game/utils/tournamentOutlook'
+import { formatGameDayShort, teamName } from '../utils/format'
 import type { Dynasty, GameState } from '../../game/types/dynasty'
 import type { Screen } from '../../game/types'
-
-function teamName(teamId: string) {
-  return TEAMS.find(t => t.id === teamId)?.name ?? teamId
-}
 
 export function SimScreen(props: {
   activeSave: Dynasty | null
@@ -48,16 +44,7 @@ export function SimScreen(props: {
 
                 if (totalGames === 0 && rating == null) return null
 
-                const outlook = (() => {
-                  if (rating == null) return null
-                  // Strong safeguards: great records should never show as bubble
-                  if (wins >= 30 && losses <= 1) return 'Tournament lock'
-                  if (wins >= 28 && losses <= 2) return 'Strong position'
-                  if (rating >= 78) return 'Tournament lock'
-                  if (rating >= 68) return 'Strong position'
-                  if (rating >= 58) return 'On the bubble'
-                  return 'Longshot'
-                })()
+                const outlook = getTournamentOutlookLabel(wins, losses, rating)
 
                 return (
                   <div className="simRecordMeta">
@@ -66,17 +53,14 @@ export function SimScreen(props: {
                         Record: {wins}-{losses}
                       </span>
                     )}
-                    {rating != null && (
+                    {(rating != null || totalGames > 0) && (
                       <span className="simMetaDivider">•</span>
                     )}
-                    {rating != null && (
-                      <span>
-                        Team Rating: {rating}
-                        {outlook && (
-                          <span className="simOutlookTag"> {outlook}</span>
-                        )}
-                      </span>
-                    )}
+                    <span>
+                      {rating != null && <>Team Rating: {rating}</>}
+                      {rating != null && outlook && ' · '}
+                      {outlook && <span className="simOutlookTag">{outlook}</span>}
+                    </span>
                   </div>
                 )
               })()}
@@ -137,7 +121,7 @@ export function SimScreen(props: {
                       {formatGameDayShort(g.day, activeSave.world.seasonYear)}
                     </div>
                     <div className="simGameMatchup">
-                      {teamName(g.awayTeamId)} @ {teamName(g.homeTeamId)}
+                      {teamName(g.awayTeamId, activeSave)} @ {teamName(g.homeTeamId, activeSave)}
                     </div>
                     <div className="simGameScore">
                       Final: {g.result?.awayScore}–{g.result?.homeScore}

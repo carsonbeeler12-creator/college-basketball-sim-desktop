@@ -17,11 +17,16 @@
     "repo": "college-basketball-sim-desktop"
   },
   "mac": {
+    "hardenedRuntime": true,
+    "gatekeeperAssess": false,
+    "entitlements": "build/entitlements.mac.plist",
+    "entitlementsInherit": "build/entitlements.mac.plist",
     "target": [
       "dmg"
     ],
     "artifactName": "${productName}-Mac-${version}-Installer.${ext}"
   },
+  "afterSign": "scripts/notarize.cjs",
   "win": {
     "target": [
       {

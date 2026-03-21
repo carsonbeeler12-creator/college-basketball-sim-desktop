@@ -3,7 +3,6 @@ import type { Dynasty, ID } from "../../types/dynasty"
 import { simulateGame } from "./simGame_v0"
 import { applyFinalGameToSeasonStats } from "../stats/applyGameToSeasonStats"
 import { processCPURecruiting } from "../recruiting/cpuRecruiting"
-import { updateProgressForBoard } from "../recruiting/calculateProgress"
 
 function hashSeed(base: number, key: string): number {
   let h = base >>> 0
@@ -228,13 +227,10 @@ export function simWeek(dynasty: Dynasty): { dynasty: Dynasty; newGameId: ID; ev
     }
   }
 
-  // Process CPU recruiting (weekly - during season and preseason)
+  // Recruiting: CPU allocations, then user progress, then CPU progress (user wins same-week ties)
   let withCPURecruiting = finalDynasty
   if (finalDynasty.recruiting) {
     withCPURecruiting = processCPURecruiting(finalDynasty)
-
-    // Update progress for user team (CPU teams are updated in processCPURecruiting)
-    withCPURecruiting = updateProgressForBoard(withCPURecruiting, userTeamId)
   }
 
   // Simulate scheduled games for all CPU teams on this game day

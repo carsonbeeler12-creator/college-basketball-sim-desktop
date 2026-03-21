@@ -3,16 +3,19 @@ import type { Dynasty, ID, PlayerState } from '../../game/types/dynasty'
 import type { Screen } from '../../game/types'
 import { TEAMS } from '../../game/defaultData'
 import { CONFERENCES } from '../../game/data/conferences'
-import { fmtHeight, getRatingDisplayName } from '../utils/format'
+import { fmtHeight, getRatingDisplayName, teamName as resolveTeamName } from '../utils/format'
+import { EditTeamModal } from '../components/EditTeamModal'
 import type { TeamSeasonTotals, SeasonTotals } from '../../game/engine/stats/seasonStats'
 
 export function TeamDetailScreen(props: {
   activeSave: Dynasty | null
   teamId: ID
   setScreen: (s: Screen) => void
+  onEditTeam?: (teamId: ID, teamName: string) => Promise<void>
 }) {
-  const { activeSave, teamId, setScreen } = props
+  const { activeSave, teamId, setScreen, onEditTeam } = props
   const [expandedPlayerId, setExpandedPlayerId] = useState<string | null>(null)
+  const [showEditName, setShowEditName] = useState(false)
 
   if (!activeSave) {
     return (
@@ -89,7 +92,19 @@ export function TeamDetailScreen(props: {
       {/* Team Header */}
       <div className="hubHeader" style={{ marginBottom: 24 }}>
         <div>
-          <div className="hubTeam">{team.name}</div>
+          <div style={{ display: 'flex', alignItems: 'center', gap: 8, flexWrap: 'wrap' }}>
+            <div className="hubTeam">{resolveTeamName(teamId, activeSave)}</div>
+            {onEditTeam && (
+              <button
+                type="button"
+                className="hubEditTeamBtn hubEditTeamBtnSmall"
+                onClick={() => setShowEditName(true)}
+                title="Edit team name"
+              >
+                ✏️
+              </button>
+            )}
+          </div>
           <div className="hubMeta">
             {conference && `${conference.name} • `}
             Prestige: {team.prestige} • Season {activeSave.world.seasonYear}
@@ -324,6 +339,17 @@ export function TeamDetailScreen(props: {
           </div>
         )}
       </div>
+
+      {showEditName && onEditTeam && activeSave && (
+        <EditTeamModal
+          dynasty={activeSave}
+          teamId={teamId}
+          onClose={() => setShowEditName(false)}
+          onSave={async (tid, name) => {
+            await onEditTeam(tid, name)
+          }}
+        />
+      )}
     </section>
   )
 }

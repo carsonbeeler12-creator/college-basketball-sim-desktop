@@ -2,7 +2,6 @@
 import type { Dynasty, ID } from "../../types/dynasty"
 import { simulateDayWithWorker, type SimProgress } from "./simDayWorker"
 import { processCPURecruiting } from "../recruiting/cpuRecruiting"
-import { updateProgressForBoard } from "../recruiting/calculateProgress"
 import { generateConferenceTournaments } from "../tournament/generateConferenceTournaments"
 
 function hashSeed(base: number, key: string): number {
@@ -116,7 +115,6 @@ export async function simWeekFast(
     let withRecruiting = withGames
     if (withGames.recruiting) {
       withRecruiting = processCPURecruiting(withGames)
-      withRecruiting = updateProgressForBoard(withRecruiting, userTeamId)
     }
 
     // Clean up old games to prevent memory bloat

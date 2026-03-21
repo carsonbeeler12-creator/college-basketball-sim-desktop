@@ -16,8 +16,8 @@ import { TEAMS } from '../../defaultData'
  * - Conference tournament championship: +2.0
  * - Conference regular season championship: +1.0
  * 
- * Prestige losses (optional):
- * - Losing season: -0.5
+ * Prestige losses:
+ * - Losing season: -1.25 (was -2.0; harsh rebuild years felt punitive)
  */
 export function applyPrestigeAdjustments(dynasty: Dynasty): Dynasty {
   let updated = { ...dynasty }
@@ -53,9 +53,7 @@ export function applyPrestigeAdjustments(dynasty: Dynasty): Dynasty {
       // 15+ wins (minor achievement, helps low-prestige teams): +0.25
       else if (wins >= 15) prestigeGain += 0.25
       
-      // Prestige LOSS for losing seasons is more severe (-2 instead of -0.5)
-      // This incentivizes teams to compete and allows prestige decay for truly bad programs
-      if (hasLosingRecord) prestigeGain -= 2.0
+      if (hasLosingRecord) prestigeGain -= 1.25
     }
 
     // ===== TOURNAMENT ACHIEVEMENTS =====

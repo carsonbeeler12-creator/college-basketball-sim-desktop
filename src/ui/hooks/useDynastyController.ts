@@ -307,6 +307,47 @@ export function useDynastyController() {
     }
   }
 
+  /** Inject a dynasty from pasted JSON (film mode). Parses, migrates, saves, and sets active. */
+  async function injectDynasty(jsonOrObj: string | object): Promise<Dynasty | null> {
+    if (typeof window === 'undefined' || !window.api) return null
+    try {
+      let parsed: any
+      if (typeof jsonOrObj === 'string') {
+        const trimmed = jsonOrObj.replace(/^\uFEFF/, '') // Strip UTF-8 BOM
+        parsed = JSON.parse(trimmed)
+      } else {
+        parsed = jsonOrObj
+      }
+      const d = parsed?.dynasty ?? parsed
+      if (!d || typeof d !== 'object') return null
+
+      const dynasty = d as Dynasty
+      if (!dynasty.dynastyId && (dynasty as any).id) (dynasty as any).dynastyId = (dynasty as any).id
+      if (!dynasty.dynastyId) (dynasty as any).dynastyId = `inject-${Date.now()}`
+      if (!dynasty.coach?.scheme) dynasty.coach = { ...dynasty.coach, scheme: 'BALANCED' } as any
+      if (!dynasty.coach?.careerStats) {
+        const teamState = dynasty.league?.teamsById?.[dynasty.league.userTeamId]
+        dynasty.coach = {
+          ...dynasty.coach,
+          careerStats: {
+            seasonsCoached: 1,
+            totalWins: teamState?.season?.wins ?? 0,
+            totalLosses: teamState?.season?.losses ?? 0,
+            averagePrestige: 0,
+            currentPrestigeTier: 'MID_TIER',
+            yearsAtCurrentSchool: 1,
+          },
+        } as any
+      }
+
+      await persistActiveSave(dynasty)
+      return dynasty
+    } catch (err) {
+      console.error('Inject dynasty failed:', err)
+      throw err
+    }
+  }
+
   return {
     saves,
     activeSave,
@@ -314,6 +355,7 @@ export function useDynastyController() {
     loadSave,
     deleteSave,
     startNewDynasty,
+    injectDynasty,
     handleSimWeek,
     simulateTournamentGame,
     handleGenerateConferenceTournaments,

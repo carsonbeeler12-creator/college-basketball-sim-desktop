@@ -247,26 +247,23 @@ export function updateProgressForBoard(dynasty: Dynasty, teamId: ID): Dynasty {
     // Get or initialize recruit-specific momentum (starts at team momentum, but can diverge)
     const recruitMomentum = momentumByRecruitId[recruitId] ?? teamMomentum
     
-    // === SMALL SCHOOL UNDERDOG BONUS (NEW) ===
-    // If low-prestige team (<65) is recruiting a player with few competitors,
-    // they get a "diamond in the rough" bonus (+50% progress for that recruit)
-    // This gives small schools chances to land impact players if they're early/committed
+    // === SMALL SCHOOL UNDERDOG BONUS ===
+    // Capped/tapered vs old +50% (was easy to exploit on uncontested targets)
     let underdogBonus = 1.0
     if (prestige < 65 && hoursAllocated >= 40) {
-      // Check how many other teams are seriously recruiting this player (40+ hours)
       const allBoards = Object.values(recruitingState.boardsByTeamId)
       const competitorCount = allBoards.filter(otherBoard => {
-        if (otherBoard.teamId === teamId) return false // Don't count self
+        if (otherBoard.teamId === teamId) return false
         const otherTeamHours = otherBoard.hoursAllocatedByRecruitId[recruitId] ?? 0
-        return otherTeamHours >= 40 // High investment threshold
+        return otherTeamHours >= 40
       }).length
-      
-      // If 0-1 serious competitors, small school gets bonus
+
       if (competitorCount <= 1) {
-        underdogBonus = 1.5 // +50% progress boost
+        underdogBonus = prestige < 50 ? 1.28 : 1.36
       } else if (competitorCount === 2) {
-        underdogBonus = 1.25 // +25% progress boost with 2 competitors
+        underdogBonus = prestige < 50 ? 1.12 : 1.18
       }
+      underdogBonus = Math.min(underdogBonus, 1.38)
     }
     
     // Calculate weekly gain with momentum AND underdog bonus
@@ -280,7 +277,7 @@ export function updateProgressForBoard(dynasty: Dynasty, teamId: ID): Dynasty {
     
     // Apply underdog bonus
     weeklyGain = weeklyGain * underdogBonus
-    
+
     const newProgress = Math.min(100, Math.round(currentStoredProgress + weeklyGain))
     
     // Always update progress (even if hours are 0, progress should still accumulate with scholarship)

@@ -1,9 +1,14 @@
 import { useMemo, useState } from 'react'
 import './App.css'
 
+// Film mode only: paste JSON / file inject. Off for public releases (Home still has 2026 bracket).
+const SHOW_INJECT_BUTTON = false
+
+import dynasty2026Bracket from './data/dynasty-2026-bracket.json'
 import { TEAMS } from './game/defaultData'
 import type { Dynasty, PlayerState, ID } from './game/types/dynasty'
 import type { Screen } from './game/types'
+import { APP_VERSION } from './appVersion'
 import { formatGameDayShort } from './ui/utils/format'
 
 import { useDynastyController } from './ui/hooks/useDynastyController'
@@ -34,6 +39,9 @@ function App() {
   const [useManualTargets, setUseManualTargets] = useState(false)
   const [activeGameId, setActiveGameId] = useState<string | null>(null)
   const [viewingTeamId, setViewingTeamId] = useState<ID | null>(null)
+  const [injectOpen, setInjectOpen] = useState(false)
+  const [injectText, setInjectText] = useState('')
+  const [injectError, setInjectError] = useState<string | null>(null)
 
   const dynastyCtl = useDynastyController()
   const activeSave = dynastyCtl.activeSave
@@ -46,7 +54,11 @@ function App() {
     return TEAMS.find(t => t.id === activeSave?.league.userTeamId) ?? null
   }, [activeSave])
 
-  const activeTeamName = activeTeam?.name ?? null
+  const activeTeamName = useMemo(() => {
+    if (!activeSave || !activeTeam) return null
+    const ts = activeSave.league.teamsById?.[activeTeam.id]
+    return ts?.name?.trim() ? ts.name : (activeTeam.name ?? null)
+  }, [activeSave, activeTeam])
 
   const activeRoster = useMemo(() => {
     if (!activeSave || !activeTeam) return []
@@ -100,6 +112,15 @@ function App() {
     setScreen('boxScore')
   }
 
+  async function handleLoad2026Bracket() {
+    try {
+      const d = await dynastyCtl.injectDynasty(dynasty2026Bracket as object)
+      if (d) setScreen('bracket')
+    } catch (e) {
+      alert(e instanceof Error ? e.message : 'Failed to load 2026 bracket')
+    }
+  }
+
   return (
     <div className="appShell">
       <header className="topBar">
@@ -107,14 +128,16 @@ function App() {
           <div className="brandMark" />
           <div className="brandText">
             <div className="brandTitle">College Hoops Sim</div>
-            <div className="brandSub">Dynasty Mode</div>
+            <div className="brandSub">
+              Dynasty Mode <span className="brandVersion">· {APP_VERSION}</span>
+            </div>
           </div>
         </div>
 
         <div className="topBarRight">
           {activeSave && activeTeam ? (
             <div className="activeBadge">
-              <div className="activeBadgeLine1">{activeTeam.name}</div>
+              <div className="activeBadgeLine1">{activeTeamName ?? activeTeam.name}</div>
               <div className="activeBadgeLine2">
                 Coach {activeSave.coach.name} • Season {activeSave.world.seasonYear} • {formatGameDayShort(activeSave.world.day, activeSave.world.seasonYear)}
                 {(() => {
@@ -150,6 +173,11 @@ function App() {
             </div>
           )}
 
+          {SHOW_INJECT_BUTTON && (
+            <button className="btn secondary" onClick={() => { setInjectOpen(true); setInjectError(null); setInjectText(''); }} title="Paste dynasty JSON for filming">
+              Inject
+            </button>
+          )}
           {screen !== 'home' && (
             <button className="btn secondary" onClick={() => setScreen('home')}>
               Home
@@ -157,6 +185,95 @@ function App() {
           )}
         </div>
       </header>
+
+      {SHOW_INJECT_BUTTON && injectOpen && (
+        <div
+          className="injectModalOverlay"
+          onClick={() => setInjectOpen(false)}
+          role="presentation"
+        >
+          <div className="injectModal" onClick={e => e.stopPropagation()} role="dialog">
+            <h3 className="injectModalTitle">Inject Dynasty (Film Mode)</h3>
+            <p className="injectModalHint">Load a .json dynasty file, or paste JSON below.</p>
+            <div className="injectModalActions" style={{ marginBottom: 'var(--space-4)', flexWrap: 'wrap' }}>
+              <button
+                className="btn"
+                onClick={async () => {
+                  setInjectError(null)
+                  try {
+                    const d = await dynastyCtl.injectDynasty(dynasty2026Bracket as object)
+                    if (d) {
+                      setInjectOpen(false)
+                      setScreen('bracket')
+                    } else setInjectError('Failed to load 2026 bracket')
+                  } catch (e) {
+                    setInjectError(e instanceof Error ? e.message : 'Load failed')
+                  }
+                }}
+              >
+                Load 2026 Bracket
+              </button>
+              <label className="btn secondary injectFileLabel">
+                Load from file
+                <input
+                  type="file"
+                  accept=".json"
+                  style={{ display: 'none' }}
+                  onChange={async (e) => {
+                    const f = e.target.files?.[0]
+                    if (!f) return
+                    setInjectError(null)
+                    try {
+                      const json = await f.text()
+                      const d = await dynastyCtl.injectDynasty(json)
+                      if (d) { setInjectOpen(false); setScreen('dynastyHub'); }
+                      else setInjectError('Invalid dynasty structure in file')
+                    } catch (err) {
+                      setInjectError(err instanceof Error ? err.message : 'Failed to load file')
+                    }
+                    e.target.value = ''
+                  }}
+                />
+              </label>
+            </div>
+            <textarea
+              className="injectModalTextarea"
+              value={injectText}
+              onChange={e => { setInjectText(e.target.value); setInjectError(null); }}
+              placeholder='Or paste JSON here (full dynasty only – copy/paste often truncates large saves)'
+              spellCheck={false}
+              rows={6}
+            />
+            {injectError && (
+              <div className="injectModalError">
+                {injectError.includes('Unexpected end') || injectError.includes('JSON')
+                  ? 'JSON was truncated or invalid. Use "Load from file" instead – paste often fails with large dynasties.'
+                  : injectError}
+              </div>
+            )}
+            <div className="injectModalActions">
+              <button className="btn" onClick={async () => {
+                setInjectError(null)
+                const trimmed = injectText.trim()
+                if (!trimmed) { setInjectError('Paste JSON or use Load from file'); return }
+                try {
+                  const d = await dynastyCtl.injectDynasty(trimmed)
+                  if (d) { setInjectOpen(false); setScreen('dynastyHub'); }
+                  else setInjectError('Invalid JSON or dynasty structure')
+                } catch (e) {
+                  const msg = e instanceof Error ? e.message : 'Parse failed'
+                  setInjectError(msg.includes('Unexpected end') || msg.includes('JSON')
+                    ? 'JSON truncated. Use "Load from file" – clipboard often cuts off large dynasties.'
+                    : msg)
+                }
+              }}>
+                Load pasted JSON
+              </button>
+              <button className="btn secondary" onClick={() => setInjectOpen(false)}>Cancel</button>
+            </div>
+          </div>
+        </div>
+      )}
 
       <main className="content">
         {screen === 'home' && (
@@ -168,6 +285,7 @@ function App() {
               setScreen('dynastyHub')
             }}
             deleteSave={dynastyCtl.deleteSave}
+            onLoad2026Bracket={handleLoad2026Bracket}
           />
         )}
 
@@ -300,6 +418,7 @@ function App() {
           <TeamDetailScreen 
             activeSave={activeSave} 
             teamId={viewingTeamId}
+            onEditTeam={dynastyCtl.editTeamName}
             setScreen={(s) => {
               setScreen(s)
               if (s !== 'teamDetail') {
@@ -319,9 +438,10 @@ function App() {
         )}
 
         {screen === 'conferenceTournaments' && (
-          <ConferenceTournamentsScreen 
+          <ConferenceTournamentsScreen
             dynasty={activeSave!}
             setScreen={setScreen}
+            onLoad2026Bracket={handleLoad2026Bracket}
             onGenerateTournaments={async () => {
               const updated = await dynastyCtl.handleGenerateConferenceTournaments()
               if (updated) {

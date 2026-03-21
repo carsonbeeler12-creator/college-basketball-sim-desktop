@@ -219,14 +219,16 @@ interface Props {
   onGenerateTournaments: () => Promise<void>
   onSimulateRound: (round: string) => Promise<void>
   onAdvanceToNationalSelection: () => Promise<void>
+  onLoad2026Bracket?: () => Promise<void>
   setScreen?: (screen: any) => void
 }
 
-export function ConferenceTournamentsScreen({ 
-  dynasty, 
-  onGenerateTournaments, 
+export function ConferenceTournamentsScreen({
+  dynasty,
+  onGenerateTournaments,
   onSimulateRound,
   onAdvanceToNationalSelection,
+  onLoad2026Bracket,
   setScreen
 }: Props) {
   const { conferenceTournaments } = dynasty.league
@@ -283,6 +285,25 @@ export function ConferenceTournamentsScreen({
           <p style={{ marginBottom: '1rem', color: '#888' }}>
             Regular season is complete! Generate conference tournament brackets to begin.
           </p>
+          {onLoad2026Bracket && (
+            <button
+              onClick={onLoad2026Bracket}
+              style={{
+                padding: '0.75rem 1.5rem',
+                fontSize: '1rem',
+                backgroundColor: '#ff8c00',
+                color: 'white',
+                border: 'none',
+                borderRadius: '6px',
+                cursor: 'pointer',
+                fontWeight: 'bold',
+                marginRight: '0.5rem',
+                marginBottom: '0.5rem'
+              }}
+            >
+              Load 2026 Bracket
+            </button>
+          )}
           <button
             onClick={onGenerateTournaments}
             style={{
@@ -471,7 +492,25 @@ export function ConferenceTournamentsScreen({
             </div>
             
             {allComplete && (
-              <div style={{ padding: '1rem', borderTop: '1px solid #333' }}>
+              <div style={{ padding: '1rem', borderTop: '1px solid #333', display: 'flex', flexDirection: 'column', gap: '0.5rem' }}>
+                {onLoad2026Bracket && (
+                  <button
+                    onClick={onLoad2026Bracket}
+                    style={{
+                      width: '100%',
+                      padding: '0.75rem',
+                      backgroundColor: '#ff8c00',
+                      color: 'white',
+                      border: 'none',
+                      borderRadius: '6px',
+                      cursor: 'pointer',
+                      fontWeight: 'bold',
+                      fontSize: '0.9rem'
+                    }}
+                  >
+                    🎬 Load 2026 Bracket
+                  </button>
+                )}
                 <button
                   onClick={onAdvanceToNationalSelection}
                   style={{

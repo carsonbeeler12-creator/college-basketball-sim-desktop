@@ -1,4 +1,4 @@
-import { ID, WorldPhase } from '../../game/types/dynasty'
+import type { Dynasty, ID, WorldPhase } from '../../game/types/dynasty'
 import { TEAMS } from '../../game/defaultData'
 
 export function fmtHeight(inches: number): string {
@@ -7,7 +7,10 @@ export function fmtHeight(inches: number): string {
   return `${ft}'${inch}"`
 }
 
-export function teamName(teamId: ID): string {
+/** Display name: uses dynasty `teamsById` when provided (custom renames), else TEAMS. */
+export function teamName(teamId: ID, dynasty?: Dynasty | null): string {
+  const fromSave = dynasty?.league?.teamsById?.[teamId]?.name
+  if (typeof fromSave === 'string' && fromSave.trim() !== '') return fromSave
   return TEAMS.find(t => t.id === teamId)?.name ?? String(teamId)
 }
 

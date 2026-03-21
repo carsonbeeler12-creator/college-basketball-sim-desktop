@@ -104,7 +104,9 @@ export function RankingsScreen(props: {
                   {rank}
                 </div>
                 <div className="rankingsTeamInfo">
-                  <div className="rankingsTeamName">{teamData.team.name}</div>
+                  <div className="rankingsTeamName">
+                    {activeSave.league.teamsById[teamData.teamId]?.name ?? teamData.team.name}
+                  </div>
                   <div className="rankingsTeamRecord">{teamData.wins}-{teamData.losses}</div>
                 </div>
                 <div className="rankingsOverall">

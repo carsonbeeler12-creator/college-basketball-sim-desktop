@@ -1,11 +1,7 @@
-import { TEAMS } from '../../game/defaultData'
-import { formatGameDayShort } from '../utils/format'
+import { getTournamentOutlookLabel } from '../../game/utils/tournamentOutlook'
+import { formatGameDayShort, teamName } from '../utils/format'
 import type { Dynasty, GameState } from '../../game/types/dynasty'
 import type { Screen } from '../../game/types'
-
-function teamName(teamId: string) {
-  return TEAMS.find(t => t.id === teamId)?.name ?? teamId
-}
 
 export function SimResultsScreen(props: {
   activeSave: Dynasty | null
@@ -42,13 +38,7 @@ export function SimResultsScreen(props: {
 
                 if (totalGames === 0 && rating == null) return null
 
-                const outlook = (() => {
-                  if (rating == null) return null
-                  if (rating >= 80) return 'Tournament lock'
-                  if (rating >= 70) return 'Strong position'
-                  if (rating >= 60) return 'On the bubble'
-                  return 'Longshot'
-                })()
+                const outlook = getTournamentOutlookLabel(wins, losses, rating)
 
                 return (
                   <div className="simRecordMeta">
@@ -57,13 +47,12 @@ export function SimResultsScreen(props: {
                         Record: {wins}-{losses}
                       </span>
                     )}
-                    {rating != null && <span className="simMetaDivider">•</span>}
-                    {rating != null && (
-                      <span>
-                        Team Rating: {rating}
-                        {outlook && <span className="simOutlookTag"> {outlook}</span>}
-                      </span>
-                    )}
+                    {(rating != null || totalGames > 0) && <span className="simMetaDivider">•</span>}
+                    <span>
+                      {rating != null && <>Team Rating: {rating}</>}
+                      {rating != null && outlook && ' · '}
+                      {outlook && <span className="simOutlookTag">{outlook}</span>}
+                    </span>
                   </div>
                 )
               })()}
@@ -84,7 +73,7 @@ export function SimResultsScreen(props: {
             {recentGames.map(g => (
               <button key={g.gameId} className="listRow" onClick={() => onOpenGame(g.gameId)}>
                 <div className="listRowTitle">
-                  {formatGameDayShort(g.day, activeSave?.world.seasonYear ?? 2026)}: {teamName(g.awayTeamId)} @ {teamName(g.homeTeamId)}
+                  {formatGameDayShort(g.day, activeSave?.world.seasonYear ?? 2026)}: {teamName(g.awayTeamId, activeSave)} @ {teamName(g.homeTeamId, activeSave)}
                 </div>
                 <div className="listRowSub">Final: {g.result?.awayScore}–{g.result?.homeScore}</div>
               </button>

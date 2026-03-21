@@ -891,7 +891,7 @@ export function RecruitingScreen(props: {
                   ✓ COMMITTED
                 </div>
                 <div style={{ fontSize: '14px', color: 'var(--text)' }}>
-                  {selectedRecruit.firstName} {selectedRecruit.lastName} has committed to {teamName(userTeamId)}
+                  {selectedRecruit.firstName} {selectedRecruit.lastName} has committed to {teamName(userTeamId, activeSave)}
                 </div>
               </div>
             )}
@@ -910,7 +910,7 @@ export function RecruitingScreen(props: {
                   ✗ COMMITTED ELSEWHERE
                 </div>
                 <div style={{ fontSize: '14px', color: 'var(--text)' }}>
-                  {selectedRecruit.firstName} {selectedRecruit.lastName} has committed to {teamName(selectedRecruit.committedToTeamId)}
+                  {selectedRecruit.firstName} {selectedRecruit.lastName} has committed to {teamName(selectedRecruit.committedToTeamId, activeSave)}
                 </div>
                 <div style={{ fontSize: '13px', color: 'var(--muted)', marginTop: 8 }}>
                   You can no longer recruit this player. They will be removed from your board.
@@ -998,7 +998,7 @@ export function RecruitingScreen(props: {
                   }}>
                     <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: 6 }}>
                       <div style={{ fontWeight: 600, fontSize: '15px' }}>
-                        {teamName(userTeamId)}
+                        {teamName(userTeamId, activeSave)}
                       </div>
                       {userProgress > 0 && competition.length > 0 && userProgress >= (competition[0]?.progress ?? 0) && (
                         <span style={{ 
@@ -1042,7 +1042,7 @@ export function RecruitingScreen(props: {
                     >
                       <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
                         <div style={{ fontSize: '14px', fontWeight: 500 }}>
-                          {idx + 1}. {teamName(comp.teamId)}
+                          {idx + 1}. {teamName(comp.teamId, activeSave)}
                         </div>
                         <div style={{ fontSize: '14px', color: 'var(--muted)' }}>
                           Interest: {comp.progress}%

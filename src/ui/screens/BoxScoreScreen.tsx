@@ -1,5 +1,5 @@
 import { TEAMS } from '../../game/defaultData'
-import { formatGameDay } from '../utils/format'
+import { formatGameDay, teamName as resolveTeamName } from '../utils/format'
 import { getSchemeName } from '../../game/engine/schemes/schemeDefinitions'
 import type { Dynasty, GameState, ID } from '../../game/types/dynasty'
 import type { Screen } from '../../game/types'
@@ -16,10 +16,6 @@ const TEAM_COLORS = [
 
 function getTeamColor(teamIndex: number): string {
   return TEAM_COLORS[teamIndex % TEAM_COLORS.length]
-}
-
-function teamName(teamId: string) {
-  return TEAMS.find(t => t.id === teamId)?.name ?? teamId
 }
 
 function playerName(save: Dynasty, playerId: ID) {
@@ -57,7 +53,7 @@ export function BoxScoreScreen(props: {
               </button>
             </div>
             <div className="cardText muted">
-              {formatGameDay(activeGame.day, activeSave.world.seasonYear)} • {teamName(activeGame.awayTeamId)} @ {teamName(activeGame.homeTeamId)} • Final{' '}
+              {formatGameDay(activeGame.day, activeSave.world.seasonYear)} • {resolveTeamName(activeGame.awayTeamId, activeSave)} @ {resolveTeamName(activeGame.homeTeamId, activeSave)} • Final{' '}
               {activeGame.result.awayScore}–{activeGame.result.homeScore}
             </div>
           </div>
@@ -92,7 +88,7 @@ export function BoxScoreScreen(props: {
                   <div className="boxScoreTeamHeader">
                     <div>
                       <div className="boxScoreTeamName" style={{ color: teamColor }}>
-                        {teamName(teamId)}
+                        {resolveTeamName(teamId, activeSave)}
                       </div>
                       {schemeLabel && (
                         <div className="boxScoreSchemeLabel">
